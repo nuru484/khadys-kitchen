@@ -1,0 +1,210 @@
+"use client";
+
+import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { ADMIN_NAV, routeMeta } from "@/lib/admin/nav";
+import { AdminProvider } from "@/lib/admin/store";
+
+function Wordmark({ light }: { light?: boolean }) {
+  return (
+    <span className={cn("font-serif text-[22px]", light && "text-cream")}>
+      Khady&rsquo;s{" "}
+      <span className="font-sans text-[20px] font-light italic">Kitchen</span>
+    </span>
+  );
+}
+
+function Sidebar({ pathname }: { pathname: string }) {
+  return (
+    <aside className="sticky top-0 hidden h-screen w-[250px] flex-none flex-col bg-ink text-cream min-[1000px]:flex">
+      <div className="border-b border-cream/15 px-[26px] pb-[22px] pt-[26px]">
+        <Wordmark />
+        <div className="mt-1.5 text-[11.5px] font-semibold uppercase tracking-[0.18em] text-accent-2">
+          Admin console
+        </div>
+      </div>
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-[14px_14px]">
+        {ADMIN_NAV.map((n) => {
+          const active = n.isActive(pathname);
+          return (
+            <Link
+              key={n.href}
+              href={n.href}
+              className={cn(
+                "flex items-center gap-3 rounded-[12px] px-3.5 py-3 text-[14.5px] font-semibold no-underline transition-colors",
+                active
+                  ? "bg-cream/10 text-cream"
+                  : "text-cream/65 hover:bg-cream/10 hover:text-cream",
+              )}
+            >
+              <span
+                className={cn(
+                  "min-w-[18px] font-serif text-[12px] tracking-[0.1em]",
+                  active ? "text-accent-2" : "text-cream/40",
+                )}
+              >
+                {n.num}
+              </span>
+              {n.label}
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="grid gap-3 border-t border-cream/15 px-5 py-[18px]">
+        <div className="flex items-center gap-3">
+          <span className="grid h-[38px] w-[38px] place-items-center rounded-full bg-accent font-serif text-[15px] text-[#FDFAF3]">
+            KA
+          </span>
+          <div>
+            <div className="text-[14px] font-semibold">Khady Asante</div>
+            <div className="text-[12px] text-cream/55">Owner · Admin</div>
+          </div>
+        </div>
+        <Link
+          href="/"
+          className="text-[13px] text-cream/65 no-underline transition-colors hover:text-cream"
+        >
+          ← Back to site
+        </Link>
+      </div>
+    </aside>
+  );
+}
+
+function MobileMenu({
+  open,
+  onClose,
+  pathname,
+}: {
+  open: boolean;
+  onClose: () => void;
+  pathname: string;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] flex flex-col bg-ink text-cream"
+      style={{ animation: "kk-fadein .3s both" }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Admin menu"
+    >
+      <div className="flex items-center justify-between border-b border-cream/15 px-[clamp(18px,5vw,32px)] py-4">
+        <div>
+          <Wordmark />
+          <span className="mt-[3px] block text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-2">
+            Admin console
+          </span>
+        </div>
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={onClose}
+          className="grid h-11 w-11 cursor-pointer place-items-center rounded-full border-[1.5px] border-cream/35 bg-transparent text-[17px] text-cream transition-colors hover:border-cream"
+        >
+          ✕
+        </button>
+      </div>
+      <nav className="flex flex-1 flex-col justify-center gap-0.5 px-[clamp(22px,7vw,48px)] py-6">
+        {ADMIN_NAV.map((n) => {
+          const active = n.isActive(pathname);
+          return (
+            <Link
+              key={n.href}
+              href={n.href}
+              onClick={onClose}
+              className={cn(
+                "flex items-baseline gap-3.5 py-1.5 font-serif text-[clamp(26px,7vw,36px)] leading-[1.3] no-underline",
+                active ? "text-accent-2" : "text-cream",
+              )}
+            >
+              <span className="font-sans text-[12px] tracking-[0.15em] text-accent-2">
+                {n.num}
+              </span>
+              {n.label}
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="border-t border-cream/15 px-[clamp(22px,7vw,48px)] pb-9 pt-5">
+        <Link
+          href="/"
+          onClick={onClose}
+          className="text-[14px] text-cream/65 no-underline transition-colors hover:text-cream"
+        >
+          ← Back to site
+        </Link>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+export function AdminShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { crumb, title } = routeMeta(pathname);
+
+  return (
+    <AdminProvider>
+      <div className="flex min-h-screen bg-cream text-ink">
+        <Sidebar pathname={pathname} />
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-40 flex items-center justify-between gap-3.5 border-b border-ink/10 bg-cream/95 px-[clamp(18px,3.5vw,36px)] py-4 backdrop-blur-[8px]">
+            <div className="flex min-w-0 items-center gap-3.5">
+              <button
+                type="button"
+                aria-label="Open menu"
+                onClick={() => setMenuOpen(true)}
+                className="grid h-11 w-11 flex-none cursor-pointer place-items-center rounded-full border-[1.5px] border-ink/[0.28] bg-transparent transition-colors hover:border-accent min-[1000px]:hidden"
+              >
+                <span className="grid gap-[5px]">
+                  <span className="block h-0.5 w-[18px] rounded-sm bg-ink" />
+                  <span className="block h-0.5 w-[18px] rounded-sm bg-ink" />
+                </span>
+              </button>
+              <div className="min-w-0">
+                <div className="text-[11.5px] font-semibold uppercase tracking-[0.18em] text-accent">
+                  {crumb}
+                </div>
+                <h1 className="mt-0.5 truncate font-serif text-[clamp(20px,2.4vw,26px)] font-normal">
+                  {title}
+                </h1>
+              </div>
+            </div>
+            <span className="hidden whitespace-nowrap text-[12.5px] text-ink/55 min-[1000px]:inline">
+              Sat 5 Jul 2026
+            </span>
+          </header>
+
+          <MobileMenu
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            pathname={pathname}
+          />
+
+          <main className="mx-auto w-full max-w-[1180px] flex-1 p-[clamp(20px,3.5vw,36px)]">
+            {children}
+          </main>
+        </div>
+      </div>
+    </AdminProvider>
+  );
+}
