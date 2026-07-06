@@ -27,10 +27,29 @@ export const authApi = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled;
           // A 2FA challenge is not a session - only store a real user.
           if (!isTwoFactorChallenge(data.data)) {
-            dispatch(userLoggedIn({ user: data.data }));
+            dispatch(userLoggedIn({ user: data.data.user }));
           }
         } catch {
           // Surfaced to the caller via `unwrap()`.
+        }
+      },
+    }),
+
+    /**
+     * The authoritative session check: `GET /auth/me` returns the current user
+     * for a valid access cookie (a 401 falls through the api-slice's silent
+     * refresh first). The admin guard uses it to validate the session on load
+     * rather than trusting the optimistic, localStorage-persisted user. On
+     * success we refresh the stored user; on failure we clear it (fail-closed).
+     */
+    getMe: builder.query<IUserResponse, void>({
+      query: () => ({ url: "auth/me", method: "GET" }),
+      async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(userLoggedIn({ user: data.data.user }));
+        } catch {
+          dispatch(userLoggedOut());
         }
       },
     }),
@@ -41,7 +60,7 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(userLoggedIn({ user: data.data }));
+          dispatch(userLoggedIn({ user: data.data.user }));
         } catch {
           // Surfaced to the caller via `unwrap()`.
         }
@@ -66,7 +85,7 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(userLoggedIn({ user: data.data }));
+          dispatch(userLoggedIn({ user: data.data.user }));
         } catch {
           // Surfaced to the caller via `unwrap()`.
         }
@@ -78,7 +97,7 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(userLoggedIn({ user: data.data }));
+          dispatch(userLoggedIn({ user: data.data.user }));
         } catch {
           // Surfaced to the caller via `unwrap()`.
         }
@@ -110,6 +129,7 @@ export const authApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useGetMeQuery,
   useLoginMutation,
   useVerifyTwoFactorMutation,
   useResendTwoFactorCodeMutation,

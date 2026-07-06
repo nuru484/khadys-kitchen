@@ -21,8 +21,12 @@ export interface IUser {
   twoFactorEnabled: boolean;
 }
 
-/** Standard success envelope carrying a single user: `{ message, data }`. */
+/**
+ * Standard success envelope carrying a single user. Mirrors the backend
+ * `sendSuccess({ user })` shape exactly: `{ message, data: { user } }`
+ * (login, 2FA verify/confirm/disable, refresh-token, and `/auth/me` all use it).
+ */
 export interface IUserResponse {
   message: string;
-  data: IUser;
+  data: { user: IUser };
 }

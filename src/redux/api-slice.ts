@@ -7,7 +7,7 @@ import type {
 import { Mutex } from "async-mutex";
 import { env } from "@/lib/env";
 import { apiSliceTags } from "@/types/api";
-import type { IUser, IUserResponse } from "@/types/user.types";
+import type { IUserResponse } from "@/types/user.types";
 import { userLoggedIn, userLoggedOut } from "./auth/auth-slice";
 
 // A single in-flight refresh at a time: concurrent 401s wait on this mutex
@@ -40,7 +40,7 @@ const baseQueryWithReauth: BaseQueryFn<
         )) as { data?: IUserResponse; error?: unknown };
 
         if (refreshResult.data) {
-          api.dispatch(userLoggedIn({ user: refreshResult.data.data as IUser }));
+          api.dispatch(userLoggedIn({ user: refreshResult.data.data.user }));
           result = await baseQuery(args, api, extraOptions); // retry original
         } else {
           api.dispatch(userLoggedOut()); // refresh failed → end the session
@@ -73,7 +73,7 @@ export const apiSlice = createApi({
       async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(userLoggedIn({ user: data.data }));
+          dispatch(userLoggedIn({ user: data.data.user }));
         } catch {
           dispatch(userLoggedOut());
         }

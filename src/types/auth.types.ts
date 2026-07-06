@@ -11,16 +11,17 @@ export interface IUserLoginInput {
  * httpOnly cookie (10 min) that bridges the login step to the verify step, so
  * the verify call carries no user identifier in its body.
  *
- * NOTE: the exact challenge shape is inferred from the backend's intended
- * contract (the endpoints don't exist yet). Align this once they ship.
+ * Mirrors the backend `login` controller's challenge branch exactly:
+ * `data: { requiresTwoFactor: true, email }` where `email` is masked (k***@mail.com).
  */
 export interface ITwoFactorChallenge {
-  twoFactorRequired: true;
+  requiresTwoFactor: true;
   /** Masked destination the code was sent to, for display (e.g. k***@mail.com). */
-  email?: string;
+  email: string;
 }
 
-export type LoginData = IUser | ITwoFactorChallenge;
+/** Login `data` is either a wrapped session user or a 2FA challenge. */
+export type LoginData = { user: IUser } | ITwoFactorChallenge;
 
 /** Login response envelope - `data` is either a session user or a 2FA challenge. */
 export interface ILoginResponse {
@@ -32,7 +33,7 @@ export interface ILoginResponse {
 export function isTwoFactorChallenge(
   data: LoginData,
 ): data is ITwoFactorChallenge {
-  return (data as ITwoFactorChallenge).twoFactorRequired === true;
+  return (data as ITwoFactorChallenge).requiresTwoFactor === true;
 }
 
 export interface ITwoFactorVerifyInput {
