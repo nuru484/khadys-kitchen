@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,30 +16,55 @@ import { ProfileAvatar } from "@/components/admin/profile-avatar";
 const schema = z.object({
   firstName: z.string().trim().min(1, "Required").max(50),
   lastName: z.string().trim().min(1, "Required").max(50),
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (v.length >= 6 && v.length <= 20), {
+      message: "Enter a valid phone number",
+    }),
 });
 type Values = z.infer<typeof schema>;
 
+const roleLabel = (role: string) =>
+  role === "SUPER_ADMIN"
+    ? "Super admin"
+    : role.charAt(0) + role.slice(1).toLowerCase();
+
+/** Profile — read-only until "Edit" activates the inputs. */
 export default function ProfilePage() {
   const user = useCurrentUser();
+  const [editing, setEditing] = useState(false);
   const [updateMe, { isLoading }] = useUpdateMeMutation();
 
   const {
     register,
     handleSubmit,
+    reset,
     setError,
     formState: { errors },
   } = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: {
+    values: {
       firstName: user?.firstName ?? "",
       lastName: user?.lastName ?? "",
+      phone: user?.phone ?? "",
     },
   });
 
+  const stopEditing = () => {
+    reset();
+    setEditing(false);
+  };
+
   const onSubmit = async (values: Values) => {
     try {
-      await updateMe(values).unwrap();
+      await updateMe({
+        firstName: values.firstName,
+        lastName: values.lastName,
+        phone: values.phone.trim() || null,
+      }).unwrap();
       notify.success("Profile updated");
+      setEditing(false);
     } catch (err) {
       const { message, fieldErrors, hasFieldErrors } = extractApiError(err);
       if (hasFieldErrors && fieldErrors) {
@@ -50,45 +76,78 @@ export default function ProfilePage() {
     }
   };
 
+  const info: [string, string][] = [
+    ["Name", `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() || "—"],
+    ["Email", user?.email ?? "—"],
+    ["Phone", user?.phone ?? "—"],
+    ["Role", user ? roleLabel(user.role) : "—"],
+    ["Two-factor", user?.twoFactorEnabled ? "Enabled" : "Off"],
+  ];
+
   return (
     <div style={{ animation: "kk-rise .5s both" }} className="max-w-[640px]">
       <Card className="p-[clamp(20px,3vw,28px)]">
-        <h2 className="mb-1 font-serif text-[20px]">Your profile</h2>
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-serif text-[20px]">Your profile</h2>
+          {editing ? null : (
+            <Button size="sm" onClick={() => setEditing(true)}>
+              Edit
+            </Button>
+          )}
+        </div>
         <p className="mb-5 text-[14px] text-ink/55">
-          Update your photo and name. Email and role are managed by the system.
+          {editing
+            ? "Update your photo, name and phone. Email and role are managed by the system."
+            : "Your account details. Click Edit to make changes."}
         </p>
         <div className="mb-6 border-b border-ink/10 pb-6">
           <ProfileAvatar user={user} />
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-[18px]">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[18px]">
+
+        {editing ? (
+          <form
+            onSubmit={(e) => void handleSubmit(onSubmit)(e)}
+            noValidate
+            className="grid gap-[18px]"
+          >
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[18px]">
+              <TextField
+                label="First name"
+                error={errors.firstName?.message}
+                {...register("firstName")}
+              />
+              <TextField
+                label="Last name"
+                error={errors.lastName?.message}
+                {...register("lastName")}
+              />
+            </div>
             <TextField
-              label="First name"
-              error={errors.firstName?.message}
-              {...register("firstName")}
+              label="Phone"
+              placeholder="+233 24 000 0000"
+              error={errors.phone?.message}
+              {...register("phone")}
             />
-            <TextField
-              label="Last name"
-              error={errors.lastName?.message}
-              {...register("lastName")}
-            />
+            <TextField label="Email" value={user?.email ?? ""} readOnly />
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={stopEditing}>
+                Cancel
+              </Button>
+              <Button type="submit" isLoading={isLoading} loadingText="Saving…">
+                Save changes
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <div className="grid gap-2.5">
+            {info.map(([label, value]) => (
+              <div key={label} className="flex justify-between gap-4 text-[14px]">
+                <span className="text-ink/55">{label}</span>
+                <span className="font-medium text-ink">{value}</span>
+              </div>
+            ))}
           </div>
-          <TextField label="Email" value={user?.email ?? ""} readOnly />
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[18px]">
-            <TextField
-              label="Role"
-              value={user?.role ?? ""}
-              readOnly
-              className="capitalize"
-            />
-            <TextField label="Phone" value={user?.phone ?? "—"} readOnly />
-          </div>
-          <div className="flex justify-end">
-            <Button type="submit" isLoading={isLoading} loadingText="Saving…">
-              Save changes
-            </Button>
-          </div>
-        </form>
+        )}
       </Card>
     </div>
   );

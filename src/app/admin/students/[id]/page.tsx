@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/admin/ui";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { RippleLoader } from "@/components/ui/Loader";
 import { useConfirm } from "@/components/admin/use-confirm";
+import { EditStudentModal } from "@/components/admin/edit-student-modal";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { formatMoney } from "@/lib/format-money";
@@ -22,6 +24,7 @@ import {
 export default function StudentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const [editing, setEditing] = useState(false);
   const { data, isLoading, isError, error, refetch } = useGetStudentByIdQuery(id);
   const { data: pay } = useGetStudentPaymentsQuery(id);
   const [setStatus, { isLoading: statusBusy }] = useSetStudentStatusMutation();
@@ -97,6 +100,9 @@ export default function StudentDetailPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2.5">
+          <Button variant="outline" onClick={() => setEditing(true)}>
+            Edit
+          </Button>
           {student.status !== "ACTIVE" ? (
             <Button
               variant="outline"
@@ -225,6 +231,9 @@ export default function StudentDetailPage() {
         </Card>
       </div>
 
+      {editing ? (
+        <EditStudentModal student={student} onClose={() => setEditing(false)} />
+      ) : null}
       {dialog}
     </div>
   );

@@ -158,7 +158,7 @@ export default function ItemsPage() {
                   {rows.map((p) => (
                     <tr
                       key={p.id}
-                      onClick={() => router.push(`/admin/items/${p.id}/edit`)}
+                      onClick={() => router.push(`/admin/items/${p.id}`)}
                       className="cursor-pointer border-b border-ink/[0.08] transition-colors last:border-0 hover:bg-accent/[0.05]"
                     >
                       <td className="px-6 py-3.5">
