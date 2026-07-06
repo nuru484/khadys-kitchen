@@ -27,7 +27,7 @@ export function ApplyContent() {
 
   if (isError || !training) {
     return (
-      <div className="mx-auto grid min-h-[62vh] max-w-[600px] place-items-center px-[clamp(20px,5vw,48px)]">
+      <div className="mx-auto grid min-h-[80vh] max-w-[600px] place-items-center px-[clamp(20px,5vw,48px)] py-[clamp(72px,12vw,160px)]">
         <EmptyState
           eyebrow="Khady’s Bake School · Kumasi"
           title="No cohort is open just yet"
