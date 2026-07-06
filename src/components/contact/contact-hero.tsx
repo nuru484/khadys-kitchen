@@ -1,6 +1,6 @@
 export function ContactHero() {
   return (
-    <section className="mx-auto max-w-[1280px] px-[clamp(20px,5vw,48px)] pb-[clamp(24px,3vw,40px)] pt-[clamp(56px,8vw,96px)] lg:pl-6">
+    <section className="mx-auto max-w-[1280px] px-[clamp(20px,5vw,48px)] pb-[clamp(24px,3vw,40px)] pt-[clamp(56px,8vw,96px)]">
       <p
         className="mb-4 text-[13px] font-semibold uppercase tracking-[0.22em] text-accent"
         style={{ animation: "kk-fadein .8s .1s both" }}
@@ -30,8 +30,8 @@ export function ContactHero() {
         className="max-w-[52ch] text-[clamp(16px,1.4vw,18px)] leading-[1.65] text-ink/80"
         style={{ animation: "kk-fadein .8s .5s both" }}
       >
-        Orders, custom cakes, class enrolment or anything else - WhatsApp is
-        quickest, but every channel below reaches a human.
+        Orders, custom cakes or class questions - WhatsApp is the fastest way to
+        reach a real person, but every channel below reaches us too.
       </p>
     </section>
   );
