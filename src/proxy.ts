@@ -2,25 +2,23 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Next.js Proxy (formerly Middleware) - the server-side gate for the admin
- * console. It runs before the route renders, so an unauthenticated visitor is
- * redirected to /login and the admin bundle is never sent to their browser.
+ * Next.js Proxy (formerly Middleware) - the first, cheap gate for the admin
+ * console. A visitor with no `refreshToken` cookie can't have a session, so
+ * redirect them to /login before the admin bundle is ever sent.
  *
- * The check is presence-only: the backend sets the httpOnly `refreshToken`
- * cookie (7-day session anchor) which we can read here but not forge. A present
- * cookie lets the request through; the real session validation then happens
- * client-side in `RequireAuth`, which calls `GET /auth/me` before the console
- * renders. A stale or tampered cookie passes this cheap gate but fails that
- * check (and every data call), where the reauth flow logs the user out.
+ * The gate is deliberately one-directional and presence-only. A *present*
+ * cookie is NOT proof of a live session (it can be stale — e.g. a reset DB), so
+ * we must NOT also redirect cookie-bearing visitors away from /login: that would
+ * fight `RequireAuth`, which does the real `GET /auth/me` validation and, on
+ * failure, clears the cookie and returns to /login. Bouncing both ways on cookie
+ * presence loops. So /login is left alone here and RequireAuth is the authority.
  */
 const SESSION_COOKIE = "refreshToken";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const hasSession = request.cookies.has(SESSION_COOKIE);
 
-  // Guard the admin console.
-  if (pathname.startsWith("/admin") && !hasSession) {
+  if (pathname.startsWith("/admin") && !request.cookies.has(SESSION_COOKIE)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
@@ -28,17 +26,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Signed-in users have no business on the login screen.
-  if (pathname === "/login" && hasSession) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin";
-    url.search = "";
-    return NextResponse.redirect(url);
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: ["/admin/:path*"],
 };

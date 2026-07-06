@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/Spinner";
-import { useGetMeQuery } from "@/redux/auth/auth-api";
+import { useGetMeQuery, useLogoutMutation } from "@/redux/auth/auth-api";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 /**
@@ -22,12 +22,24 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const cachedUser = useCurrentUser();
   const { data, isError } = useGetMeQuery();
+  const [logout] = useLogoutMutation();
+  const handled = useRef(false);
 
   useEffect(() => {
-    if (isError) {
-      router.replace(`/login?from=${encodeURIComponent(pathname)}`);
+    if (isError && !handled.current) {
+      handled.current = true;
+      // The session is invalid (commonly a stale cookie from a reset DB). Clear
+      // the httpOnly cookies server-side so the proxy's gate no longer treats
+      // this as a session, then land on sign-in. Redirect regardless of the
+      // logout result so a backend hiccup can't strand us on a spinner.
+      logout()
+        .unwrap()
+        .catch(() => {})
+        .finally(() => {
+          router.replace(`/login?from=${encodeURIComponent(pathname)}`);
+        });
     }
-  }, [isError, pathname, router]);
+  }, [isError, logout, pathname, router]);
 
   // Once the check has failed, hold the loading screen while the redirect fires.
   // (getMe's onQueryStarted also clears the persisted user, so `cachedUser` is
