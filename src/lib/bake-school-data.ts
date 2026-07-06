@@ -33,7 +33,7 @@ export const bakes: Bake[] = [
     name: "Celebration Cake",
     price: "from GHS 350",
     href: shopProduct("celebration-cake"),
-    desc: "Khady's signature layer cakes — made to order for birthdays and weddings.",
+    desc: "Khady's signature layer cakes - made to order for birthdays and weddings.",
     img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=900&q=80&auto=format&fit=crop",
   },
 ];
@@ -66,7 +66,7 @@ export const fees: Fee[] = [
   {
     num: "2",
     name: "Hostel fee",
-    note: "Optional. Indicate early — the hostel can take only 12 students.",
+    note: "Optional. Indicate early - the hostel can take only 12 students.",
     price: "GHS 700",
     suffix: "for 2 months",
   },
@@ -79,7 +79,7 @@ export const fees: Fee[] = [
   {
     num: "4",
     name: "95% of ingredients provided",
-    note: "We bake and do practicals every week — and after every practical, you take your cake home.",
+    note: "We bake and do practicals every week - and after every practical, you take your cake home.",
     price: "GHS 2,900",
     suffix: "each",
   },
@@ -93,13 +93,13 @@ export const fees: Fee[] = [
     num: "6",
     name: "Your 5% of ingredients",
     note: "Margarine, your cake box, cake board and icing sugar. All remaining ingredients are provided.",
-    price: "—",
+    price: "-",
   },
   {
     num: "7",
     name: "Your 5% of tools",
     note: "Hand mixer, extension board, napkin and tissue.",
-    price: "—",
+    price: "-",
   },
 ];
 

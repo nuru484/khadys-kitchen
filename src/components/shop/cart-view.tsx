@@ -54,13 +54,13 @@ export function CartView() {
   const checkout = () => {
     if (!needDate) {
       setOrderError(
-        "Please choose the date you need your order — every bake is made custom.",
+        "Please choose the date you need your order - every bake is made custom.",
       );
       return;
     }
     if (needDate < minDate) {
       setOrderError(
-        `That date is too soon — the longest bake in your order needs ${maxLead} day${maxLead > 1 ? "s" : ""}. Earliest is ${minDate}.`,
+        `That date is too soon - the longest bake in your order needs ${maxLead} day${maxLead > 1 ? "s" : ""}. Earliest is ${minDate}.`,
       );
       return;
     }
@@ -95,13 +95,13 @@ export function CartView() {
             ✓
           </div>
           <h1 className="mb-3 font-serif text-[clamp(26px,3vw,34px)] font-normal">
-            Order received — it&rsquo;s in the queue.
+            Order received - it&rsquo;s in the queue.
           </h1>
           <p className="mb-2 text-[16px] leading-[1.65] text-ink/70">
             {doneSummary}
           </p>
           <p className="mb-7 text-[14.5px] text-ink/55">
-            We&rsquo;ll confirm on WhatsApp before we bake. Pay when you collect —
+            We&rsquo;ll confirm on WhatsApp before we bake. Pay when you collect -
             cash or MoMo.
           </p>
           <Link
@@ -137,7 +137,7 @@ export function CartView() {
         className="mb-[clamp(24px,3vw,36px)] text-[15.5px] leading-[1.6] text-ink/65"
         style={{ animation: "kk-fadein .7s .3s both" }}
       >
-        Everything below is baked specifically for you — so we need to know when
+        Everything below is baked specifically for you - so we need to know when
         you need it.
       </p>
 
@@ -149,7 +149,7 @@ export function CartView() {
         <EmptyState
           dashed
           title="Nothing here yet."
-          description="Pick something — we'll bake it fresh for your date."
+          description="Pick something - we'll bake it fresh for your date."
           action={{ label: "Browse the bakes", href: routes.shop }}
         />
       ) : (
@@ -226,7 +226,7 @@ export function CartView() {
                   className="max-w-[260px] rounded-[12px] border-[1.5px] border-ink/20 bg-card px-4 py-[13px] font-sans text-[16px] text-ink outline-none focus:border-accent"
                 />
                 <span className="text-[13px] text-ink/55">
-                  Earliest pickup is {earliestNote} — custom bakes need their time
+                  Earliest pickup is {earliestNote} - custom bakes need their time
                   in the oven.
                 </span>
               </div>

@@ -13,7 +13,7 @@ interface MobileNavProps {
 
 /**
  * Hamburger button (shown below the 900px breakpoint by the parent) that opens
- * a full-screen overlay menu — the numbered, animated nav from the design.
+ * a full-screen overlay menu - the numbered, animated nav from the design.
  */
 export function MobileNav({ navLinks, cta, className }: MobileNavProps) {
   const [open, setOpen] = useState(false);

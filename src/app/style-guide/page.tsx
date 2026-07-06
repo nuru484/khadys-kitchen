@@ -65,7 +65,7 @@ export default function StyleGuidePage() {
           UI states &amp; components
         </h1>
         <p className="max-w-[62ch] text-[16.5px] leading-[1.65] text-ink/70">
-          The production states for the site and admin console — loading skeletons,
+          The production states for the site and admin console - loading skeletons,
           empty states, modals, toasts, errors, and system pages. Every specimen is
           a reusable component from <code className="text-accent">@/components/ui</code>.
         </p>
@@ -102,7 +102,7 @@ export default function StyleGuidePage() {
                 dashed
                 glyph="✦"
                 title="Nothing here yet."
-                description="Pick something — we'll bake it fresh for your date."
+                description="Pick something - we'll bake it fresh for your date."
                 action={{ label: "Browse the bakes", href: routes.shop }}
               />
               <div className="mt-2"><Caption>Site · empty cart</Caption></div>
@@ -131,7 +131,7 @@ export default function StyleGuidePage() {
                 glyph="✓"
                 tone="success"
                 title="The queue is clear."
-                description="Every order is baked and collected. Enjoy the quiet — it never lasts."
+                description="Every order is baked and collected. Enjoy the quiet - it never lasts."
                 action={{ label: "View all items", variant: "dark" }}
               />
               <div className="mt-2"><Caption>Admin · no orders today</Caption></div>
@@ -168,7 +168,7 @@ export default function StyleGuidePage() {
             title="Admit Akosua Mensah?"
             description={
               <>
-                She joins Cohort Three (Jul – Aug) and a hostel place will be held —{" "}
+                She joins Cohort Three (Jul - Aug) and a hostel place will be held -{" "}
                 <strong>5 of 12 remain</strong>. She&rsquo;ll be notified on WhatsApp.
               </>
             }
@@ -196,7 +196,7 @@ export default function StyleGuidePage() {
             <h3 className="mb-2 font-serif text-[22px] font-normal">Your order is in the queue</h3>
             <p className="mb-[22px] text-[14.5px] leading-[1.6] text-ink/65">
               Scheduled for <strong>Friday, 10 July</strong>. We&rsquo;ll confirm on
-              WhatsApp before we bake — pay when you collect.
+              WhatsApp before we bake - pay when you collect.
             </p>
             <div className="grid gap-2.5">
               <Button variant="dark" onClick={() => setOrderModal(false)}>
@@ -246,8 +246,8 @@ export default function StyleGuidePage() {
             <div className="grid content-start gap-3.5">
               <OfflineBanner forceVisible />
               <div className="grid gap-4 rounded-[16px] border border-ink/10 bg-card p-5">
-                <TextField label="Phone — error" defaultValue="024 11" error="Enter a full 10-digit number, e.g. 024 111 2233." />
-                <TextField label="Phone — valid" defaultValue="024 111 2233" valid readOnly />
+                <TextField label="Phone - error" defaultValue="024 11" error="Enter a full 10-digit number, e.g. 024 111 2233." />
+                <TextField label="Phone - valid" defaultValue="024 111 2233" valid readOnly />
               </div>
               <Caption>Offline banner · inline validation</Caption>
             </div>
@@ -285,7 +285,7 @@ export default function StyleGuidePage() {
                 tone="dark"
                 glyph="✦"
                 title="Resting the ovens."
-                description="We're doing a little kitchen maintenance. Orders reopen shortly — WhatsApp us if it's urgent."
+                description="We're doing a little kitchen maintenance. Orders reopen shortly - WhatsApp us if it's urgent."
                 actions={[{ label: "Message us on WhatsApp", variant: "primary" }]}
               />
               <div className="mt-2"><Caption>Maintenance mode</Caption></div>

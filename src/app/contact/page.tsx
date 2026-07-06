@@ -9,7 +9,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Contact",
   description:
-    "Reach Khady's Kitchen in Kumasi — WhatsApp, email, or drop by. Orders, custom cakes, and class enrolment all reach a human.",
+    "Reach Khady's Kitchen in Kumasi - WhatsApp, email, or drop by. Orders, custom cakes, and class enrolment all reach a human.",
   path: "/contact",
   keywords: ["contact Khady's Kitchen", "Kumasi bakery contact", "order custom cake Kumasi"],
 });

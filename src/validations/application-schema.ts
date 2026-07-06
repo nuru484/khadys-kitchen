@@ -3,7 +3,7 @@ import { z } from "zod";
 /**
  * Bake School application form.
  *
- * There is no backend contract to mirror yet — this is a marketing lead form —
+ * There is no backend contract to mirror yet - this is a marketing lead form -
  * so the rules match the design's own validation: only name and phone are
  * required, everything else is optional. The shared copy is surfaced in a
  * single error banner, matching the design.

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { extractApiError } from "@/lib/extract-api-error";
 
 export interface ErrorStateProps {
-  /** Any error — normalized into a message. Ignored if `description` is set. */
+  /** Any error - normalized into a message. Ignored if `description` is set. */
   error?: unknown;
   title?: string;
   description?: string;

@@ -6,7 +6,7 @@ export interface IUserLoginInput {
 }
 
 /**
- * A 2FA challenge — login returns this *instead of* a user when the account has
+ * A 2FA challenge - login returns this *instead of* a user when the account has
  * two-factor enabled. The backend also sets a short-lived `twoFactorPending`
  * httpOnly cookie (10 min) that bridges the login step to the verify step, so
  * the verify call carries no user identifier in its body.
@@ -22,7 +22,7 @@ export interface ITwoFactorChallenge {
 
 export type LoginData = IUser | ITwoFactorChallenge;
 
-/** Login response envelope — `data` is either a session user or a 2FA challenge. */
+/** Login response envelope - `data` is either a session user or a 2FA challenge. */
 export interface ILoginResponse {
   message: string;
   data: LoginData;

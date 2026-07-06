@@ -29,7 +29,7 @@ export function OfflineBanner({ forceVisible }: { forceVisible?: boolean }) {
     >
       <span className="h-[9px] w-[9px] flex-none rounded-full bg-[#D9A441]" aria-hidden="true" />
       <span className="flex-1 text-[13.5px]">
-        You&rsquo;re offline — showing saved data. We&rsquo;ll reconnect automatically.
+        You&rsquo;re offline - showing saved data. We&rsquo;ll reconnect automatically.
       </span>
     </div>
   );

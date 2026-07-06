@@ -37,7 +37,7 @@ export interface ButtonProps
 }
 
 /**
- * Brand button with the design's states — default, loading (spinner), disabled,
+ * Brand button with the design's states - default, loading (spinner), disabled,
  * and a `success` variant. Loading forces `disabled` so it can't double-submit.
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

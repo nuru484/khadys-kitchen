@@ -45,7 +45,7 @@ export function Hero() {
           className="mb-9 max-w-[54ch] text-[clamp(16px,1.5vw,19px)] leading-[1.65] text-ink/70"
           style={{ animation: "kk-fadein .8s .5s both" }}
         >
-          A hands-on programme with practicals every week — you bake, you learn,
+          A hands-on programme with practicals every week - you bake, you learn,
           and you take your cake home. Finish with a CTVET certificate and the
           confidence to run your own oven.
         </p>

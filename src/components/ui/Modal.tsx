@@ -16,7 +16,7 @@ export interface ModalProps {
 }
 
 /**
- * Accessible base modal — scrim, centered card, Escape-to-close, click-outside,
+ * Accessible base modal - scrim, centered card, Escape-to-close, click-outside,
  * body scroll-lock, focus-in/restore, and a basic focus trap. Compose product
  * modals (confirmations, forms, success states) on top of it.
  */
@@ -30,7 +30,7 @@ export function Modal({
 }: ModalProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
-  // Keep the latest onClose without making it an effect dependency — otherwise
+  // Keep the latest onClose without making it an effect dependency - otherwise
   // an inline `onClose` prop would re-run the effect on every render and steal
   // focus back to the dialog mid-typing.
   const onCloseRef = useRef(onClose);

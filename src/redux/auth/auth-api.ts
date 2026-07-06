@@ -15,7 +15,7 @@ import type { IUserResponse } from "@/types/user.types";
  * Auth endpoints, injected into the single `apiSlice`. These mirror the
  * Khady's Kitchen backend's intended cookie-based contract (base `/api/v1`,
  * httpOnly `accessToken`/`refreshToken`/`twoFactorPending`). No `invalidatesTags`
- * here — session transitions are handled by dispatching auth actions and, on
+ * here - session transitions are handled by dispatching auth actions and, on
  * logout, purging the whole cache with `resetApiState`.
  */
 export const authApi = apiSlice.injectEndpoints({
@@ -25,7 +25,7 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
-          // A 2FA challenge is not a session — only store a real user.
+          // A 2FA challenge is not a session - only store a real user.
           if (!isTwoFactorChallenge(data.data)) {
             dispatch(userLoggedIn({ user: data.data }));
           }
@@ -100,7 +100,7 @@ export const authApi = apiSlice.injectEndpoints({
           await queryFulfilled;
         } finally {
           // Clear client session and purge cached data even if the server call
-          // failed — the user intends to be logged out regardless.
+          // failed - the user intends to be logged out regardless.
           dispatch(userLoggedOut());
           dispatch(apiSlice.util.resetApiState());
         }

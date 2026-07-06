@@ -25,7 +25,7 @@ export default function LandingPage() {
         mobileMenu
         announcement={
           <>
-            Baking classes now enrolling in Kumasi —{" "}
+            Baking classes now enrolling in Kumasi -{" "}
             <Link
               href={routes.apply}
               className="font-semibold text-accent no-underline"

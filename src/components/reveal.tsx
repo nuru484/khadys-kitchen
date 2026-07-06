@@ -7,7 +7,7 @@ type RevealVariant = "up" | "left" | "right" | "zoom" | "blur" | "mask" | "mask-
 
 interface RevealProps {
   children: ReactNode;
-  /** Motion style — maps to the `data-reveal` CSS in globals.css. */
+  /** Motion style - maps to the `data-reveal` CSS in globals.css. */
   variant?: RevealVariant;
   /** Stagger, in ms, applied as transition-delay. */
   delay?: number;

@@ -12,7 +12,7 @@ export interface EmptyStateAction {
 }
 
 export interface EmptyStateProps {
-  /** Glyph shown in the circle — e.g. "✦", "⌕", "✓". */
+  /** Glyph shown in the circle - e.g. "✦", "⌕", "✓". */
   glyph?: ReactNode;
   tone?: EmptyTone;
   title: string;

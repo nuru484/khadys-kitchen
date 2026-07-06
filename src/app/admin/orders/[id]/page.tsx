@@ -104,7 +104,7 @@ export default function OrderDetailPage() {
           <div className="grid gap-3 text-[14.5px]">
             <div className="flex justify-between gap-3.5">
               <span className="text-ink/55">Unit price</span>
-              <span className="font-semibold">{item ? fmt(item.price) : "—"}</span>
+              <span className="font-semibold">{item ? fmt(item.price) : "-"}</span>
             </div>
             <div className="flex justify-between gap-3.5">
               <span className="text-ink/55">Quantity</span>

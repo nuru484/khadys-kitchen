@@ -9,7 +9,7 @@ const STORAGE_KEY = "kk.auth.user";
 
 // Rehydrate synchronously so the console doesn't flash a logged-out state on
 // reload. localStorage is unavailable during SSR (and in reducer unit tests),
-// so every access is guarded. Only the *user* is persisted — never tokens,
+// so every access is guarded. Only the *user* is persisted - never tokens,
 // which live in httpOnly cookies the browser can't read.
 const storedUser =
   typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;

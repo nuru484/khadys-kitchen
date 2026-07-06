@@ -11,7 +11,7 @@ interface Channel {
 const CHANNELS: Channel[] = [
   {
     label: "WhatsApp · fastest",
-    desc: "Orders, cake quotes and class questions. We reply within the hour, 7 am – 7 pm.",
+    desc: "Orders, cake quotes and class questions. We reply within the hour, 7 am - 7 pm.",
     value: "+233 24 000 0000",
   },
   {
@@ -22,7 +22,7 @@ const CHANNELS: Channel[] = [
   },
   {
     label: "Visit",
-    desc: "Wed – Fri 7 am until sold out · Sat – Sun 8 am – 2 pm · closed Mon – Tue.",
+    desc: "Wed - Fri 7 am until sold out · Sat - Sun 8 am - 2 pm · closed Mon - Tue.",
     value: "Kumasi, Ghana",
   },
   {

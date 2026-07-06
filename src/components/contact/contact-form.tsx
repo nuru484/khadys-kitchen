@@ -49,7 +49,7 @@ export function ContactForm() {
             Send us a message
           </h2>
           <p className="mx-auto mb-[26px] max-w-[44ch] text-center text-[15px] leading-[1.6] text-ink/65">
-            Tell us what you need — we&rsquo;ll come back on WhatsApp or email.
+            Tell us what you need - we&rsquo;ll come back on WhatsApp or email.
           </p>
         </Reveal>
 
@@ -65,7 +65,7 @@ export function ContactForm() {
               Message sent
             </h3>
             <p className="text-[15.5px] leading-[1.65] text-ink/70">
-              Thank you, {senderName} — we&rsquo;ll be in touch shortly.
+              Thank you, {senderName} - we&rsquo;ll be in touch shortly.
             </p>
           </div>
         ) : (

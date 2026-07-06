@@ -7,12 +7,12 @@ export function WhatToBring() {
       <div className="mx-auto max-w-[1080px] px-[clamp(20px,5vw,48px)] py-[clamp(56px,8vw,100px)]">
         <Reveal variant="mask" className="text-center">
           <h2 className="mb-3 font-serif text-[clamp(30px,3.6vw,46px)] font-normal">
-            Your 5% — tools to bring
+            Your 5% - tools to bring
           </h2>
         </Reveal>
         <p className="mx-auto mb-[clamp(32px,4vw,48px)] max-w-[56ch] text-center text-[16px] leading-[1.65] text-ink/65">
           The school provides 95% of tools and ingredients. These few items are
-          yours to bring — and yours to keep.
+          yours to bring - and yours to keep.
         </p>
 
         <Reveal className="mb-[clamp(40px,6vw,64px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,160px),1fr))] gap-3.5">
@@ -38,7 +38,7 @@ export function WhatToBring() {
             </h3>
             <p className="text-[15.5px] leading-[1.65] text-ink/70">
               Margarine, your cake box, cake board and icing sugar. Every other
-              ingredient is provided by the school — and after every weekly
+              ingredient is provided by the school - and after every weekly
               practical, the cake goes home with you.
             </p>
           </div>

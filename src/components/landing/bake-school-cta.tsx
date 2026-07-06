@@ -25,7 +25,7 @@ export function BakeSchoolCta() {
             Don&rsquo;t just taste it. Learn to bake it.
           </h2>
           <p className="mb-7 max-w-[48ch] text-[16.5px] leading-[1.7] text-cream/75">
-            Hands-on classes with weekly practicals — you bake every week and
+            Hands-on classes with weekly practicals - you bake every week and
             take your cake home. 95% of ingredients and tools provided, hostel
             available, CTVET certificate on completion.
           </p>

@@ -90,7 +90,7 @@ export default function ApplicationDetailPage() {
               ["Phone / WhatsApp", app.phone],
               ["Email", app.email],
               ["Location", app.location],
-              ["Hostel place requested", app.hostel ? "Yes — needs a place" : "No"],
+              ["Hostel place requested", app.hostel ? "Yes - needs a place" : "No"],
               ["Programme", "Bake School · 2-month intake"],
             ].map(([label, value], i, arr) => (
               <div

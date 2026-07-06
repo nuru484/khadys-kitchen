@@ -32,7 +32,7 @@ const baseQueryWithReauth: BaseQueryFn<
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {
-        // The refresh reads the httpOnly `refreshToken` cookie — no body.
+        // The refresh reads the httpOnly `refreshToken` cookie - no body.
         const refreshResult = (await baseQuery(
           { url: "auth/refresh-token", method: "POST" },
           api,
@@ -49,7 +49,7 @@ const baseQueryWithReauth: BaseQueryFn<
         release();
       }
     } else {
-      // Another call is already refreshing — wait for it, then retry.
+      // Another call is already refreshing - wait for it, then retry.
       await mutex.waitForUnlock();
       result = await baseQuery(args, api, extraOptions);
     }
@@ -60,7 +60,7 @@ const baseQueryWithReauth: BaseQueryFn<
 
 /**
  * The one and only `createApi`. Feature endpoints attach via
- * `apiSlice.injectEndpoints` — never create a second slice. Auth-refresh and
+ * `apiSlice.injectEndpoints` - never create a second slice. Auth-refresh and
  * the tag registry live here so nothing else reimplements 401 handling.
  */
 export const apiSlice = createApi({

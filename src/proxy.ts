@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Next.js Proxy (formerly Middleware) — the server-side gate for the admin
+ * Next.js Proxy (formerly Middleware) - the server-side gate for the admin
  * console. It runs before the route renders, so an unauthenticated visitor is
  * redirected to /login and the admin bundle is never sent to their browser.
  *
  * The check is presence-only: the backend sets the httpOnly `refreshToken`
  * cookie (7-day session anchor) which we can read here but not forge. A present
  * cookie lets the request through; the backend still re-validates the token on
- * every API call, so it — not this proxy — is the real authority. A stale or
+ * every API call, so it - not this proxy - is the real authority. A stale or
  * tampered cookie passes the gate but fails at the data layer, where the reauth
  * flow then logs the user out.
  */

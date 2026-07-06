@@ -75,7 +75,7 @@ export function ApplicationForm() {
             within two working days.
           </p>
           <p className="text-[14.5px] text-ink/55">
-            Asked for hostel? We&rsquo;ll confirm availability first — only 12
+            Asked for hostel? We&rsquo;ll confirm availability first - only 12
             places.
           </p>
         </div>
@@ -128,7 +128,7 @@ export function ApplicationForm() {
             <span className="text-[13.5px] font-semibold uppercase tracking-[0.06em] text-ink/70">
               Do you need a hostel place?{" "}
               <span className="font-normal normal-case tracking-normal">
-                (only 12 available — GHS 700 for 2 months)
+                (only 12 available - GHS 700 for 2 months)
               </span>
             </span>
             <div className="flex flex-wrap gap-2.5">

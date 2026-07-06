@@ -73,7 +73,7 @@ export default function ItemDetailPage() {
             </div>
           </div>
           <div className="rounded-[16px] border border-ink/10 bg-oat px-5 py-[18px] text-[14px] leading-[1.6] text-ink/70">
-            Made custom to order — every order below carries the customer&rsquo;s
+            Made custom to order - every order below carries the customer&rsquo;s
             need-by date and wait preference from checkout.
           </div>
         </div>

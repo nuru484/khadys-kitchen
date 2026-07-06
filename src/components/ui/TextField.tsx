@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export interface TextFieldProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  /** Error message — turns the field red and is announced to screen readers. */
+  /** Error message - turns the field red and is announced to screen readers. */
   error?: string;
   /** Marks the field valid (green border + check). */
   valid?: boolean;

@@ -22,7 +22,7 @@ function statusMessage(status: number): string {
     case 403: return "You don't have access to do that.";
     case 404: return "We couldn't find what you were looking for.";
     case 408: return "The request timed out. Try again.";
-    case 429: return "Too many requests — give it a moment and try again.";
+    case 429: return "Too many requests - give it a moment and try again.";
     case 500:
     case 502:
     case 503:

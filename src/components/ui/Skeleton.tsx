@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Base loading placeholder — a shimmering block. Compose it (or use the
+ * Base loading placeholder - a shimmering block. Compose it (or use the
  * composed skeletons in this folder) to mirror the shape of the real content.
  *
  * Decorative by default: `aria-hidden` so screen readers skip it. Announce

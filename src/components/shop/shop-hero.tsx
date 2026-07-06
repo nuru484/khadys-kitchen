@@ -35,7 +35,7 @@ export function ShopHero() {
           style={{ animation: "kk-fadein .8s .5s both" }}
         >
           Every order is made custom for its owner. Tell us when you need it, and
-          it comes out of the oven on time — never before.
+          it comes out of the oven on time - never before.
         </p>
       </div>
       <Reveal

@@ -21,7 +21,7 @@ export interface SystemMessageProps {
   className?: string;
 }
 
-/** Full-bleed system state — 404, maintenance, access denied, etc. */
+/** Full-bleed system state - 404, maintenance, access denied, etc. */
 export function SystemMessage({
   code,
   glyph,

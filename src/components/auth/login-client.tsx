@@ -16,7 +16,7 @@ function Wordmark() {
 
 /**
  * The admin sign-in screen. A centered brand card on the cream page, holding
- * either the credentials step or — when the account has 2FA — the code step.
+ * either the credentials step or - when the account has 2FA - the code step.
  */
 export function LoginClient({ redirectTo }: { redirectTo: string }) {
   const [challengeEmail, setChallengeEmail] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export function LoginClient({ redirectTo }: { redirectTo: string }) {
           <p className="mb-6 text-[14.5px] leading-[1.6] text-ink/60">
             {challengeEmail
               ? "One more step to keep the kitchen secure."
-              : "Welcome back — sign in to manage the shop and bake school."}
+              : "Welcome back - sign in to manage the shop and bake school."}
           </p>
 
           {challengeEmail ? (

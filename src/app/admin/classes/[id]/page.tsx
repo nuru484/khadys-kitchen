@@ -102,7 +102,7 @@ export default function ClassDetailPage() {
           <h3 className="mb-3.5 font-serif text-[19px] font-normal">Applications under review</h3>
           {applicants.length === 0 ? (
             <p className="text-[14.5px] text-ink/55">
-              This cohort has graduated — no open applications.
+              This cohort has graduated - no open applications.
             </p>
           ) : (
             <div className="grid">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/lib/site";
 
 /**
- * Shared per-page metadata builder — the Khady's Kitchen counterpart to
+ * Shared per-page metadata builder - the Khady's Kitchen counterpart to
  * dms-frontend's `donateMetadata`.
  *
  * - `title` gets the brand suffix and is set `absolute` so it bypasses the root
@@ -15,7 +15,7 @@ import { siteConfig } from "@/lib/site";
 interface PageMetaInput {
   title: string;
   description: string;
-  /** Absolute path, e.g. "/apply" — canonical + OG url. */
+  /** Absolute path, e.g. "/apply" - canonical + OG url. */
   path: string;
   keywords?: string[];
   /** Set false for transactional/no-value pages (e.g. the cart). */

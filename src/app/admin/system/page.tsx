@@ -13,7 +13,7 @@ const numberClass =
 const NOTIFS: { key: "notifApp" | "notifOrder" | "notifDaily"; label: string; note: string }[] = [
   { key: "notifApp", label: "New application received", note: "WhatsApp + email when a student applies." },
   { key: "notifOrder", label: "New custom order placed", note: "Instant alert with need-by date and wait preference." },
-  { key: "notifDaily", label: "Daily baking summary", note: "Each evening — tomorrow's queue at a glance." },
+  { key: "notifDaily", label: "Daily baking summary", note: "Each evening - tomorrow's queue at a glance." },
 ];
 
 export default function SystemPage() {
@@ -58,7 +58,7 @@ export default function SystemPage() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5 border-b border-ink/[0.08] py-3.5">
           <div className="flex-[1_1_220px]">
-            <div className="text-[14.5px] font-semibold">Minimum lead time — cakes</div>
+            <div className="text-[14.5px] font-semibold">Minimum lead time - cakes</div>
             <div className="mt-0.5 text-[12.5px] text-ink/55">
               Days of notice required for made-to-order cakes.
             </div>

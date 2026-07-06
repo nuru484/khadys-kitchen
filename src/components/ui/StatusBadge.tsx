@@ -8,7 +8,7 @@ export interface StatusBadgeProps {
   className?: string;
 }
 
-/** Canonical status pill — colors come from the shared `getStatusColor` map. */
+/** Canonical status pill - colors come from the shared `getStatusColor` map. */
 export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const { bg, color } = getStatusColor(status);
   return (

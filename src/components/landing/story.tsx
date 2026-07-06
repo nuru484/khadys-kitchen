@@ -28,18 +28,18 @@ export function Story() {
           <p className="mb-[18px] text-[17px] leading-[1.7] text-ink/75">
             Khady learned to bake in her grandmother&rsquo;s kitchen and refined
             her craft in professional pastry rooms. Her counter in Kumasi is
-            where the two meet — classic technique alongside the flavors of home.
+            where the two meet - classic technique alongside the flavors of home.
           </p>
           <p className="mb-8 text-[17px] leading-[1.7] text-ink/75">
             Everything is mixed, shaped, and baked on site. No freezers, no
-            shortcuts — and every week, she teaches the next generation of bakers
+            shortcuts - and every week, she teaches the next generation of bakers
             to do the same.
           </p>
           <blockquote className="border-l-[3px] border-accent pl-[22px] font-serif text-[clamp(19px,2vw,23px)] leading-[1.45]">
             &ldquo;Bread should taste like someone was up early caring about
             it.&rdquo;
             <footer className="mt-3.5 font-sans text-[14px] uppercase tracking-[0.12em] text-ink/60">
-              — Khady, founder
+              - Khady, founder
             </footer>
           </blockquote>
         </div>
