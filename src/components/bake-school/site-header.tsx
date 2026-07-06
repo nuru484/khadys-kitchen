@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { routes } from "@/lib/routes";
 import { MobileNav } from "@/components/bake-school/mobile-nav";
+import { AnnouncementBar } from "@/components/bake-school/announcement-bar";
 import { cn } from "@/lib/utils";
 
 export interface NavLink {
@@ -15,7 +16,7 @@ interface SiteHeaderProps {
   cta?: NavLink;
   /** Custom right-hand element (e.g. the shop cart button); overrides `cta`. */
   action?: ReactNode;
-  /** Optional bar shown above the (sticky) header — e.g. the enrolment notice. */
+  /** Optional bar shown above the (sticky) header - e.g. the enrolment notice. */
   announcement?: ReactNode;
   /** Collapse the nav into a full-screen hamburger menu below 900px. */
   mobileMenu?: boolean;
@@ -41,11 +42,7 @@ export function SiteHeader({
 
   return (
     <>
-      {announcement ? (
-        <div className="bg-ink px-5 py-[9px] text-center text-[13px] uppercase tracking-[0.12em] text-cream">
-          {announcement}
-        </div>
-      ) : null}
+      {announcement ? <AnnouncementBar>{announcement}</AnnouncementBar> : null}
 
       <header className="sticky top-0 z-50 flex flex-wrap items-center justify-between gap-x-6 gap-y-3.5 border-b border-ink/10 bg-cream/90 px-[clamp(20px,5vw,48px)] py-[18px] backdrop-blur-[8px]">
         <Link
