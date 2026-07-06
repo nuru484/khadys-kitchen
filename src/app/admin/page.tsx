@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAdmin } from "@/lib/admin/store";
 import { Card, StatusPill } from "@/components/admin/ui";
+import { BestSellersMeters, WeekSalesChart } from "@/components/admin/dashboard-viz";
 import {
   activity,
   bestSellers,
@@ -13,9 +14,6 @@ import {
   weekSales,
   weekTotal,
 } from "@/lib/admin/data";
-
-const MAX_BAR = Math.max(...weekSales.map((d) => d.value));
-const MAX_SELLER = Math.max(...bestSellers.map((d) => d.value));
 
 export default function DashboardPage() {
   const { orders, applications, getItem } = useAdmin();
@@ -60,61 +58,15 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-[18px]">
-        <Card className="p-[clamp(18px,2.8vw,24px)]">
-          <div className="mb-5 flex items-baseline justify-between gap-3">
-            <h3 className="font-serif text-[19px] font-normal">Sales · this week</h3>
-            <span className="whitespace-nowrap font-serif text-[18px]">{weekTotal}</span>
-          </div>
-          <div className="flex h-[168px] items-end gap-2.5">
-            {weekSales.map((d, i) => (
-              <div
-                key={d.day}
-                className="flex h-full flex-1 flex-col items-center justify-end gap-1.5"
-              >
-                <span className="text-[11.5px] font-semibold text-ink/55">
-                  {d.value >= 1000 ? `${(d.value / 1000).toFixed(1)}k` : d.value}
-                </span>
-                <div
-                  className="w-full max-w-[38px] rounded-t-lg rounded-b-[3px]"
-                  style={{
-                    height: `${Math.max(8, Math.round((d.value / MAX_BAR) * 128))}px`,
-                    background: i === 5 ? "var(--color-accent)" : "rgba(36,26,18,0.18)",
-                  }}
-                />
-                <span className="text-[11.5px] uppercase tracking-[0.06em] text-ink/50">
-                  {d.day}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-[clamp(18px,2.8vw,24px)]">
-          <h3 className="mb-5 font-serif text-[19px] font-normal">Best sellers · this week</h3>
-          <div className="grid gap-4">
-            {bestSellers.map((b) => (
-              <div key={b.name} className="grid gap-[7px]">
-                <div className="flex justify-between gap-3 text-[13.5px]">
-                  <span className="font-semibold">{b.name}</span>
-                  <span className="whitespace-nowrap text-ink/55">{fmt(b.value)}</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-ink/[0.08]">
-                  <div
-                    className="h-full rounded-full bg-accent"
-                    style={{ width: `${Math.round((b.value / MAX_SELLER) * 100)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <WeekSalesChart data={weekSales} total={weekTotal} />
+        <BestSellersMeters data={bestSellers} />
       </div>
 
       {/* Due soon */}
       <Card className="overflow-hidden">
         <div className="flex items-baseline justify-between gap-3 border-b border-ink/10 px-6 py-[18px]">
           <h3 className="font-serif text-[19px] font-normal">
-            In the oven next — due within 48h
+            In the oven next - due within 48h
           </h3>
           <Link
             href="/admin/items"
