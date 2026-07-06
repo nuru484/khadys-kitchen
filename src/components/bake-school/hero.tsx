@@ -20,55 +20,52 @@ export function Hero({ training }: { training: ITraining }) {
   const stats = training.stats;
   const open = training.applicationsOpen;
 
-  // Concrete cohort facts — each rendered only when the field is set.
+  // Concrete cohort facts — a single clean line, each rendered only when set.
   const dateRange = training.startDate
     ? `${formatDate(training.startDate)}${training.endDate ? ` – ${formatDate(training.endDate)}` : ""}`
     : null;
-  const facts: { label: string; value: string }[] = [];
-  if (dateRange) facts.push({ label: "Runs", value: dateRange });
+  const facts: string[] = [];
+  if (dateRange) facts.push(dateRange);
   if (training.capacity != null)
-    facts.push({ label: "Places", value: `${String(training.capacity)} seats` });
+    facts.push(`${String(training.capacity)} places`);
   if (training.hostelCapacity != null)
-    facts.push({
-      label: "Hostel",
-      value: `${String(training.hostelCapacity)} places`,
-    });
+    facts.push(`${String(training.hostelCapacity)} hostel beds`);
 
   return (
-    <section className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-center gap-[clamp(32px,5vw,72px)] px-[clamp(20px,5vw,48px)] py-[clamp(48px,7vw,88px)]">
-      <div style={{ animation: "kk-rise 0.8s ease both" }}>
-        <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.24em] text-accent">
-          {eyebrow}
-        </p>
-        {/* Cohort identity: number + live application status */}
-        <div className="mb-[22px] flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] font-semibold">
-          {training.numeral ? (
-            <span className="uppercase tracking-[0.16em] text-ink/70">
-              Cohort {training.numeral}
-            </span>
-          ) : null}
-          {training.numeral ? <span className="text-ink/25">·</span> : null}
-          <span className="inline-flex items-center gap-2">
+    <section className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-start gap-[clamp(32px,5vw,72px)] px-[clamp(20px,5vw,48px)] py-[clamp(48px,7vw,96px)]">
+      <div className="min-w-0" style={{ animation: "kk-rise 0.8s ease both" }}>
+        {/* One label row: brand + live status. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p className="text-[12.5px] font-semibold uppercase tracking-[0.22em] text-accent">
+            {eyebrow}
+          </p>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold",
+              open
+                ? "bg-[#2E6B3F]/10 text-[#2E6B3F]"
+                : "bg-ink/[0.07] text-ink/55",
+            )}
+          >
             <span
               className={cn(
-                "h-2 w-2 rounded-full",
-                open ? "bg-[#2E6B3F]" : "bg-ink/35",
+                "h-1.5 w-1.5 rounded-full",
+                open ? "bg-[#2E6B3F]" : "bg-ink/40",
               )}
             />
-            <span className="text-ink/60">
-              {open ? "Applications open" : "Applications closed"}
-            </span>
+            {open ? "Applications open" : "Applications closed"}
           </span>
         </div>
+
         {heading ? (
           <h1
-            className="mb-6 font-serif text-[clamp(40px,5.4vw,74px)] font-normal leading-[1.05]"
+            className="mt-6 font-serif text-[clamp(36px,4.8vw,64px)] font-normal leading-[1.07] text-balance"
             style={{ animation: "kk-fadein .8s .15s both" }}
           >
             {heading}
           </h1>
         ) : (
-          <h1 className="mb-6 font-serif text-[clamp(40px,5.4vw,74px)] font-normal leading-[1.05]">
+          <h1 className="mt-6 font-serif text-[clamp(36px,4.8vw,64px)] font-normal leading-[1.07]">
             <span className="block overflow-hidden">
               <span
                 className="inline-block"
@@ -95,35 +92,50 @@ export function Hero({ training }: { training: ITraining }) {
             </span>
           </h1>
         )}
-        {training.name ? (
+
+        {/* Which cohort — number + name on one refined line. */}
+        {training.numeral || training.name ? (
           <p
-            className="mb-4 font-serif text-[clamp(19px,2vw,26px)] font-normal leading-[1.25] text-ink/85"
-            style={{ animation: "kk-fadein .8s .4s both" }}
+            className="mt-5 max-w-[34ch] font-serif text-[clamp(18px,1.9vw,23px)] font-normal leading-[1.3] text-ink/75"
+            style={{ animation: "kk-fadein .8s .35s both" }}
           >
+            {training.numeral ? (
+              <span className="text-accent">Cohort {training.numeral}</span>
+            ) : null}
+            {training.numeral && training.name ? (
+              <span className="mx-2 text-ink/30">·</span>
+            ) : null}
             {training.name}
           </p>
         ) : null}
+
         <p
-          className="mb-8 max-w-[54ch] text-[clamp(16px,1.5vw,19px)] leading-[1.65] text-ink/70"
+          className="mt-6 max-w-[52ch] text-[clamp(16px,1.4vw,18px)] leading-[1.7] text-ink/70"
           style={{ animation: "kk-fadein .8s .5s both" }}
         >
           {subtext}
         </p>
+
         {facts.length > 0 ? (
           <div
-            className="mb-9 flex flex-wrap gap-x-6 gap-y-1.5 text-[14px] text-ink/65"
+            className="mt-7 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13.5px] text-ink/60"
             style={{ animation: "kk-fadein .8s .55s both" }}
           >
-            {facts.map((f) => (
-              <span key={f.label}>
-                <span className="font-semibold text-ink/80">{f.label}</span>{" "}
-                {f.value}
+            {facts.map((f, i) => (
+              <span key={f} className="flex items-center gap-x-2.5">
+                {i > 0 ? (
+                  <span aria-hidden="true" className="text-ink/25">
+                    ·
+                  </span>
+                ) : null}
+                {f}
               </span>
             ))}
           </div>
         ) : null}
+
         <div
-          className="flex flex-wrap items-center gap-x-4 gap-y-3.5"
+          className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3.5"
           style={{ animation: "kk-fadein .8s .6s both" }}
         >
           <a
@@ -139,9 +151,10 @@ export function Hero({ training }: { training: ITraining }) {
             See full costs ↓
           </a>
         </div>
+
         {stats.length > 0 ? (
           <div
-            className="mt-12 flex flex-wrap gap-x-10 gap-y-6 border-t border-ink/15 pt-[26px]"
+            className="mt-11 flex flex-wrap gap-x-10 gap-y-6 border-t border-ink/15 pt-7"
             style={{ animation: "kk-fadein .8s .7s both" }}
           >
             {stats.map((stat) => (
@@ -156,7 +169,7 @@ export function Hero({ training }: { training: ITraining }) {
         ) : null}
       </div>
 
-      <div className="relative">
+      <div className="relative lg:sticky lg:top-24">
         <Reveal
           variant="mask-img"
           className="relative block h-[clamp(380px,44vw,560px)] w-full overflow-hidden rounded-b-[20px] rounded-t-[min(260px,40vw)] border border-ink/15"
