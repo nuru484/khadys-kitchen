@@ -3,8 +3,15 @@ import type { NextRequest } from "next/server";
 
 /**
  * Next.js Proxy (formerly Middleware) - the first, cheap gate for the admin
- * console. A visitor with no `refreshToken` cookie can't have a session, so
- * redirect them to /login before the admin bundle is ever sent.
+ * console. A visitor with no sign of a session is redirected to /login before
+ * the admin bundle is ever sent.
+ *
+ * Two cookies count as "sign of a session":
+ *  - `refreshToken` — the real httpOnly session cookie, visible here only when
+ *    the API shares this site's domain (local dev, same-domain deploys).
+ *  - `kk.auth.hint` — a first-party presence hint the client sets on login and
+ *    clears on logout, for production where the API lives on another origin
+ *    and its cookies never reach this proxy.
  *
  * The gate is deliberately one-directional and presence-only. A *present*
  * cookie is NOT proof of a live session (it can be stale — e.g. a reset DB), so
@@ -14,11 +21,15 @@ import type { NextRequest } from "next/server";
  * presence loops. So /login is left alone here and RequireAuth is the authority.
  */
 const SESSION_COOKIE = "refreshToken";
+const HINT_COOKIE = "kk.auth.hint";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin") && !request.cookies.has(SESSION_COOKIE)) {
+  const hasSessionSign =
+    request.cookies.has(SESSION_COOKIE) || request.cookies.has(HINT_COOKIE);
+
+  if (pathname.startsWith("/admin") && !hasSessionSign) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
