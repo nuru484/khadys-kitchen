@@ -12,7 +12,7 @@ export function ProductCard({ product }: { product: Product }) {
         href={shopProduct(product.id)}
         className="group flex w-full flex-col overflow-hidden rounded-[18px] border border-ink/10 bg-card no-underline transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-accent/55"
       >
-        <div className="relative h-[240px] overflow-hidden">
+        <div className="relative h-[280px] overflow-hidden">
           <Image
             src={product.img}
             alt={product.name}
