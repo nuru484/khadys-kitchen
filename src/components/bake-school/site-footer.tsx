@@ -3,9 +3,9 @@ import { Reveal } from "@/components/reveal";
 import { routes } from "@/lib/routes";
 
 const HOURS = [
-  { days: "Wed – Fri", time: "7 am – sold out" },
-  { days: "Sat – Sun", time: "8 am – 2 pm" },
-  { days: "Mon – Tue", time: "Resting the ovens" },
+  { days: "Wed - Fri", time: "7 am - sold out" },
+  { days: "Sat - Sun", time: "8 am - 2 pm" },
+  { days: "Mon - Tue", time: "Resting the ovens" },
 ];
 
 const FOOTER_LINKS = [
@@ -28,7 +28,7 @@ export function SiteFooter({ cta }: SiteFooterProps) {
             Come while it&rsquo;s warm.
           </h2>
           <p className="mb-8 max-w-[42ch] text-[17px] leading-[1.7] text-cream/70">
-            Order ahead for pickup, or take your chances at the counter — the
+            Order ahead for pickup, or take your chances at the counter - the
             croissants rarely make it past ten.
           </p>
           <Link
@@ -88,11 +88,25 @@ export function SiteFooter({ cta }: SiteFooterProps) {
         </div>
       </Reveal>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5 border-t border-cream/15 px-[clamp(20px,5vw,48px)] py-6 text-[13px] tracking-[0.1em] text-cream/55">
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-cream/15 px-[clamp(20px,5vw,48px)] py-6 text-[13px] tracking-[0.1em] text-cream/55">
         <span className="font-serif text-[17px] tracking-[0.02em] text-cream">
           Khady&rsquo;s Kitchen
         </span>
-        <span>© 2026 · The authentic taste · Kumasi</span>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Link
+            href={routes.privacy}
+            className="text-cream/70 no-underline transition-colors hover:text-cream"
+          >
+            Privacy
+          </Link>
+          <Link
+            href={routes.terms}
+            className="text-cream/70 no-underline transition-colors hover:text-cream"
+          >
+            Terms
+          </Link>
+          <span>© 2026 · The authentic taste · Kumasi</span>
+        </div>
       </div>
     </footer>
   );
