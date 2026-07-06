@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { VerifyClient } from "@/components/bake-school/verify-client";
+import { RippleLoader } from "@/components/ui/Loader";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -11,9 +12,7 @@ export const metadata = pageMetadata({
 export default function ApplyVerifyPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-cream px-6 py-16 text-ink">
-      <Suspense
-        fallback={<div className="text-[15px] text-ink/60">Loading…</div>}
-      >
+      <Suspense fallback={<RippleLoader />}>
         <VerifyClient />
       </Suspense>
     </main>

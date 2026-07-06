@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Reveal } from "@/components/reveal";
 import { routes } from "@/lib/routes";
 
 const HOURS = [
@@ -22,7 +21,7 @@ interface SiteFooterProps {
 export function SiteFooter({ cta }: SiteFooterProps) {
   return (
     <footer id="visit" className="bg-ink text-cream">
-      <Reveal className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-[clamp(36px,5vw,64px)] px-[clamp(20px,5vw,48px)] py-[clamp(56px,8vw,100px)]">
+      <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-[clamp(36px,5vw,64px)] px-[clamp(20px,5vw,48px)] py-[clamp(56px,8vw,100px)]">
         <div>
           <h2 className="mb-[22px] font-serif text-[clamp(32px,4vw,52px)] font-normal leading-[1.1]">
             Come while it&rsquo;s warm.
@@ -86,7 +85,7 @@ export function SiteFooter({ cta }: SiteFooterProps) {
             ))}
           </div>
         </div>
-      </Reveal>
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-cream/15 px-[clamp(20px,5vw,48px)] py-6 text-[13px] tracking-[0.1em] text-cream/55">
         <span className="font-serif text-[17px] tracking-[0.02em] text-cream">

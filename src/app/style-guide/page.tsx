@@ -99,8 +99,6 @@ export default function StyleGuidePage() {
           <div className={grid}>
             <div>
               <EmptyState
-                dashed
-                glyph="✦"
                 title="Nothing here yet."
                 description="Pick something - we'll bake it fresh for your date."
                 action={{ label: "Browse the bakes", href: routes.shop }}
@@ -109,8 +107,6 @@ export default function StyleGuidePage() {
             </div>
             <div>
               <EmptyState
-                glyph="⌕"
-                tone="neutral"
                 title="Nothing matches “kelewele”."
                 description="Try another word, or clear the filters to see all 14 bakes."
                 action={{ label: "Clear search & filters", variant: "dark" }}
@@ -119,7 +115,6 @@ export default function StyleGuidePage() {
             </div>
             <div>
               <EmptyState
-                glyph="❧"
                 title="No applications yet."
                 description="When students apply to the Bake School, they'll appear here for review."
                 action={{ label: "Share the application link" }}
@@ -128,8 +123,6 @@ export default function StyleGuidePage() {
             </div>
             <div>
               <EmptyState
-                glyph="✓"
-                tone="success"
                 title="The queue is clear."
                 description="Every order is baked and collected. Enjoy the quiet - it never lasts."
                 action={{ label: "View all items", variant: "dark" }}

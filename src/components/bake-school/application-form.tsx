@@ -7,6 +7,7 @@ import {
   applicationSchema,
   type ApplicationValues,
 } from "@/validations/application-schema";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
@@ -244,17 +245,15 @@ export function ApplicationForm({ training }: { training: ITraining }) {
             </div>
           ) : null}
 
-          <button
+          <Button
             type="submit"
-            disabled={submitting}
-            className="rounded-full border-none bg-accent px-[34px] py-[18px] font-sans text-[16px] font-semibold tracking-[0.06em] text-[#FDFAF3] transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
+            size="lg"
+            isLoading={submitting}
+            loadingText="Submitting…"
+            className="w-full rounded-full"
           >
-            {submitting
-              ? "Submitting…"
-              : payNow
-                ? "Continue to payment"
-                : "Submit application"}
-          </button>
+            {payNow ? "Continue to payment" : "Submit application"}
+          </Button>
           <p className="text-center text-[13px] text-ink/50">
             By applying you agree to be contacted by Khady&rsquo;s Kitchen about
             enrolment. {payNow ? "You'll pay securely via Paystack." : "You can pay now or later."}

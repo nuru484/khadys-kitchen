@@ -147,7 +147,6 @@ export function CartView() {
         </div>
       ) : rows.length === 0 ? (
         <EmptyState
-          dashed
           title="Nothing here yet."
           description="Pick something - we'll bake it fresh for your date."
           action={{ label: "Browse the bakes", href: routes.shop }}

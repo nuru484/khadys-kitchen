@@ -311,8 +311,6 @@ export function ShopBrowser() {
 
       {list.length === 0 ? (
         <EmptyState
-          glyph="⌕"
-          tone="neutral"
           title={noResultsTitle}
           description={noResultsHint}
           action={{
