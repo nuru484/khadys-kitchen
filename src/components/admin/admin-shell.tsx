@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { ADMIN_NAV, routeMeta } from "@/lib/admin/nav";
+import { ADMIN_NAV_GROUPS, routeMeta } from "@/lib/admin/nav";
 import { AdminProvider } from "@/lib/admin/store";
 import { useLogoutMutation } from "@/redux/auth/auth-api";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -55,32 +55,45 @@ function Sidebar({
           Admin console
         </div>
       </div>
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-[14px_14px]">
-        {ADMIN_NAV.map((n) => {
-          const active = n.isActive(pathname);
-          return (
-            <Link
-              key={n.href}
-              href={n.href}
-              className={cn(
-                "flex items-center gap-3 rounded-[12px] px-3.5 py-3 text-[14.5px] font-semibold no-underline transition-colors",
-                active
-                  ? "bg-cream/10 text-cream"
-                  : "text-cream/65 hover:bg-cream/10 hover:text-cream",
-              )}
-            >
-              <span
-                className={cn(
-                  "min-w-[18px] font-serif text-[12px] tracking-[0.1em]",
-                  active ? "text-accent-2" : "text-cream/40",
-                )}
-              >
-                {n.num}
-              </span>
-              {n.label}
-            </Link>
-          );
-        })}
+      <nav className="flex flex-1 flex-col overflow-y-auto p-3.5">
+        {ADMIN_NAV_GROUPS.map((group) => (
+          <div key={group.heading} className="grid gap-0.5 [&:not(:first-child)]:mt-3">
+            <div className="px-3.5 pb-1 pt-1.5 text-[10.5px] font-semibold uppercase tracking-[0.2em] text-cream/40">
+              {group.heading}
+            </div>
+            {group.items.map((n) => {
+              const base =
+                "flex items-center rounded-[12px] px-3.5 py-[9px] text-[14px] font-semibold no-underline transition-colors";
+              if (n.href === "#") {
+                return (
+                  <span
+                    key={n.label}
+                    aria-disabled="true"
+                    title="Coming soon"
+                    className={cn(base, "cursor-default text-cream/35")}
+                  >
+                    {n.label}
+                  </span>
+                );
+              }
+              const active = n.isActive(pathname);
+              return (
+                <Link
+                  key={n.label}
+                  href={n.href}
+                  className={cn(
+                    base,
+                    active
+                      ? "bg-cream/10 text-cream"
+                      : "text-cream/65 hover:bg-cream/10 hover:text-cream",
+                  )}
+                >
+                  {n.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
       <div className="grid gap-3 border-t border-cream/15 px-5 py-[18px]">
         <div className="flex items-center gap-3">
@@ -164,26 +177,40 @@ function MobileMenu({
           ✕
         </button>
       </div>
-      <nav className="flex flex-1 flex-col justify-center gap-0.5 px-[clamp(22px,7vw,48px)] py-6">
-        {ADMIN_NAV.map((n) => {
-          const active = n.isActive(pathname);
-          return (
-            <Link
-              key={n.href}
-              href={n.href}
-              onClick={onClose}
-              className={cn(
-                "flex items-baseline gap-3.5 py-1.5 font-serif text-[clamp(26px,7vw,36px)] leading-[1.3] no-underline",
-                active ? "text-accent-2" : "text-cream",
-              )}
-            >
-              <span className="font-sans text-[12px] tracking-[0.15em] text-accent-2">
-                {n.num}
-              </span>
-              {n.label}
-            </Link>
-          );
-        })}
+      <nav className="flex flex-1 flex-col overflow-y-auto px-[clamp(22px,7vw,48px)] py-6">
+        {ADMIN_NAV_GROUPS.map((group) => (
+          <div key={group.heading} className="grid gap-0.5 [&:not(:first-child)]:mt-5">
+            <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-2">
+              {group.heading}
+            </div>
+            {group.items.map((n) => {
+              const base =
+                "py-1 font-serif text-[clamp(20px,5.5vw,26px)] leading-[1.25] no-underline";
+              if (n.href === "#") {
+                return (
+                  <span
+                    key={n.label}
+                    aria-disabled="true"
+                    className={cn(base, "text-cream/30")}
+                  >
+                    {n.label}
+                  </span>
+                );
+              }
+              const active = n.isActive(pathname);
+              return (
+                <Link
+                  key={n.label}
+                  href={n.href}
+                  onClick={onClose}
+                  className={cn(base, active ? "text-accent-2" : "text-cream")}
+                >
+                  {n.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
       <div className="flex items-center justify-between border-t border-cream/15 px-[clamp(22px,7vw,48px)] pb-9 pt-5">
         <Link

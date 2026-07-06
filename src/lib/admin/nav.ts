@@ -1,18 +1,64 @@
 export interface AdminNavItem {
-  num: string;
   label: string;
   href: string;
   isActive: (pathname: string) => boolean;
 }
 
-export const ADMIN_NAV: AdminNavItem[] = [
-  { num: "01", label: "Dashboard", href: "/admin", isActive: (p) => p === "/admin" },
-  { num: "02", label: "Applications", href: "/admin/applications", isActive: (p) => p.startsWith("/admin/applications") },
-  { num: "03", label: "Classes", href: "/admin/classes", isActive: (p) => p.startsWith("/admin/classes") },
-  { num: "04", label: "Shop items", href: "/admin/items", isActive: (p) => p.startsWith("/admin/items") || p.startsWith("/admin/orders") },
-  { num: "05", label: "Profile", href: "/admin/profile", isActive: (p) => p.startsWith("/admin/profile") },
-  { num: "06", label: "Security", href: "/admin/security", isActive: (p) => p.startsWith("/admin/security") },
-  { num: "07", label: "System settings", href: "/admin/system", isActive: (p) => p.startsWith("/admin/system") },
+export interface AdminNavGroup {
+  heading: string;
+  items: AdminNavItem[];
+}
+
+/** Placeholder items point at "#": they're in the design but not built yet, so
+ * the shell renders them as muted, non-navigable entries until a page lands. */
+const never = () => false;
+
+/**
+ * Grouped admin navigation (matches the "Admin - Dashboard" design). Built pages
+ * link to their route; designed-but-unbuilt entries use `href: "#"`.
+ */
+export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
+  {
+    heading: "Operations",
+    items: [
+      { label: "Dashboard", href: "/admin", isActive: (p) => p === "/admin" },
+      { label: "Orders", href: "#", isActive: never },
+      { label: "Customers", href: "#", isActive: never },
+    ],
+  },
+  {
+    heading: "Bake School",
+    items: [
+      { label: "Applications", href: "/admin/applications", isActive: (p) => p.startsWith("/admin/applications") },
+      { label: "Classes", href: "/admin/classes", isActive: (p) => p.startsWith("/admin/classes") },
+      { label: "Schedule", href: "#", isActive: never },
+      { label: "Certificates", href: "#", isActive: never },
+    ],
+  },
+  {
+    heading: "Shop",
+    items: [
+      { label: "Shop items", href: "/admin/items", isActive: (p) => p.startsWith("/admin/items") || p.startsWith("/admin/orders") },
+    ],
+  },
+  {
+    heading: "Money",
+    items: [
+      { label: "Payments", href: "#", isActive: never },
+      { label: "Reports", href: "#", isActive: never },
+    ],
+  },
+  {
+    heading: "Admin",
+    items: [
+      { label: "Site content", href: "#", isActive: never },
+      { label: "Team & roles", href: "#", isActive: never },
+      { label: "Audit log", href: "#", isActive: never },
+      { label: "Profile", href: "/admin/profile", isActive: (p) => p.startsWith("/admin/profile") },
+      { label: "Security", href: "/admin/security", isActive: (p) => p.startsWith("/admin/security") },
+      { label: "System settings", href: "/admin/system", isActive: (p) => p.startsWith("/admin/system") },
+    ],
+  },
 ];
 
 /** Topbar breadcrumb + title for the current route. */
