@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -64,14 +65,22 @@ export function LoginForm({ redirectTo, onChallenge }: LoginFormProps) {
         error={errors.email?.message}
         {...register("email")}
       />
-      <TextField
-        label="Password"
-        type="password"
-        autoComplete="current-password"
-        placeholder="Your password"
-        error={errors.password?.message}
-        {...register("password")}
-      />
+      <div className="grid gap-2">
+        <TextField
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="Your password"
+          error={errors.password?.message}
+          {...register("password")}
+        />
+        <Link
+          href="/forgot-password"
+          className="justify-self-end text-[13px] font-semibold text-accent no-underline transition-colors hover:text-ink"
+        >
+          Forgot password?
+        </Link>
+      </div>
       <Button
         type="submit"
         size="lg"

@@ -25,9 +25,21 @@ export const forgotPasswordSchema = z.object({
 });
 export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 
+/**
+ * Mirrors the backend `passwordField` policy (backend `auth-validation.ts`):
+ * 8-128 chars including an uppercase letter, a lowercase letter, a number, and a
+ * special character. `confirm` is client-only (the server takes just `password`).
+ */
 export const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, "Use at least 8 characters"),
+    password: z
+      .string()
+      .min(8, "Use at least 8 characters")
+      .max(128, "Use at most 128 characters")
+      .regex(/[a-z]/, "Add a lowercase letter")
+      .regex(/[A-Z]/, "Add an uppercase letter")
+      .regex(/[0-9]/, "Add a number")
+      .regex(/[^A-Za-z0-9]/, "Add a special character"),
     confirm: z.string().min(1, "Confirm your password"),
   })
   .refine((v) => v.password === v.confirm, {
