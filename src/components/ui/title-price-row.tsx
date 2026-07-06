@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface TitlePriceRowProps {
@@ -12,14 +9,17 @@ interface TitlePriceRowProps {
   priceClassName: string;
 }
 
-const GAP = 12; // px — matches gap-x-3 between title and price
-
 /**
- * Lays a product title and its price on one row, but drops the price onto its
- * own line beneath a full-width title the moment the title can no longer fit on
- * a single line beside it (which would otherwise force the title to wrap into a
- * cramped column). An off-screen single-line clone measures the title's natural
- * width, so the decision is stable and never feeds back into itself.
+ * Title + price on one row when they fit, with the price dropping onto its own
+ * line beneath the title when they don't — without ever forcing a title that
+ * would otherwise fit on one line to wrap just to keep the price beside it.
+ *
+ * Pure CSS (no measuring, so it's immune to web-font load timing):
+ * - `flex-wrap` lets the price fall to the next line when it can't fit.
+ * - The title `shrink-0`, so flex wraps the price to a new line instead of
+ *   squeezing (and wrapping) the title to make room for it.
+ * - The title `max-w-full`, so a title that is genuinely wider than the row
+ *   still wraps on its own (with the price beneath it) rather than overflowing.
  */
 export function TitlePriceRow({
   name,
@@ -27,52 +27,10 @@ export function TitlePriceRow({
   nameClassName,
   priceClassName,
 }: TitlePriceRowProps) {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const priceRef = useRef<HTMLSpanElement>(null);
-  const measureRef = useRef<HTMLSpanElement>(null);
-  const [stacked, setStacked] = useState(false);
-
-  useEffect(() => {
-    const row = rowRef.current;
-    const priceEl = priceRef.current;
-    const measure = measureRef.current;
-    if (!row || !priceEl || !measure) return;
-
-    const check = () => {
-      const available = row.clientWidth - priceEl.offsetWidth - GAP;
-      setStacked(measure.scrollWidth > available);
-    };
-    check();
-    const observer = new ResizeObserver(check);
-    observer.observe(row);
-    return () => observer.disconnect();
-  }, [name, price]);
-
   return (
-    <div
-      ref={rowRef}
-      className={cn(
-        "flex items-baseline gap-x-3",
-        stacked ? "flex-col items-start gap-y-1" : "justify-between",
-      )}
-    >
-      <h3 className={cn(nameClassName, stacked ? "w-full" : "min-w-0")}>
-        {name}
-      </h3>
-      <span ref={priceRef} className={cn("whitespace-nowrap", priceClassName)}>
-        {price}
-      </span>
-
-      {/* Off-screen single-line clone used only to measure the title's natural
-          width; zero-height and clipped so it never affects layout. */}
-      <span aria-hidden className="pointer-events-none block h-0 overflow-hidden">
-        <span
-          ref={measureRef}
-          className={cn("inline-block whitespace-nowrap", nameClassName)}
-        >
-          {name}
-        </span>
-      </span>
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <h3 className={cn(nameClassName, "max-w-full shrink-0 break-words")}>{name}</h3>
+      <span className={cn("whitespace-nowrap", priceClassName)}>{price}</span>
     </div>
   );
 }
