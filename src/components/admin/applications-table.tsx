@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Card, SearchInput, Pager } from "@/components/admin/ui";
-import { FilterChips, TableSkeletonRows } from "@/components/admin/table-bits";
+import { Card, Pager } from "@/components/admin/ui";
+import { TableSkeletonRows } from "@/components/admin/table-bits";
+import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -43,38 +44,52 @@ export function ApplicationsTable({ trainingId }: { trainingId?: string }) {
   const meta = data?.meta;
 
   const reset = () => setPage(1);
+  const activeCount =
+    (status !== "all" ? 1 : 0) + (payment !== "all" ? 1 : 0);
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-2.5">
-        <SearchInput
-          value={search}
-          onChange={(v) => {
-            setSearch(v);
-            reset();
-          }}
-          placeholder="Search applicants…"
-        />
-        <FilterChips
-          options={STATUS_FILTERS}
+      <FilterBar
+        search={search}
+        onSearch={(v) => {
+          setSearch(v);
+          reset();
+        }}
+        searchPlaceholder="Search applicants…"
+        activeCount={activeCount}
+        resultLabel={meta ? `${String(meta.total)} total` : undefined}
+      >
+        <LabeledSelect
+          label="Status"
           value={status}
+          active={status !== "all"}
           onChange={(v) => {
-            setStatus(v);
+            setStatus(v as (typeof STATUS_FILTERS)[number]);
             reset();
           }}
-        />
-        <FilterChips
-          options={PAYMENT_FILTERS}
+        >
+          {STATUS_FILTERS.map((f) => (
+            <option key={f} value={f}>
+              {f === "all" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+            </option>
+          ))}
+        </LabeledSelect>
+        <LabeledSelect
+          label="Payment"
           value={payment}
+          active={payment !== "all"}
           onChange={(v) => {
-            setPayment(v);
+            setPayment(v as (typeof PAYMENT_FILTERS)[number]);
             reset();
           }}
-        />
-        {meta ? (
-          <span className="ml-auto text-[13px] text-ink/50">{meta.total} total</span>
-        ) : null}
-      </div>
+        >
+          {PAYMENT_FILTERS.map((f) => (
+            <option key={f} value={f}>
+              {f === "all" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+            </option>
+          ))}
+        </LabeledSelect>
+      </FilterBar>
 
       {isError ? (
         <ErrorState error={error} onRetry={() => void refetch()} />

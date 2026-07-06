@@ -20,10 +20,12 @@ const VARIANTS: Record<ButtonVariant, string> = {
   success: "bg-[#2E6B3F] text-[#FDFAF3]",
 };
 
+// Responsive: compact on mobile, a step up on tablet, and the original size from
+// lg up (so desktop is unchanged).
 const SIZES: Record<ButtonSize, string> = {
-  sm: "px-4 py-2 text-[13px]",
-  md: "px-7 py-3.5 text-[14.5px]",
-  lg: "px-8 py-4 text-[15px]",
+  sm: "px-3.5 py-2 text-[12.5px] lg:px-4 lg:text-[13px]",
+  md: "px-4 py-2.5 text-[13px] md:px-5 md:py-3 md:text-[14px] lg:px-7 lg:py-3.5 lg:text-[14.5px]",
+  lg: "px-5 py-3 text-[14px] md:px-6 md:py-3.5 lg:px-8 lg:py-4 lg:text-[15px]",
 };
 
 export interface ButtonProps

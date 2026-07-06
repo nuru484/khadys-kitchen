@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { SearchInput, Pager } from "@/components/admin/ui";
+import { Pager } from "@/components/admin/ui";
+import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
@@ -31,46 +32,39 @@ export default function ClassesPage() {
 
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
-      <div className="mb-[18px] flex flex-wrap items-center gap-3">
-        <SearchInput
-          value={search}
+      <FilterBar
+        search={search}
+        onSearch={(v) => {
+          setSearch(v);
+          setPage(1);
+        }}
+        searchPlaceholder="Search trainings…"
+        activeCount={status !== "all" ? 1 : 0}
+        action={
+          <Link
+            href="/admin/classes/new"
+            className="inline-block rounded-full bg-accent px-4 py-2.5 text-[13px] font-semibold text-[#FDFAF3] no-underline transition-colors hover:bg-ink lg:px-5 lg:text-[13.5px]"
+          >
+            + New training
+          </Link>
+        }
+      >
+        <LabeledSelect
+          label="Status"
+          value={status}
+          active={status !== "all"}
           onChange={(v) => {
-            setSearch(v);
+            setStatus(v as (typeof STATUS_FILTERS)[number]);
             setPage(1);
           }}
-          placeholder="Search trainings…"
-        />
-        <div className="flex flex-wrap gap-2">
-          {STATUS_FILTERS.map((f) => {
-            const on = status === f;
-            return (
-              <button
-                key={f}
-                type="button"
-                aria-pressed={on}
-                onClick={() => {
-                  setStatus(f);
-                  setPage(1);
-                }}
-                className={cn(
-                  "min-h-9 rounded-full border-[1.5px] px-4 py-[9px] text-[13px] font-semibold capitalize transition-colors",
-                  on
-                    ? "border-accent bg-accent text-[#FDFAF3]"
-                    : "border-ink/20 text-ink/70 hover:border-ink/40",
-                )}
-              >
-                {f === "all" ? "All" : f.toLowerCase()}
-              </button>
-            );
-          })}
-        </div>
-        <Link
-          href="/admin/classes/new"
-          className="ml-auto rounded-full bg-accent px-5 py-2.5 text-[13.5px] font-semibold text-[#FDFAF3] no-underline transition-colors hover:bg-ink"
         >
-          + New training
-        </Link>
-      </div>
+          {STATUS_FILTERS.map((f) => (
+            <option key={f} value={f}>
+              {f === "all" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+            </option>
+          ))}
+        </LabeledSelect>
+      </FilterBar>
 
       {isError ? (
         <ErrorState error={error} onRetry={() => void refetch()} />
