@@ -31,6 +31,7 @@ const pwSchema = z
 type PwValues = z.infer<typeof pwSchema>;
 
 function PasswordCard() {
+  const [editing, setEditing] = useState(false);
   const [changePassword, { isLoading }] = useChangePasswordMutation();
   const {
     register,
@@ -40,6 +41,11 @@ function PasswordCard() {
     formState: { errors },
   } = useForm<PwValues>({ resolver: zodResolver(pwSchema) });
 
+  const stopEditing = () => {
+    reset();
+    setEditing(false);
+  };
+
   const onSubmit = async (v: PwValues) => {
     try {
       await changePassword({
@@ -48,6 +54,7 @@ function PasswordCard() {
       }).unwrap();
       notify.success("Password changed");
       reset();
+      setEditing(false);
     } catch (err) {
       const { message, fieldErrors, hasFieldErrors } = extractApiError(err);
       if (hasFieldErrors && fieldErrors) {
@@ -61,40 +68,60 @@ function PasswordCard() {
 
   return (
     <Card className="p-[clamp(20px,3vw,28px)]">
-      <h2 className="font-serif text-[20px]">Change password</h2>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-4 grid gap-[18px]">
-        <TextField
-          label="Current password"
-          type="password"
-          revealable
-          autoComplete="current-password"
-          error={errors.currentPassword?.message}
-          {...register("currentPassword")}
-        />
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[18px]">
-          <TextField
-            label="New password"
-            type="password"
-            revealable
-            autoComplete="new-password"
-            error={errors.newPassword?.message}
-            {...register("newPassword")}
-          />
-          <TextField
-            label="Confirm new password"
-            type="password"
-            revealable
-            autoComplete="new-password"
-            error={errors.confirmPassword?.message}
-            {...register("confirmPassword")}
-          />
-        </div>
-        <div className="flex justify-end">
-          <Button type="submit" isLoading={isLoading} loadingText="Saving…">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-serif text-[20px]">Password</h2>
+        {editing ? null : (
+          <Button size="sm" onClick={() => setEditing(true)}>
             Change password
           </Button>
-        </div>
-      </form>
+        )}
+      </div>
+      {editing ? (
+        <form
+          onSubmit={(e) => void handleSubmit(onSubmit)(e)}
+          noValidate
+          className="mt-4 grid gap-[18px]"
+        >
+          <TextField
+            label="Current password"
+            type="password"
+            revealable
+            autoComplete="current-password"
+            error={errors.currentPassword?.message}
+            {...register("currentPassword")}
+          />
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[18px]">
+            <TextField
+              label="New password"
+              type="password"
+              revealable
+              autoComplete="new-password"
+              error={errors.newPassword?.message}
+              {...register("newPassword")}
+            />
+            <TextField
+              label="Confirm new password"
+              type="password"
+              revealable
+              autoComplete="new-password"
+              error={errors.confirmPassword?.message}
+              {...register("confirmPassword")}
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="outline" onClick={stopEditing}>
+              Cancel
+            </Button>
+            <Button type="submit" isLoading={isLoading} loadingText="Saving…">
+              Save new password
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <p className="mt-3 text-[14px] leading-[1.6] text-ink/60">
+          ••••••••••&ensp;Changing your password signs you out everywhere else.
+        </p>
+      )}
     </Card>
   );
 }

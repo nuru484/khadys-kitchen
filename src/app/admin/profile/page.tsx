@@ -11,6 +11,7 @@ import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useUpdateMeMutation } from "@/redux/auth/auth-api";
+import { useUploadImageMutation } from "@/redux/uploads/uploads-api";
 import { ProfileAvatar } from "@/components/admin/profile-avatar";
 
 const schema = z.object({
@@ -34,7 +35,27 @@ const roleLabel = (role: string) =>
 export default function ProfilePage() {
   const user = useCurrentUser();
   const [editing, setEditing] = useState(false);
-  const [updateMe, { isLoading }] = useUpdateMeMutation();
+  const [updateMe, { isLoading: saving }] = useUpdateMeMutation();
+  const [upload, { isLoading: uploading }] = useUploadImageMutation();
+
+  // A new photo is only staged here; it uploads on Save, so cancelling the
+  // edit never leaves an orphaned image in Cloudinary.
+  const [stagedPhoto, setStagedPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  const stagePhoto = (file: File) => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setStagedPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const clearStagedPhoto = () => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setStagedPhoto(null);
+    setPhotoPreview(null);
+  };
+
+  const isLoading = saving || uploading;
 
   const {
     register,
@@ -53,17 +74,26 @@ export default function ProfilePage() {
 
   const stopEditing = () => {
     reset();
+    clearStagedPhoto();
     setEditing(false);
   };
 
   const onSubmit = async (values: Values) => {
     try {
+      let profilePicture: string | undefined;
+      if (stagedPhoto) {
+        const formData = new FormData();
+        formData.append("file", stagedPhoto);
+        profilePicture = (await upload(formData).unwrap()).data.url;
+      }
       await updateMe({
         firstName: values.firstName,
         lastName: values.lastName,
         phone: values.phone.trim() || null,
+        ...(profilePicture ? { profilePicture } : {}),
       }).unwrap();
       notify.success("Profile updated");
+      clearStagedPhoto();
       setEditing(false);
     } catch (err) {
       const { message, fieldErrors, hasFieldErrors } = extractApiError(err);
@@ -101,7 +131,12 @@ export default function ProfilePage() {
             : "Your account details. Click Edit to make changes."}
         </p>
         <div className="mb-6 border-b border-ink/10 pb-6">
-          <ProfileAvatar user={user} />
+          <ProfileAvatar
+            user={user}
+            editable={editing}
+            preview={photoPreview}
+            onStage={stagePhoto}
+          />
         </div>
 
         {editing ? (

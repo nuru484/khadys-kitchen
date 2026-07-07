@@ -96,9 +96,13 @@ export function ProductForm({ product }: { product?: IProduct }) {
   });
 
   const image = watch("image");
+  // The photo is only STAGED here (local object-URL preview). Nothing reaches
+  // Cloudinary until the form is submitted, so cancelling the form never
+  // leaves an orphaned upload behind.
+  const [stagedFile, setStagedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>(product?.image ?? "");
 
-  const pickImage = async (file: File | undefined) => {
+  const pickImage = (file: File | undefined) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       notify.error("Please choose an image file");
@@ -108,28 +112,29 @@ export function ProductForm({ product }: { product?: IProduct }) {
       notify.error("Image must be under 5MB");
       return;
     }
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-      const res = await upload(formData).unwrap();
-      setValue("image", res.data.url, { shouldDirty: true });
-      setPreview(res.data.url);
-    } catch (err) {
-      notify.error("Couldn't upload the image", {
-        description: extractApiError(err).message,
-      });
-    } finally {
-      if (fileRef.current) fileRef.current.value = "";
-    }
+    if (preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+    setStagedFile(file);
+    setPreview(URL.createObjectURL(file));
+    if (fileRef.current) fileRef.current.value = "";
   };
 
   const onSubmit = async (v: ProductFormValues) => {
     try {
+      let imageUrl = v.image;
+      if (stagedFile) {
+        const formData = new FormData();
+        formData.append("file", stagedFile);
+        const res = await upload(formData).unwrap();
+        imageUrl = res.data.url;
+        setValue("image", imageUrl);
+        setStagedFile(null);
+      }
+      const payload = { ...toPayload(v), image: imageUrl || undefined };
       if (product) {
-        await updateProduct({ id: product.id, body: toPayload(v) }).unwrap();
+        await updateProduct({ id: product.id, body: payload }).unwrap();
         notify.success("Product updated");
       } else {
-        await createProduct(toPayload(v)).unwrap();
+        await createProduct(payload).unwrap();
         notify.success("Product created");
       }
       router.push("/admin/items");
@@ -267,11 +272,12 @@ export function ProductForm({ product }: { product?: IProduct }) {
               ) : preview || image ? (
                 "Replace photo"
               ) : (
-                "Upload photo"
+                "Choose photo"
               )}
             </Button>
             <span className="text-[12.5px] text-ink/50">
               JPG or PNG, up to 5MB.
+              {stagedFile ? " Uploads when you save." : ""}
             </span>
           </div>
           <input

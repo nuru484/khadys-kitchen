@@ -3,32 +3,42 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { Modal } from "@/components/ui/Modal";
-import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 import { notify } from "@/lib/notify";
-import { extractApiError } from "@/lib/extract-api-error";
-import { useUploadImageMutation } from "@/redux/uploads/uploads-api";
-import { useUpdateMeMutation } from "@/redux/auth/auth-api";
 import type { IUser } from "@/types/user.types";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
-/** Profile picture: click the avatar (or the link) to upload a new one, and the
- * magnifier to view it zoomed. */
-export function ProfileAvatar({ user }: { user: IUser | null }) {
+/**
+ * Profile picture. In edit mode a chosen photo is only STAGED (the caller gets
+ * the File and we show a local preview) — nothing reaches Cloudinary until the
+ * profile form is submitted, so cancelling never orphans an upload. The
+ * magnifier zooms the current photo in any mode.
+ */
+export function ProfileAvatar({
+  user,
+  editable = false,
+  preview = null,
+  onStage,
+}: {
+  user: IUser | null;
+  /** When true, clicking the avatar opens the file picker. */
+  editable?: boolean;
+  /** Local object-URL of a staged (not yet uploaded) photo. */
+  preview?: string | null;
+  /** Receives the validated staged file. */
+  onStage?: (file: File) => void;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [upload, { isLoading: uploading }] = useUploadImageMutation();
-  const [updateMe, { isLoading: saving }] = useUpdateMeMutation();
   const [zoomOpen, setZoomOpen] = useState(false);
   const [zoomed, setZoomed] = useState(false);
 
-  const busy = uploading || saving;
-  const picture = user?.profilePicture ?? null;
+  const picture = preview ?? user?.profilePicture ?? null;
   const initials =
     `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`.toUpperCase() ||
     "?";
 
-  const pick = async (file: File | undefined) => {
+  const pick = (file: File | undefined) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       notify.error("Please choose an image file");
@@ -38,19 +48,8 @@ export function ProfileAvatar({ user }: { user: IUser | null }) {
       notify.error("Image must be under 5MB");
       return;
     }
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-      const res = await upload(formData).unwrap();
-      await updateMe({ profilePicture: res.data.url }).unwrap();
-      notify.success("Profile photo updated");
-    } catch (err) {
-      notify.error("Couldn't update your photo", {
-        description: extractApiError(err).message,
-      });
-    } finally {
-      if (inputRef.current) inputRef.current.value = "";
-    }
+    onStage?.(file);
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   return (
@@ -58,24 +57,24 @@ export function ProfileAvatar({ user }: { user: IUser | null }) {
       <div className="relative">
         <button
           type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={busy}
-          aria-label="Change profile photo"
-          className="group relative grid h-[92px] w-[92px] place-items-center overflow-hidden rounded-full border border-ink/15 bg-oat/50 font-serif text-[26px] text-ink/70"
+          onClick={() => editable && inputRef.current?.click()}
+          disabled={!editable}
+          aria-label={editable ? "Change profile photo" : "Profile photo"}
+          className={cn(
+            "group relative grid h-[92px] w-[92px] place-items-center overflow-hidden rounded-full border border-ink/15 bg-oat/50 font-serif text-[26px] text-ink/70",
+            !editable && "cursor-default",
+          )}
         >
           {picture ? (
             <Image src={picture} alt="Profile" fill sizes="92px" className="object-cover" />
           ) : (
             <span>{initials}</span>
           )}
-          <span
-            className={cn(
-              "absolute inset-0 grid place-items-center bg-ink/45 text-[11px] font-semibold uppercase tracking-[0.08em] text-cream transition-opacity",
-              busy ? "opacity-100" : "opacity-0 group-hover:opacity-100",
-            )}
-          >
-            {busy ? <Spinner onAccent /> : "Change"}
-          </span>
+          {editable ? (
+            <span className="absolute inset-0 grid place-items-center bg-ink/45 text-[11px] font-semibold uppercase tracking-[0.08em] text-cream opacity-0 transition-opacity group-hover:opacity-100">
+              Change
+            </span>
+          ) : null}
         </button>
         {picture ? (
           <button
@@ -106,15 +105,25 @@ export function ProfileAvatar({ user }: { user: IUser | null }) {
         <div className="text-[15px] font-semibold text-ink">
           {user ? `${user.firstName} ${user.lastName}` : "—"}
         </div>
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={busy}
-          className="mt-1 text-[13.5px] font-semibold text-accent disabled:opacity-50"
-        >
-          {picture ? "Change photo" : "Upload a photo"}
-        </button>
-        <p className="mt-1 text-[12px] text-ink/45">JPG, PNG or WebP · max 5MB</p>
+        {editable ? (
+          <>
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="mt-1 text-[13.5px] font-semibold text-accent"
+            >
+              {picture ? "Change photo" : "Upload a photo"}
+            </button>
+            <p className="mt-1 text-[12px] text-ink/45">
+              JPG, PNG or WebP · max 5MB
+              {preview ? " · uploads when you save" : ""}
+            </p>
+          </>
+        ) : (
+          <p className="mt-1 text-[12px] text-ink/45">
+            Click Edit to change your photo.
+          </p>
+        )}
       </div>
 
       <input
