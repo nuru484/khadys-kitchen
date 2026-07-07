@@ -1,7 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, Pager } from "@/components/admin/ui";
+import { ActionMenu } from "@/components/admin/action-menu";
+import { EditCustomerModal } from "@/components/admin/edit-customer-modal";
 import { FilterBar } from "@/components/admin/filter-bar";
 import { SkeletonCells } from "@/components/admin/table-bits";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -10,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format-money";
 import { formatDate } from "@/lib/format-date";
 import { useTableQuery } from "@/hooks/use-table-query";
+import type { ICustomer } from "@/types/customer.types";
 import { useGetCustomersQuery } from "@/redux/customers/customers-api";
 
 const DEFAULTS = {};
@@ -29,6 +33,7 @@ export default function CustomersPage() {
       search: (queryParams.search as string | undefined) ?? undefined,
     });
 
+  const [editing, setEditing] = useState<ICustomer | null>(null);
   const rows = data?.data ?? [];
   const meta = data?.meta;
   const hasActiveFilters = Boolean(search.trim()) || page > 1;
@@ -113,7 +118,21 @@ export default function CustomersPage() {
                       <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
                         {formatDate(c.lastOrderAt)}
                       </td>
-                      <td className="px-6 py-4 text-right text-ink/40">→</td>
+                      <td className="px-6 py-4 text-right">
+                        <ActionMenu
+                          items={[
+                            {
+                              label: "View details",
+                              onClick: () =>
+                                router.push(`/admin/customers/${c.id}`),
+                            },
+                            {
+                              label: "Edit details",
+                              onClick: () => setEditing(c),
+                            },
+                          ]}
+                        />
+                      </td>
                     </tr>
                     ))
                   )}
@@ -126,6 +145,9 @@ export default function CustomersPage() {
           ) : null}
         </>
       )}
+      {editing ? (
+        <EditCustomerModal customer={editing} onClose={() => setEditing(null)} />
+      ) : null}
     </div>
   );
 }

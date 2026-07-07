@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card, Pager } from "@/components/admin/ui";
 import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
 import { SkeletonCells } from "@/components/admin/table-bits";
+import { ActionMenu } from "@/components/admin/action-menu";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -17,6 +18,7 @@ import { formatMoney } from "@/lib/format-money";
 import { useTableQuery } from "@/hooks/use-table-query";
 import {
   useGetProductsQuery,
+  useDeleteProductMutation,
   useSetProductAvailabilityMutation,
 } from "@/redux/products/products-api";
 import { PRODUCT_CATEGORIES } from "@/types/product.types";
@@ -42,6 +44,7 @@ export default function ItemsPage() {
           : filters.availability === "available",
     });
   const [setAvailability] = useSetProductAvailabilityMutation();
+  const [deleteProduct] = useDeleteProductMutation();
   const { confirm, dialog } = useConfirm();
 
   const rows = data?.data ?? [];
@@ -225,7 +228,44 @@ export default function ItemsPage() {
                           />
                         </button>
                       </td>
-                      <td className="px-6 py-3.5 text-right text-ink/40">→</td>
+                      <td className="px-6 py-3.5 text-right">
+                        <ActionMenu
+                          items={[
+                            {
+                              label: "View details",
+                              onClick: () => router.push(`/admin/items/${p.id}`),
+                            },
+                            {
+                              label: "Edit",
+                              onClick: () =>
+                                router.push(`/admin/items/${p.id}/edit`),
+                            },
+                            {
+                              label: "Delete",
+                              variant: "danger" as const,
+                              onClick: () =>
+                                confirm({
+                                  title: "Delete this product?",
+                                  description:
+                                    "Past orders keep their own copy of the name and price. An item that's still on sale can't be deleted — take it off sale first.",
+                                  confirmText: "Delete product",
+                                  isDestructive: true,
+                                  onConfirm: async () => {
+                                    try {
+                                      await deleteProduct(p.id).unwrap();
+                                      notify.success("Product deleted");
+                                    } catch (err) {
+                                      notify.error("Couldn't delete", {
+                                        description:
+                                          extractApiError(err).message,
+                                      });
+                                    }
+                                  },
+                                }),
+                            },
+                          ]}
+                        />
+                      </td>
                     </tr>
                     ))
                   )}

@@ -1,16 +1,27 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, Pager } from "@/components/admin/ui";
+import { ActionMenu } from "@/components/admin/action-menu";
+import { EditStudentModal } from "@/components/admin/edit-student-modal";
 import { SkeletonCells } from "@/components/admin/table-bits";
+import { useConfirm } from "@/components/admin/use-confirm";
 import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
+import { notify } from "@/lib/notify";
+import { extractApiError } from "@/lib/extract-api-error";
 import { useTableQuery } from "@/hooks/use-table-query";
-import { useGetStudentsQuery } from "@/redux/students/students-api";
+import {
+  useDeleteStudentMutation,
+  useGetStudentsQuery,
+  useSetStudentStatusMutation,
+} from "@/redux/students/students-api";
+import type { IStudent } from "@/types/student.types";
 
 const STATUS_FILTERS = ["all", "ACTIVE", "SUSPENDED", "GRADUATED", "WITHDRAWN"];
 const DEFAULTS = { status: "all" };
@@ -36,6 +47,74 @@ export function StudentsTable({
       search: (queryParams.search as string | undefined) ?? undefined,
       status: filters.status !== "all" ? filters.status : undefined,
     });
+
+  const [setStatus] = useSetStudentStatusMutation();
+  const [deleteStudent] = useDeleteStudentMutation();
+  const [editing, setEditing] = useState<IStudent | null>(null);
+  const { confirm, dialog } = useConfirm();
+
+  const run = async (fn: () => Promise<unknown>, ok: string) => {
+    try {
+      await fn();
+      notify.success(ok);
+    } catch (err) {
+      notify.error("Action failed", { description: extractApiError(err).message });
+    }
+  };
+
+  const statusItems = (st: IStudent) => [
+    ...(st.status !== "ACTIVE"
+      ? [
+          {
+            label: "Reactivate",
+            onClick: () =>
+              confirm({
+                title: "Reactivate this student?",
+                description: "They will be marked active again.",
+                confirmText: "Reactivate",
+                onConfirm: () =>
+                  run(
+                    () => setStatus({ id: st.id, action: "activate" }).unwrap(),
+                    "Status updated",
+                  ),
+              }),
+          },
+        ]
+      : [
+          {
+            label: "Suspend",
+            onClick: () =>
+              confirm({
+                title: "Suspend this student?",
+                description: "They will be marked suspended.",
+                confirmText: "Suspend",
+                onConfirm: () =>
+                  run(
+                    () => setStatus({ id: st.id, action: "suspend" }).unwrap(),
+                    "Status updated",
+                  ),
+              }),
+          },
+        ]),
+    ...(st.status !== "GRADUATED"
+      ? [
+          {
+            label: "Graduate",
+            onClick: () =>
+              confirm({
+                title: "Graduate this student?",
+                description: "This marks the student as graduated.",
+                confirmText: "Graduate",
+                onConfirm: () =>
+                  run(
+                    () => setStatus({ id: st.id, action: "graduate" }).unwrap(),
+                    "Status updated",
+                  ),
+              }),
+          },
+        ]
+      : []),
+  ];
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
@@ -107,7 +186,9 @@ export function StudentsTable({
                       <th className="px-4 py-3.5 font-semibold">Class</th>
                     ) : null}
                     <th className="px-4 py-3.5 font-semibold">Status</th>
-                    <th className="px-6 py-3.5" />
+                    <th className="px-6 py-3.5 text-right">
+                      <span className="sr-only">Actions</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -150,7 +231,36 @@ export function StudentsTable({
                       <td className="px-4 py-4">
                         <StatusBadge status={st.status} />
                       </td>
-                      <td className="px-6 py-4 text-right text-ink/40">→</td>
+                      <td className="px-6 py-4 text-right">
+                        <ActionMenu
+                          items={[
+                            {
+                              label: "View details",
+                              onClick: () =>
+                                router.push(`/admin/students/${st.id}`),
+                            },
+                            { label: "Edit", onClick: () => setEditing(st) },
+                            ...statusItems(st),
+                            {
+                              label: "Delete",
+                              variant: "danger" as const,
+                              onClick: () =>
+                                confirm({
+                                  title: "Delete this student?",
+                                  description:
+                                    "This removes the student record. This can't be undone from here.",
+                                  confirmText: "Delete student",
+                                  isDestructive: true,
+                                  onConfirm: () =>
+                                    run(
+                                      () => deleteStudent(st.id).unwrap(),
+                                      "Student deleted",
+                                    ),
+                                }),
+                            },
+                          ]}
+                        />
+                      </td>
                     </tr>
                     ))
                   )}
@@ -163,6 +273,10 @@ export function StudentsTable({
           ) : null}
         </>
       )}
+      {editing ? (
+        <EditStudentModal student={editing} onClose={() => setEditing(null)} />
+      ) : null}
+      {dialog}
     </div>
   );
 }

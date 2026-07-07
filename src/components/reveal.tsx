@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, type ElementType, type ReactNode } from "react";
-import { cn } from "@/lib/utils";
 
 type RevealVariant = "up" | "left" | "right" | "zoom" | "blur" | "mask" | "mask-img";
 

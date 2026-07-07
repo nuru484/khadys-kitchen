@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, Pager } from "@/components/admin/ui";
+import { ActionMenu } from "@/components/admin/action-menu";
+import { useConfirm } from "@/components/admin/use-confirm";
+import { OrderRecordPaymentModal } from "@/components/admin/order-record-payment-modal";
+import {
+  ORDER_ACTIONS,
+  ORDER_CONFIRM_COPY,
+} from "@/lib/admin/order-actions";
 import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
 import { SkeletonCells } from "@/components/admin/table-bits";
 import { WalkInOrderModal } from "@/components/admin/walk-in-order-modal";
@@ -13,8 +20,14 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format-money";
 import { formatDate } from "@/lib/format-date";
+import { notify } from "@/lib/notify";
+import { extractApiError } from "@/lib/extract-api-error";
 import { useTableQuery } from "@/hooks/use-table-query";
-import { useGetOrdersQuery } from "@/redux/orders/orders-api";
+import {
+  useGetOrdersQuery,
+  useSetOrderStatusMutation,
+} from "@/redux/orders/orders-api";
+import type { IOrder } from "@/types/order.types";
 
 const STATUS_FILTERS = [
   "all",
@@ -33,6 +46,18 @@ const titleCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 export default function OrdersPage() {
   const router = useRouter();
   const [recording, setRecording] = useState(false);
+  const [payingOrder, setPayingOrder] = useState<IOrder | null>(null);
+  const [setOrderStatus] = useSetOrderStatusMutation();
+  const { confirm, dialog } = useConfirm();
+
+  const run = async (fn: () => Promise<unknown>, ok: string) => {
+    try {
+      await fn();
+      notify.success(ok);
+    } catch (err) {
+      notify.error("Action failed", { description: extractApiError(err).message });
+    }
+  };
   // Deep-linked from an item's "View orders" — narrows the list to orders
   // containing that product; cleared with its chip.
   const productId = useSearchParams().get("productId") ?? undefined;
@@ -180,7 +205,49 @@ export default function OrdersPage() {
                         <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
                           {formatDate(o.createdAt)}
                         </td>
-                        <td className="px-6 py-4 text-right text-ink/40">→</td>
+                        <td className="px-6 py-4 text-right">
+                          <ActionMenu
+                            items={[
+                              {
+                                label: "View details",
+                                onClick: () =>
+                                  router.push(`/admin/orders/${o.id}`),
+                              },
+                              ...ORDER_ACTIONS[o.status].map((a) => ({
+                                label: a.label,
+                                variant:
+                                  a.action === "cancel"
+                                    ? ("danger" as const)
+                                    : ("default" as const),
+                                onClick: () =>
+                                  confirm({
+                                    title: ORDER_CONFIRM_COPY[a.action].title,
+                                    description:
+                                      ORDER_CONFIRM_COPY[a.action].description,
+                                    confirmText: a.label,
+                                    isDestructive: a.action === "cancel",
+                                    onConfirm: () =>
+                                      run(
+                                        () =>
+                                          setOrderStatus({
+                                            id: o.id,
+                                            action: a.action,
+                                          }).unwrap(),
+                                        "Order updated",
+                                      ),
+                                  }),
+                              })),
+                              ...(o.balance > 0 && o.status !== "CANCELLED"
+                                ? [
+                                    {
+                                      label: "Record payment",
+                                      onClick: () => setPayingOrder(o),
+                                    },
+                                  ]
+                                : []),
+                            ]}
+                          />
+                        </td>
                       </tr>
                     );
                     })
@@ -196,6 +263,14 @@ export default function OrdersPage() {
       )}
 
       <WalkInOrderModal open={recording} onClose={() => setRecording(false)} />
+      {payingOrder ? (
+        <OrderRecordPaymentModal
+          orderId={payingOrder.id}
+          open
+          onClose={() => setPayingOrder(null)}
+        />
+      ) : null}
+      {dialog}
     </div>
   );
 }

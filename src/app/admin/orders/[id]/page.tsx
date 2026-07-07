@@ -7,6 +7,10 @@ import { Card } from "@/components/admin/ui";
 import { OrderRecordPaymentModal } from "@/components/admin/order-record-payment-modal";
 import { PageActions } from "@/components/admin/page-actions";
 import { useConfirm } from "@/components/admin/use-confirm";
+import {
+  ORDER_ACTIONS as ACTIONS,
+  ORDER_CONFIRM_COPY as CONFIRM_COPY,
+} from "@/lib/admin/order-actions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -25,49 +29,6 @@ import type { OrderStatus } from "@/types/order.types";
 
 /** Which lifecycle buttons each status offers (mirrors the backend's
  * transition table — collection additionally requires a settled balance). */
-const ACTIONS: Record<
-  OrderStatus,
-  { action: "confirm" | "ready" | "collect" | "cancel"; label: string; variant: "primary" | "outline" | "danger" }[]
-> = {
-  PENDING: [
-    { action: "confirm", label: "Confirm", variant: "primary" },
-    { action: "ready", label: "Mark ready", variant: "outline" },
-    { action: "cancel", label: "Cancel order", variant: "danger" },
-  ],
-  CONFIRMED: [
-    { action: "ready", label: "Mark ready", variant: "primary" },
-    { action: "collect", label: "Mark collected", variant: "outline" },
-    { action: "cancel", label: "Cancel order", variant: "danger" },
-  ],
-  READY: [
-    { action: "collect", label: "Mark collected", variant: "primary" },
-    { action: "cancel", label: "Cancel order", variant: "danger" },
-  ],
-  COLLECTED: [],
-  CANCELLED: [],
-};
-
-const CONFIRM_COPY: Record<string, { title: string; description: string }> = {
-  confirm: {
-    title: "Confirm this order?",
-    description: "This accepts the order — baking starts on schedule.",
-  },
-  ready: {
-    title: "Mark this order ready?",
-    description: "The customer is notified their order is ready for pickup.",
-  },
-  collect: {
-    title: "Mark this order collected?",
-    description:
-      "This settles the order. Any outstanding balance must be recorded first.",
-  },
-  cancel: {
-    title: "Cancel this order?",
-    description:
-      "Reserved stock returns to the shelf and the customer is notified. Paid amounts should be refunded from the payments below.",
-  },
-};
-
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError, error, refetch } = useGetOrderByIdQuery(id);

@@ -312,16 +312,17 @@ function ActivitySection({
           {rows.map((ev: IAuditLog) => (
             <div
               key={ev.id}
-              className="flex min-w-0 items-start gap-3.5 border-b border-ink/[0.07] py-[11px] last:border-0"
+              className="flex min-w-0 flex-wrap items-start gap-x-3.5 gap-y-0.5 border-b border-ink/[0.07] py-[11px] last:border-0"
             >
               <span className="mt-1.5 h-[9px] w-[9px] flex-none rounded-full bg-accent" />
-              <span className="min-w-0 flex-1 truncate text-[14px] leading-[1.5] text-ink/[0.82]">
+              <span className="min-w-0 flex-1 basis-40 truncate text-[14px] leading-[1.5] text-ink/[0.82]">
                 <span className="capitalize">{humanize(ev.action)}</span>
                 {ev.actor ? (
                   <span className="text-ink/50"> — {ev.actor.name}</span>
                 ) : null}
               </span>
-              <span className="mt-0.5 whitespace-nowrap text-[12px] text-ink/45">
+              {/* Full-width second line on phones; inline on ≥sm. */}
+              <span className="w-full pl-[23px] text-[12px] text-ink/45 sm:mt-0.5 sm:w-auto sm:whitespace-nowrap sm:pl-0">
                 {formatDateTime(ev.createdAt)}
               </span>
             </div>

@@ -22,13 +22,13 @@ import {
   useRemindApplicantMutation,
   useUpdateApplicationStatusMutation,
 } from "@/redux/applications/applications-api";
+import {
+  APPLICATION_DELETE_COPY,
+  APPLICATION_STATUS_ACTIONS as STATUS_ACTIONS,
+  applicationStatusCopy,
+} from "@/lib/admin/application-actions";
 
-const STATUS_ACTIONS = [
-  { status: "RECRUITED", label: "Admit", variant: "primary" as const },
-  { status: "WAITLISTED", label: "Waitlist", variant: "outline" as const },
-  { status: "REJECTED", label: "Reject", variant: "danger" as const },
-  { status: "WITHDRAWN", label: "Withdraw", variant: "outline" as const },
-];
+
 
 export default function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -140,12 +140,7 @@ export default function ApplicationDetailPage() {
                 onClick: () =>
                   confirm({
                     title: `${a.label} this applicant?`,
-                    description:
-                      a.status === "RECRUITED"
-                        ? "This admits the applicant and creates their student record."
-                        : a.status === "REJECTED"
-                          ? "This rejects the applicant — any admission is reversed and paid fees refunded."
-                          : `This sets the application to ${a.status.toLowerCase()}.`,
+                    description: applicationStatusCopy(a.status),
                     confirmText: a.label,
                     isDestructive: a.variant === "danger",
                     onConfirm: () => doStatus(a.status),
@@ -158,8 +153,7 @@ export default function ApplicationDetailPage() {
               onClick: () =>
                 confirm({
                   title: "Delete this application?",
-                  description:
-                    "This removes the application. Applicants who have paid or been admitted can't be deleted.",
+                  description: APPLICATION_DELETE_COPY,
                   confirmText: "Delete application",
                   isDestructive: true,
                   onConfirm: onDelete,

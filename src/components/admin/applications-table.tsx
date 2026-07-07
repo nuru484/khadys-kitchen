@@ -3,15 +3,28 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, Pager } from "@/components/admin/ui";
+import { ActionMenu } from "@/components/admin/action-menu";
 import { SkeletonCells } from "@/components/admin/table-bits";
+import { useConfirm } from "@/components/admin/use-confirm";
 import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format-money";
+import { notify } from "@/lib/notify";
+import { extractApiError } from "@/lib/extract-api-error";
+import {
+  APPLICATION_DELETE_COPY,
+  APPLICATION_STATUS_ACTIONS,
+  applicationStatusCopy,
+} from "@/lib/admin/application-actions";
 import { useTableQuery } from "@/hooks/use-table-query";
-import { useGetApplicationsQuery } from "@/redux/applications/applications-api";
+import {
+  useDeleteApplicationMutation,
+  useGetApplicationsQuery,
+  useUpdateApplicationStatusMutation,
+} from "@/redux/applications/applications-api";
 import type { IApplicationListQuery } from "@/types/application.types";
 
 const STATUS_FILTERS = [
@@ -43,6 +56,18 @@ export function ApplicationsTable({
 
   const { data, isLoading, isFetching, isError, error, refetch } =
     useGetApplicationsQuery({ trainingId, ...queryParams } as IApplicationListQuery);
+  const [updateStatus] = useUpdateApplicationStatusMutation();
+  const [deleteApplication] = useDeleteApplicationMutation();
+  const { confirm, dialog } = useConfirm();
+
+  const run = async (fn: () => Promise<unknown>, ok: string) => {
+    try {
+      await fn();
+      notify.success(ok);
+    } catch (err) {
+      notify.error("Action failed", { description: extractApiError(err).message });
+    }
+  };
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
@@ -127,7 +152,9 @@ export function ApplicationsTable({
                     <th className="px-4 py-3.5 font-semibold">Balance</th>
                     <th className="px-4 py-3.5 font-semibold">Status</th>
                     <th className="px-4 py-3.5 font-semibold">Payment</th>
-                    <th className="px-6 py-3.5" />
+                    <th className="px-6 py-3.5 text-right font-semibold">
+                      <span className="sr-only">Actions</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -168,7 +195,58 @@ export function ApplicationsTable({
                       <td className="px-4 py-4">
                         <StatusBadge status={a.paymentStatus} />
                       </td>
-                      <td className="px-6 py-4 text-right text-ink/40">→</td>
+                      <td className="px-6 py-4 text-right">
+                        <ActionMenu
+                          items={[
+                            {
+                              label: "View details",
+                              onClick: () =>
+                                router.push(`/admin/applications/${a.id}`),
+                            },
+                            ...APPLICATION_STATUS_ACTIONS.filter(
+                              (act) => act.status !== a.status,
+                            ).map((act) => ({
+                              label: act.label,
+                              variant:
+                                act.variant === "danger"
+                                  ? ("danger" as const)
+                                  : ("default" as const),
+                              onClick: () =>
+                                confirm({
+                                  title: `${act.label} this applicant?`,
+                                  description: applicationStatusCopy(act.status),
+                                  confirmText: act.label,
+                                  isDestructive: act.variant === "danger",
+                                  onConfirm: () =>
+                                    run(
+                                      () =>
+                                        updateStatus({
+                                          id: a.id,
+                                          status: act.status,
+                                        }).unwrap(),
+                                      "Status updated",
+                                    ),
+                                }),
+                            })),
+                            {
+                              label: "Delete",
+                              variant: "danger" as const,
+                              onClick: () =>
+                                confirm({
+                                  title: "Delete this application?",
+                                  description: APPLICATION_DELETE_COPY,
+                                  confirmText: "Delete application",
+                                  isDestructive: true,
+                                  onConfirm: () =>
+                                    run(
+                                      () => deleteApplication(a.id).unwrap(),
+                                      "Application deleted",
+                                    ),
+                                }),
+                            },
+                          ]}
+                        />
+                      </td>
                     </tr>
                     ))
                   )}
@@ -181,6 +259,7 @@ export function ApplicationsTable({
           ) : null}
         </>
       )}
+      {dialog}
     </div>
   );
 }
