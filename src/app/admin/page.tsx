@@ -308,11 +308,11 @@ function ActivitySection({
       ) : rows.length === 0 ? (
         <p className="text-[14px] text-ink/50">Nothing yet.</p>
       ) : (
-        <div className="grid">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)]">
           {rows.map((ev: IAuditLog) => (
             <div
               key={ev.id}
-              className="flex items-start gap-3.5 border-b border-ink/[0.07] py-[11px] last:border-0"
+              className="flex min-w-0 items-start gap-3.5 border-b border-ink/[0.07] py-[11px] last:border-0"
             >
               <span className="mt-1.5 h-[9px] w-[9px] flex-none rounded-full bg-accent" />
               <span className="min-w-0 flex-1 truncate text-[14px] leading-[1.5] text-ink/[0.82]">
