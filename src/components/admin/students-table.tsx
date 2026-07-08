@@ -37,7 +37,16 @@ export function StudentsTable({
   prefix?: string;
 }) {
   const router = useRouter();
-  const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
+  const {
+    page,
+    search,
+    filters,
+    resetFilters,
+    setSearch,
+    setFilter,
+    setPage,
+    queryParams,
+  } =
     useTableQuery({ defaults: DEFAULTS, prefix, pageSize: PAGE_SIZE });
 
   const { data, isLoading, isFetching, isError, error, refetch } =
@@ -122,7 +131,9 @@ export function StudentsTable({
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
-  const activeCount = filters.status !== "all" ? 1 : 0;
+  const activeCount = Object.entries(filters).filter(
+    ([, v]) => v && v !== "all",
+  ).length;
   const hasActiveFilters =
     Boolean(search.trim()) || activeCount > 0 || page > 1;
   // Truly empty (not just filtered to nothing): skip the toolbar entirely.
@@ -149,6 +160,7 @@ export function StudentsTable({
         onSearch={setSearch}
         searchPlaceholder="Search students…"
         activeCount={activeCount}
+        onClear={resetFilters}
         resultLabel={meta ? `${String(meta.total)} total` : undefined}
       >
         <LabeledSelect
@@ -190,12 +202,12 @@ export function StudentsTable({
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-ink/10 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink/50">
-                    <th className="px-6 py-3.5 font-semibold">Student</th>
-                    <th className="px-4 py-3.5 font-semibold">Phone</th>
+                    <th className="px-6 py-3 font-semibold">Student</th>
+                    <th className="px-4 py-3 font-semibold">Phone</th>
                     {!trainingId ? (
-                      <th className="px-4 py-3.5 font-semibold">Class</th>
+                      <th className="px-4 py-3 font-semibold">Class</th>
                     ) : null}
-                    <th className="px-4 py-3.5 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
                     <th className="px-6 py-3.5 text-right">
                       <span className="sr-only">Actions</span>
                     </th>
@@ -216,7 +228,7 @@ export function StudentsTable({
                       key={st.id}
                       className="border-b border-ink/[0.08] transition-colors last:border-0 hover:bg-accent/[0.05]"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-3">
                         <Link
                           href={`/admin/students/${st.id}`}
                           title={st.fullName}
@@ -226,20 +238,20 @@ export function StudentsTable({
                         </Link>
                         <div className="mt-0.5 max-w-[170px] truncate sm:max-w-[260px] text-[12.5px] text-ink/55">{st.code}</div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[14px] text-ink/70">
+                      <td className="whitespace-nowrap px-4 py-3 text-[14px] text-ink/70">
                         {st.phone}
                       </td>
                       {!trainingId ? (
-                        <td className="whitespace-nowrap px-4 py-4 text-[14px] text-ink/70">
+                        <td className="whitespace-nowrap px-4 py-3 text-[14px] text-ink/70">
                           <span title={st.training?.name} className="max-w-[170px] truncate sm:max-w-[260px] block">
                             {st.training?.name ?? "—"}
                           </span>
                         </td>
                       ) : null}
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-3">
                         <StatusBadge status={st.status} />
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-3 text-right">
                         <ActionMenu
                           items={[
                             {

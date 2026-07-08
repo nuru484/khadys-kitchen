@@ -41,7 +41,8 @@ const humanize = (action: string) =>
   action.replace(/\./g, " · ").replace(/_/g, " ");
 
 export default function AuditPage() {
-  const { page, filters, setFilter, setPage, queryParams } = useTableQuery({
+  const { page, filters, resetFilters, setFilter, setPage, queryParams } =
+    useTableQuery({
     defaults: DEFAULTS,
     pageSize: PAGE_SIZE,
   });
@@ -51,8 +52,10 @@ export default function AuditPage() {
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
-  const hasActiveFilters =
-    filters.entity !== "all" || filters.action !== "all" || page > 1;
+  const activeCount = Object.entries(filters).filter(
+    ([, v]) => v && v !== "all",
+  ).length;
+  const hasActiveFilters = activeCount > 0 || page > 1;
   // Truly empty (not just filtered to nothing): skip the toolbar entirely.
   const noDataAtAll =
     !isLoading && !isError && (meta?.total ?? 0) === 0 && !hasActiveFilters;
@@ -71,9 +74,9 @@ export default function AuditPage() {
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
       <FilterBar
-        activeCount={
-          (filters.entity !== "all" ? 1 : 0) + (filters.action !== "all" ? 1 : 0)
-        }
+        collapseFilters
+        activeCount={activeCount}
+        onClear={resetFilters}
         resultLabel={meta ? `${String(meta.total)} events` : undefined}
         action={
           <Button variant="outline" size="sm" onClick={() => void refetch()}>
@@ -129,11 +132,11 @@ export default function AuditPage() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-ink/10 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink/50">
-                    <th className="px-6 py-3.5 font-semibold">When</th>
-                    <th className="px-4 py-3.5 font-semibold">Actor</th>
-                    <th className="px-4 py-3.5 font-semibold">Action</th>
-                    <th className="px-4 py-3.5 font-semibold">Entity</th>
-                    <th className="px-6 py-3.5 font-semibold">Details</th>
+                    <th className="px-6 py-3 font-semibold">When</th>
+                    <th className="px-4 py-3 font-semibold">Actor</th>
+                    <th className="px-4 py-3 font-semibold">Action</th>
+                    <th className="px-4 py-3 font-semibold">Entity</th>
+                    <th className="px-6 py-3 font-semibold">Details</th>
                   </tr>
                 </thead>
                 <tbody>

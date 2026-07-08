@@ -20,7 +20,16 @@ const PAGE_SIZE = 12;
 
 export default function CustomersPage() {
   const router = useRouter();
-  const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
+  const {
+    page,
+    search,
+    filters,
+    resetFilters,
+    setSearch,
+    setFilter,
+    setPage,
+    queryParams,
+  } =
     useTableQuery({
     defaults: DEFAULTS,
     pageSize: PAGE_SIZE,
@@ -63,6 +72,7 @@ export default function CustomersPage() {
         onSearch={setSearch}
         searchPlaceholder="Search name, phone, email…"
         activeCount={activeCount}
+        onClear={resetFilters}
         resultLabel={meta ? `${String(meta.total)} total` : undefined}
       >
         <DateRangeFields
@@ -92,11 +102,11 @@ export default function CustomersPage() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-ink/10 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink/50">
-                    <th className="px-6 py-3.5 font-semibold">Customer</th>
-                    <th className="px-4 py-3.5 font-semibold">Phone</th>
-                    <th className="px-4 py-3.5 font-semibold">Orders</th>
-                    <th className="px-4 py-3.5 font-semibold">Total spent</th>
-                    <th className="px-4 py-3.5 font-semibold">Last order</th>
+                    <th className="px-6 py-3 font-semibold">Customer</th>
+                    <th className="px-4 py-3 font-semibold">Phone</th>
+                    <th className="px-4 py-3 font-semibold">Orders</th>
+                    <th className="px-4 py-3 font-semibold">Total spent</th>
+                    <th className="px-4 py-3 font-semibold">Last order</th>
                     <th className="px-6 py-3.5" />
                   </tr>
                 </thead>
@@ -110,7 +120,7 @@ export default function CustomersPage() {
                       onClick={() => router.push(`/admin/customers/${c.id}`)}
                       className="cursor-pointer border-b border-ink/[0.08] transition-colors last:border-0 hover:bg-accent/[0.05]"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-3">
                         <div title={c.fullName} className="max-w-[170px] truncate sm:max-w-[260px] text-[15px] font-semibold text-ink">
                           {c.fullName}
                         </div>
@@ -118,19 +128,19 @@ export default function CustomersPage() {
                           {c.email ?? "No email"}
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[14px] text-ink/70">
+                      <td className="whitespace-nowrap px-4 py-3 text-[14px] text-ink/70">
                         {c.phone}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[14px] text-ink/70">
+                      <td className="whitespace-nowrap px-4 py-3 text-[14px] text-ink/70">
                         {c.orderCount}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[14px] font-medium">
+                      <td className="whitespace-nowrap px-4 py-3 text-[14px] font-medium">
                         {formatMoney(c.totalSpent)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
+                      <td className="whitespace-nowrap px-4 py-3 text-[13.5px] text-ink/70">
                         <DateTimeCell iso={c.lastOrderAt} />
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-3 text-right">
                         <ActionMenu
                           items={[
                             {

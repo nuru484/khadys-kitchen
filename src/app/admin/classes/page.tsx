@@ -28,7 +28,16 @@ const DEFAULTS = {
 const PAGE_SIZE = 12;
 
 export default function ClassesPage() {
-  const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
+  const {
+    page,
+    search,
+    filters,
+    resetFilters,
+    setSearch,
+    setFilter,
+    setPage,
+    queryParams,
+  } =
     useTableQuery({
     defaults: DEFAULTS,
     pageSize: PAGE_SIZE,
@@ -70,10 +79,12 @@ export default function ClassesPage() {
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
       <FilterBar
+        collapseFilters
         search={search}
         onSearch={setSearch}
         searchPlaceholder="Search trainings…"
         activeCount={activeCount}
+        onClear={resetFilters}
         action={
           <ButtonLink href="/admin/classes/new" size="sm">
             + New training

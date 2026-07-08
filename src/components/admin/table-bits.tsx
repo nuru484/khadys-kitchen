@@ -22,7 +22,7 @@ export function SkeletonCells({
       {Array.from({ length: rows }).map((_, r) => (
         <tr key={r} className="border-b border-ink/[0.08] last:border-0">
           {widths.map((w, c) => (
-            <td key={c} className="px-4 py-4 first:px-6 last:px-6">
+            <td key={c} className="px-4 py-3 first:px-6 last:px-6">
               <div
                 className={cn(
                   "animate-pulse rounded bg-ink/[0.06]",

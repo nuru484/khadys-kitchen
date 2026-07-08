@@ -113,6 +113,12 @@ export function useTableQuery<F extends Record<string, string>>({
     setPageState(Math.max(1, next));
   }, []);
 
+  /** Back to the default filters (and page 1); the search text stays. */
+  const resetFilters = useCallback(() => {
+    setFiltersState(defaults);
+    setPageState(1);
+  }, [defaults]);
+
   const queryParams = useMemo(() => {
     const clean: Record<string, unknown> = { page };
     if (pageSize) clean.limit = pageSize;
@@ -127,6 +133,7 @@ export function useTableQuery<F extends Record<string, string>>({
     page,
     search: searchInput,
     filters,
+    resetFilters,
     setSearch,
     setFilter,
     setPage,

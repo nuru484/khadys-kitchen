@@ -40,7 +40,16 @@ export default function TeamPage() {
   const router = useRouter();
   const me = useCurrentUser();
   const { isSuperAdmin } = useAuthRole();
-  const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
+  const {
+    page,
+    search,
+    filters,
+    resetFilters,
+    setSearch,
+    setFilter,
+    setPage,
+    queryParams,
+  } =
     useTableQuery({ defaults: DEFAULTS, pageSize: PAGE_SIZE });
 
   const { data, isLoading, isFetching, isError, error, refetch } =
@@ -64,8 +73,9 @@ export default function TeamPage() {
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
-  const activeCount =
-    (filters.role !== "all" ? 1 : 0) + (filters.status !== "all" ? 1 : 0);
+  const activeCount = Object.entries(filters).filter(
+    ([, v]) => v && v !== "all",
+  ).length;
   const hasActiveFilters =
     Boolean(search.trim()) || activeCount > 0 || page > 1;
   // Truly empty (no rows, nothing filtered): show only the empty state — a
@@ -121,10 +131,12 @@ export default function TeamPage() {
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
       <FilterBar
+        collapseFilters
         search={search}
         onSearch={setSearch}
         searchPlaceholder="Search team…"
         activeCount={activeCount}
+        onClear={resetFilters}
         resultLabel={meta ? `${String(meta.total)} total` : undefined}
         action={
           <Button size="sm" onClick={() => setAddOpen(true)}>
@@ -191,12 +203,12 @@ export default function TeamPage() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-ink/10 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink/50">
-                    <th className="px-6 py-3.5 font-semibold">Member</th>
-                    <th className="px-4 py-3.5 font-semibold">Phone</th>
-                    <th className="px-4 py-3.5 font-semibold">Role</th>
-                    <th className="px-4 py-3.5 font-semibold">Status</th>
-                    <th className="px-4 py-3.5 font-semibold">2FA</th>
-                    <th className="px-4 py-3.5 font-semibold">Joined</th>
+                    <th className="px-6 py-3 font-semibold">Member</th>
+                    <th className="px-4 py-3 font-semibold">Phone</th>
+                    <th className="px-4 py-3 font-semibold">Role</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold">2FA</th>
+                    <th className="px-4 py-3 font-semibold">Joined</th>
                     <th className="px-6 py-3.5" />
                   </tr>
                 </thead>
@@ -219,7 +231,7 @@ export default function TeamPage() {
                         key={u.id}
                         className="border-b border-ink/[0.08] transition-colors last:border-0 hover:bg-accent/[0.05]"
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-3">
                           <Link
                             href={`/admin/team/${u.id}`}
                             title={`${u.firstName} ${u.lastName}`}
@@ -238,28 +250,28 @@ export default function TeamPage() {
                             {u.email}
                           </div>
                         </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-[14px] text-ink/70">
+                        <td className="whitespace-nowrap px-4 py-3 text-[14px] text-ink/70">
                           {u.phone ?? "—"}
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3">
                           <StatusBadge
                             status={u.role}
                             label={roleLabel(u.role)}
                           />
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3">
                           <StatusBadge
                             status={u.isActive ? "ACTIVE" : "SUSPENDED"}
                             label={u.isActive ? "Active" : "Deactivated"}
                           />
                         </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
+                        <td className="whitespace-nowrap px-4 py-3 text-[13.5px] text-ink/70">
                           {u.twoFactorEnabled ? "On" : "Off"}
                         </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
+                        <td className="whitespace-nowrap px-4 py-3 text-[13.5px] text-ink/70">
                           <DateTimeCell iso={u.createdAt} />
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-3 text-right">
                           <ActionMenu
                             items={[
                               {

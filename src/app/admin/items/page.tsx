@@ -30,7 +30,16 @@ const PAGE_SIZE = 12;
 
 export default function ItemsPage() {
   const router = useRouter();
-  const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
+  const {
+    page,
+    search,
+    filters,
+    resetFilters,
+    setSearch,
+    setFilter,
+    setPage,
+    queryParams,
+  } =
     useTableQuery({ defaults: DEFAULTS, pageSize: PAGE_SIZE });
 
   const { data, isLoading, isFetching, isError, error, refetch } =
@@ -53,9 +62,9 @@ export default function ItemsPage() {
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
-  const activeCount =
-    (filters.category !== "all" ? 1 : 0) +
-    (filters.availability !== "all" ? 1 : 0);
+  const activeCount = Object.entries(filters).filter(
+    ([, v]) => v && v !== "all",
+  ).length;
   const hasActiveFilters =
     Boolean(search.trim()) || activeCount > 0 || page > 1;
   // Truly empty (not just filtered to nothing): skip the toolbar entirely.
@@ -97,10 +106,12 @@ export default function ItemsPage() {
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
       <FilterBar
+        collapseFilters
         search={search}
         onSearch={setSearch}
         searchPlaceholder="Search items…"
         activeCount={activeCount}
+        onClear={resetFilters}
         resultLabel={meta ? `${String(meta.total)} total` : undefined}
         action={
           <ButtonLink href="/admin/items/new" size="sm">
@@ -160,12 +171,12 @@ export default function ItemsPage() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-ink/10 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink/50">
-                    <th className="px-6 py-3.5 font-semibold">Item</th>
-                    <th className="px-4 py-3.5 font-semibold">Category</th>
-                    <th className="px-4 py-3.5 font-semibold">Price</th>
-                    <th className="px-4 py-3.5 font-semibold">Stock</th>
-                    <th className="px-4 py-3.5 font-semibold">Lead time</th>
-                    <th className="px-4 py-3.5 font-semibold">Status</th>
+                    <th className="px-6 py-3 font-semibold">Item</th>
+                    <th className="px-4 py-3 font-semibold">Category</th>
+                    <th className="px-4 py-3 font-semibold">Price</th>
+                    <th className="px-4 py-3 font-semibold">Stock</th>
+                    <th className="px-4 py-3 font-semibold">Lead time</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
                     <th className="px-6 py-3.5" />
                   </tr>
                 </thead>

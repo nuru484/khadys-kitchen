@@ -52,7 +52,16 @@ export function ApplicationsTable({
   prefix?: string;
 }) {
   const router = useRouter();
-  const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
+  const {
+    page,
+    search,
+    filters,
+    resetFilters,
+    setSearch,
+    setFilter,
+    setPage,
+    queryParams,
+  } =
     useTableQuery({ defaults: DEFAULTS, prefix, pageSize: PAGE_SIZE });
 
   const { data, isLoading, isFetching, isError, error, refetch } =
@@ -73,9 +82,9 @@ export function ApplicationsTable({
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
-  const activeCount =
-    (filters.status !== "all" ? 1 : 0) +
-    (filters.paymentStatus !== "all" ? 1 : 0);
+  const activeCount = Object.entries(filters).filter(
+    ([, v]) => v && v !== "all",
+  ).length;
   const hasActiveFilters =
     Boolean(search.trim()) || activeCount > 0 || page > 1;
   // Truly empty (not just filtered to nothing): skip the toolbar entirely.
@@ -98,10 +107,12 @@ export function ApplicationsTable({
   return (
     <div>
       <FilterBar
+        collapseFilters
         search={search}
         onSearch={setSearch}
         searchPlaceholder="Search applicants…"
         activeCount={activeCount}
+        onClear={resetFilters}
         resultLabel={meta ? `${String(meta.total)} total` : undefined}
       >
         <LabeledSelect
@@ -155,11 +166,11 @@ export function ApplicationsTable({
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-ink/10 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink/50">
-                    <th className="px-6 py-3.5 font-semibold">Applicant</th>
-                    <th className="px-4 py-3.5 font-semibold">Phone</th>
-                    <th className="px-4 py-3.5 font-semibold">Balance</th>
-                    <th className="px-4 py-3.5 font-semibold">Status</th>
-                    <th className="px-4 py-3.5 font-semibold">Payment</th>
+                    <th className="px-6 py-3 font-semibold">Applicant</th>
+                    <th className="px-4 py-3 font-semibold">Phone</th>
+                    <th className="px-4 py-3 font-semibold">Balance</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold">Payment</th>
                     <th className="px-6 py-3.5 text-right font-semibold">
                       <span className="sr-only">Actions</span>
                     </th>
@@ -176,7 +187,7 @@ export function ApplicationsTable({
                       key={a.id}
                       className="border-b border-ink/[0.08] transition-colors last:border-0 hover:bg-accent/[0.05]"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-3">
                         <Link
                           href={`/admin/applications/${a.id}`}
                           title={a.fullName}
@@ -189,19 +200,19 @@ export function ApplicationsTable({
                           {a.email ? ` · ${a.email}` : ""}
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[14px] text-ink/70">
+                      <td className="whitespace-nowrap px-4 py-3 text-[14px] text-ink/70">
                         {a.phone}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[14px] text-ink/70">
+                      <td className="whitespace-nowrap px-4 py-3 text-[14px] text-ink/70">
                         {formatMoney(a.balance, a.currency)}
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-3">
                         <StatusBadge status={a.status} />
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-3">
                         <StatusBadge status={a.paymentStatus} />
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-3 text-right">
                         <ActionMenu
                           items={[
                             {

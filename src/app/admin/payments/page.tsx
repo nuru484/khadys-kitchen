@@ -44,7 +44,16 @@ const titleCase = (s: string) =>
 
 export default function PaymentsPage() {
   const router = useRouter();
-  const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
+  const {
+    page,
+    search,
+    filters,
+    resetFilters,
+    setSearch,
+    setFilter,
+    setPage,
+    queryParams,
+  } =
     useTableQuery({ defaults: DEFAULTS, pageSize: PAGE_SIZE });
 
   const { data, isLoading, isFetching, isError, error, refetch } =
@@ -68,7 +77,7 @@ export default function PaymentsPage() {
   const rows = data?.data ?? [];
   const meta = data?.meta;
   const activeCount = Object.entries(filters).filter(
-    ([, v]) => v !== "all",
+    ([, v]) => v && v !== "all",
   ).length;
   const hasActiveFilters =
     Boolean(search.trim()) || activeCount > 0 || page > 1;
@@ -109,10 +118,12 @@ export default function PaymentsPage() {
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
       <FilterBar
+        collapseFilters
         search={search}
         onSearch={setSearch}
         searchPlaceholder="Search reference or code…"
         activeCount={activeCount}
+        onClear={resetFilters}
         resultLabel={meta ? `${String(meta.total)} total` : undefined}
       >
         <LabeledSelect
@@ -178,12 +189,12 @@ export default function PaymentsPage() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-ink/10 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink/50">
-                    <th className="px-6 py-3.5 font-semibold">Payment</th>
-                    <th className="px-4 py-3.5 font-semibold">For</th>
-                    <th className="px-4 py-3.5 font-semibold">Amount</th>
-                    <th className="px-4 py-3.5 font-semibold">Method</th>
-                    <th className="px-4 py-3.5 font-semibold">Status</th>
-                    <th className="px-4 py-3.5 font-semibold">Paid</th>
+                    <th className="px-6 py-3 font-semibold">Payment</th>
+                    <th className="px-4 py-3 font-semibold">For</th>
+                    <th className="px-4 py-3 font-semibold">Amount</th>
+                    <th className="px-4 py-3 font-semibold">Method</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold">Paid</th>
                     <th className="px-6 py-3.5" />
                   </tr>
                 </thead>
@@ -206,7 +217,7 @@ export default function PaymentsPage() {
                         key={p.id}
                         className="border-b border-ink/[0.08] last:border-0"
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-3">
                           <div className="max-w-[220px] truncate text-[13px] font-semibold text-ink">
                             {p.reference}
                           </div>
@@ -216,7 +227,7 @@ export default function PaymentsPage() {
                             </div>
                           ) : null}
                         </td>
-                        <td className="px-4 py-4 text-[13.5px]">
+                        <td className="px-4 py-3 text-[13.5px]">
                           {p.order ? (
                             <>
                               <div className="flex items-center gap-2">
@@ -256,16 +267,16 @@ export default function PaymentsPage() {
                             "—"
                           )}
                         </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-[14px] font-medium">
+                        <td className="whitespace-nowrap px-4 py-3 text-[14px] font-medium">
                           {formatMoney(p.amount, p.currency)}
                         </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
+                        <td className="whitespace-nowrap px-4 py-3 text-[13.5px] text-ink/70">
                           {titleCase(p.method)}
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3">
                           <StatusBadge status={p.status} />
                         </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-[13px] text-ink/60">
+                        <td className="whitespace-nowrap px-4 py-3 text-[13px] text-ink/60">
                           <DateTimeCell iso={p.paidAt ?? null} />
                           {p.reversedAt ? (
                             <div className="mt-1 text-[11.5px] text-ink/45">
@@ -273,7 +284,7 @@ export default function PaymentsPage() {
                             </div>
                           ) : null}
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-3 text-right">
                           <ActionMenu
                             items={[
                               {

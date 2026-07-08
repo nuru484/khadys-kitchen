@@ -44,7 +44,7 @@ export function FeaturedBakes() {
       {isLoading ? (
         <div className={GRID_CLASS}>
           {Array.from({ length: 3 }, (_, i) => (
-            <ShopCardSkeleton key={i} />
+            <ShopCardSkeleton key={i} imageHeight={250} />
           ))}
         </div>
       ) : (
