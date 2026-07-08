@@ -1,22 +1,28 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
-import { fetchPublicProducts, type PublicProduct } from "@/lib/public-api";
-import { shopProduct } from "@/lib/routes";
+import { fetchPublicProducts, fetchPublicTrainings } from "@/lib/public-api";
+import { shopProduct, trainingDetail } from "@/lib/routes";
 
-const lastModified = (record: PublicProduct): Date =>
+const lastModified = (record: {
+  updatedAt?: string;
+  createdAt?: string;
+}): Date =>
   record.updatedAt
     ? new Date(record.updatedAt)
     : new Date(record.createdAt ?? Date.now());
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const products = await fetchPublicProducts();
+  const [products, trainings] = await Promise.all([
+    fetchPublicProducts(),
+    fetchPublicTrainings(),
+  ]);
   const now = new Date();
 
   // Cart/checkout/verify/order-tracking are transactional (no SEO value).
   const staticPages: MetadataRoute.Sitemap = [
     { url: `${siteUrl}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${siteUrl}/shop`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteUrl}/apply`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${siteUrl}/trainings`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteUrl}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${siteUrl}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
     { url: `${siteUrl}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
@@ -33,5 +39,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-  return [...staticPages, ...productPages];
+  // Training class pages, same treatment.
+  const trainingPages: MetadataRoute.Sitemap = trainings
+    .filter((training) => Boolean(training.slug))
+    .map((training) => ({
+      url: `${siteUrl}${trainingDetail(training.slug)}`,
+      lastModified: lastModified(training),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
+
+  return [...staticPages, ...productPages, ...trainingPages];
 }

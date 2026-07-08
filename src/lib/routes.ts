@@ -4,7 +4,7 @@
  */
 export const routes = {
   home: "/",
-  apply: "/apply",
+  trainings: "/trainings",
   shop: "/shop",
   shopCart: "/shop/cart",
   shopCheckout: "/shop/checkout",
@@ -16,6 +16,9 @@ export const routes = {
 
 /** Detail route for a single shop product. */
 export const shopProduct = (slug: string) => `/shop/${slug}`;
+
+/** Detail page for a single training class. */
+export const trainingDetail = (slug: string) => `/trainings/${slug}`;
 
 /** Public tracking page for a placed order. */
 export const shopOrder = (code: string) => `/shop/orders/${code}`;

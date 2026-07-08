@@ -15,7 +15,7 @@ import { siteConfig } from "@/lib/site";
 interface PageMetaInput {
   title: string;
   description: string;
-  /** Absolute path, e.g. "/apply" - canonical + OG url. */
+  /** Absolute path, e.g. "/trainings" - canonical + OG url. */
   path: string;
   keywords?: string[];
   /** Set false for transactional/no-value pages (e.g. the cart). */

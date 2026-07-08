@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { routes } from "@/lib/routes";
 import { MobileNav } from "@/components/bake-school/mobile-nav";
@@ -47,10 +48,21 @@ export function SiteHeader({
       <header className="sticky top-0 z-50 flex flex-wrap items-center justify-between gap-x-6 gap-y-3.5 border-b border-ink/10 bg-cream/90 px-[clamp(20px,5vw,48px)] py-[18px] backdrop-blur-[8px]">
         <Link
           href={routes.home}
-          className="font-serif text-2xl tracking-[0.02em] text-ink no-underline"
+          className="flex items-center gap-2.5 font-serif text-2xl tracking-[0.02em] text-ink no-underline"
         >
-          Khady&rsquo;s{" "}
-          <span className="font-sans text-[22px] font-light italic">Kitchen</span>
+          <Image
+            src="/logo.png"
+            alt=""
+            aria-hidden="true"
+            width={40}
+            height={40}
+            priority
+            className="h-10 w-10 rounded-full object-contain"
+          />
+          <span>
+            Khady&rsquo;s{" "}
+            <span className="font-sans text-[22px] font-light italic">Kitchen</span>
+          </span>
         </Link>
 
         <nav

@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   publisher: siteConfig.name,
   alternates: { canonical: "/" },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml", sizes: "any" }],
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [{ url: "/logo.png", type: "image/png", sizes: "any" }],
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
   openGraph: {
     title: siteConfig.title,

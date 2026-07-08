@@ -6,7 +6,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Confirming your payment",
   description: "Confirming your Bake School application payment.",
-  path: "/apply/verify",
+  path: "/trainings/verify",
 });
 
 export default function ApplyVerifyPage() {

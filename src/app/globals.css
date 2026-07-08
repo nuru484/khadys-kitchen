@@ -15,6 +15,14 @@
   --font-sans: var(--font-karla), sans-serif;
 }
 
+/* Smooth in-page anchor scrolling (nav → #about, hero → #apply…). Scoped to
+   no-preference so reduced-motion users keep instant jumps. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   margin: 0;
   background: var(--color-cream);

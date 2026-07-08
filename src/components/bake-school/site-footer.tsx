@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { SocialLinks } from "@/components/social-links";
 import { routes } from "@/lib/routes";
 
 const HOURS = [
@@ -8,10 +10,10 @@ const HOURS = [
 ];
 
 const FOOTER_LINKS = [
-  { label: "The Bakery", href: routes.home },
+  { label: "Home", href: routes.home },
   { label: "Shop", href: routes.shop },
   { label: "Track your order", href: routes.shopTrack },
-  { label: "Bake School", href: routes.apply },
+  { label: "Trainings", href: routes.trainings },
   { label: "Contact", href: routes.contact },
 ];
 
@@ -71,9 +73,8 @@ export function SiteFooter({ cta }: SiteFooterProps) {
           </p>
           <p className="mb-[18px] text-[16px] leading-[1.7] text-cream/70">
             hello@khadyskitchen.com
-            <br />
-            @khadyskitchen
           </p>
+          <SocialLinks tone="dark" size="sm" className="mb-[22px]" />
           <div className="flex flex-wrap gap-x-[18px] gap-y-2 text-[14px]">
             {FOOTER_LINKS.map((link) => (
               <Link
@@ -89,7 +90,15 @@ export function SiteFooter({ cta }: SiteFooterProps) {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-cream/15 px-[clamp(20px,5vw,48px)] py-6 text-[13px] tracking-[0.1em] text-cream/55">
-        <span className="font-serif text-[17px] tracking-[0.02em] text-cream">
+        <span className="flex items-center gap-2.5 font-serif text-[17px] tracking-[0.02em] text-cream">
+          <Image
+            src="/logo.png"
+            alt=""
+            aria-hidden="true"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-full object-contain"
+          />
           Khady&rsquo;s Kitchen
         </span>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">

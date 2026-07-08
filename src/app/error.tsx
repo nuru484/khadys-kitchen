@@ -30,7 +30,7 @@ export default function Error({
           description="We hit an unexpected error loading this page. Give it another try — if it keeps happening, head back to the counter."
           actions={[
             { label: "↻ Try again", onClick: () => unstable_retry(), variant: "dark" },
-            { label: "Back to the bakery", href: routes.home, variant: "outline" },
+            { label: "Back to home", href: routes.home, variant: "outline" },
           ]}
         />
       </div>

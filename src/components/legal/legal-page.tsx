@@ -4,9 +4,9 @@ import { Reveal } from "@/components/reveal";
 import { routes } from "@/lib/routes";
 
 const NAV_LINKS = [
-  { label: "The Bakery", href: routes.home },
+  { label: "Home", href: routes.home },
   { label: "Shop", href: routes.shop },
-  { label: "Classes", href: routes.apply },
+  { label: "Trainings", href: routes.trainings },
   { label: "Contact", href: routes.contact },
 ];
 

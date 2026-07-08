@@ -15,9 +15,9 @@ export const metadata = pageMetadata({
 });
 
 const NAV_LINKS = [
-  { label: "The Bakery", href: routes.home },
+  { label: "Home", href: routes.home },
   { label: "Shop", href: routes.shop },
-  { label: "Classes", href: routes.apply },
+  { label: "Trainings", href: routes.trainings },
 ];
 
 export default function ContactPage() {
