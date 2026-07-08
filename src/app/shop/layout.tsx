@@ -5,9 +5,9 @@ import { CartProvider } from "@/lib/cart-store";
 import { routes } from "@/lib/routes";
 
 const NAV_LINKS = [
-  { label: "The Bakery", href: routes.home },
+  { label: "Home", href: routes.home },
   { label: "Track order", href: routes.shopTrack },
-  { label: "Classes", href: routes.apply },
+  { label: "Trainings", href: routes.trainings },
   { label: "Contact", href: routes.contact },
 ];
 

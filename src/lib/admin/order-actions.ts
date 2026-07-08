@@ -5,7 +5,7 @@ import type { OrderStatus } from "@/types/order.types";
  * action cluster and the table's per-row menu so the two can never drift.
  * Mirrors the backend's NEXT_STATUSES table.
  */
-export type OrderAction = "confirm" | "ready" | "collect" | "cancel";
+export type OrderAction = "confirm" | "process" | "ready" | "collect" | "cancel";
 
 export const ORDER_ACTIONS: Record<
   OrderStatus,
@@ -13,10 +13,16 @@ export const ORDER_ACTIONS: Record<
 > = {
   PENDING: [
     { action: "confirm", label: "Confirm", variant: "primary" },
-    { action: "ready", label: "Mark ready", variant: "outline" },
+    { action: "process", label: "Mark processing", variant: "outline" },
     { action: "cancel", label: "Cancel order", variant: "danger" },
   ],
   CONFIRMED: [
+    { action: "process", label: "Mark processing", variant: "primary" },
+    { action: "ready", label: "Mark ready", variant: "outline" },
+    { action: "collect", label: "Mark collected", variant: "outline" },
+    { action: "cancel", label: "Cancel order", variant: "danger" },
+  ],
+  PROCESSING: [
     { action: "ready", label: "Mark ready", variant: "primary" },
     { action: "collect", label: "Mark collected", variant: "outline" },
     { action: "cancel", label: "Cancel order", variant: "danger" },
@@ -48,6 +54,11 @@ export const ORDER_CONFIRM_COPY: Record<
   confirm: {
     title: "Confirm this order?",
     description: "This accepts the order — baking starts on schedule.",
+  },
+  process: {
+    title: "Mark this order as processing?",
+    description:
+      "Lets the customer know their order is being prepared and the cake is being baked.",
   },
   ready: {
     title: "Mark this order ready?",

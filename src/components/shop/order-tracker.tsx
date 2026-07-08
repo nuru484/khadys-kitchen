@@ -23,6 +23,7 @@ import type { IOrder, OrderStatus } from "@/types/order.types";
 const STEPS: { status: OrderStatus; label: string; hint: string }[] = [
   { status: "PENDING", label: "Placed", hint: "We have your order" },
   { status: "CONFIRMED", label: "Confirmed", hint: "It's in the baking queue" },
+  { status: "PROCESSING", label: "Baking", hint: "Your order is being prepared" },
   { status: "READY", label: "Ready", hint: "Waiting at the counter" },
   { status: "COLLECTED", label: "Collected", hint: "Enjoy!" },
 ];
@@ -30,8 +31,9 @@ const STEPS: { status: OrderStatus; label: string; hint: string }[] = [
 const STEP_INDEX: Record<OrderStatus, number> = {
   PENDING: 0,
   CONFIRMED: 1,
-  READY: 2,
-  COLLECTED: 3,
+  PROCESSING: 2,
+  READY: 3,
+  COLLECTED: 4,
   CANCELLED: -1,
 };
 
@@ -109,7 +111,8 @@ function PayBalance({ order }: { order: IOrder }) {
         Pay {formatMoney(order.balance, order.currency)} online
       </Button>
       <p className="text-center text-[13px] text-ink/50">
-        Secure card / MoMo payment via Paystack — or pay when you collect.
+        Secure card / MoMo payment via Paystack — or call us to pay offline;
+        baking starts once payment is received.
       </p>
     </div>
   );
@@ -189,18 +192,22 @@ export function OrderTracker({ code }: { code: string }) {
               : ""}
           </div>
         ) : (
-          <ol className="grid gap-0 sm:grid-cols-4">
+          // Five steps only fit side-by-side from md up — below that the
+          // timeline stays vertical, and the horizontal layout gets a real
+          // column gap so labels/hints can never run into each other.
+          <ol className="grid gap-0 md:grid-cols-5 md:gap-x-4">
             {STEPS.map((step, i) => {
               const done = i <= stepIndex;
               const current = i === stepIndex;
               return (
-                <li key={step.status} className="relative flex gap-3.5 pb-5 sm:block sm:pb-0">
-                  {/* Connector: vertical on mobile, horizontal from sm up. */}
+                <li key={step.status} className="relative flex gap-3.5 pb-5 md:block md:pb-0">
+                  {/* Connector: vertical on mobile/tablet-portrait, horizontal from md up.
+                      -right-4 bridges the md gap so the line still reaches the next dot. */}
                   {i < STEPS.length - 1 ? (
                     <span
                       aria-hidden="true"
                       className={cn(
-                        "absolute left-[13px] top-8 h-[calc(100%-36px)] w-0.5 sm:left-10 sm:right-2 sm:top-[13px] sm:h-0.5 sm:w-auto",
+                        "absolute left-[13px] top-8 h-[calc(100%-36px)] w-0.5 md:-right-4 md:left-10 md:top-[13px] md:h-0.5 md:w-auto",
                         i < stepIndex ? "bg-accent" : "bg-ink/15",
                       )}
                     />
@@ -215,7 +222,7 @@ export function OrderTracker({ code }: { code: string }) {
                   >
                     {done ? "✓" : i + 1}
                   </span>
-                  <div className="sm:mt-2.5">
+                  <div className="min-w-0 md:mt-2.5">
                     <div
                       className={cn(
                         "text-[14.5px] font-semibold",
@@ -224,7 +231,9 @@ export function OrderTracker({ code }: { code: string }) {
                     >
                       {step.label}
                     </div>
-                    <div className="text-[12.5px] text-ink/50">{step.hint}</div>
+                    <div className="text-[12.5px] leading-[1.45] text-ink/50">
+                      {step.hint}
+                    </div>
                   </div>
                 </li>
               );

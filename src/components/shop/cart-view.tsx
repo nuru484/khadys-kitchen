@@ -42,7 +42,7 @@ export function CartView() {
         style={{ animation: "kk-fadein .7s .3s both" }}
       >
         Everything below is baked specifically for you. Review it, then check
-        out - pay online or when you collect.
+        out - pay online, or call us to pay offline before baking starts.
       </p>
 
       {!hydrated ? (
@@ -138,8 +138,8 @@ export function CartView() {
             </div>
           </div>
           <p className="mt-[18px] text-center text-[13.5px] text-ink/55">
-            Pay online (card / MoMo via Paystack) or when you collect - your
-            choice at checkout.
+            Pay online (card / MoMo via Paystack) or offline by phone or in
+            person - baking starts once payment is received.
           </p>
         </>
       )}

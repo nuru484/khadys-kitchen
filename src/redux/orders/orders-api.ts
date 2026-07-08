@@ -73,7 +73,10 @@ export const ordersApi = apiSlice.injectEndpoints({
 
     setOrderStatus: builder.mutation<
       IOrderResponse,
-      { id: string; action: "confirm" | "ready" | "collect" | "cancel" }
+      {
+        id: string;
+        action: "confirm" | "process" | "ready" | "collect" | "cancel";
+      }
     >({
       query: ({ id, action }) => ({
         url: `admin/orders/${id}/${action}`,

@@ -21,6 +21,7 @@ const STATUS_COLORS: Record<string, StatusColor> = {
   // Orders
   PENDING: { bg: "rgba(176,124,32,0.15)", color: "#8A5F14" },
   CONFIRMED: { bg: "rgba(92,107,69,0.15)", color: "#4A5838" },
+  PROCESSING: { bg: "rgba(47,92,134,0.14)", color: "#2F5C86" },
   READY: { bg: "rgba(46,107,63,0.12)", color: "#2E6B3F" },
   COLLECTED: { bg: "rgba(36,26,18,0.08)", color: "rgba(36,26,18,0.55)" },
   // Payments

@@ -267,7 +267,7 @@ export function CheckoutForm() {
           We&rsquo;ll text your order code to this number.{" "}
           {payNow
             ? "You'll pay securely via Paystack."
-            : "We'll call you to arrange payment before we start baking."}
+            : "Paying offline? Call us or stop by to pay after ordering - baking starts once payment is received, and unpaid orders may not be processed."}
         </p>
       </form>
 

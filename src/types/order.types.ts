@@ -4,6 +4,7 @@ import type { IPaginationMeta } from "./training.types";
 export type OrderStatus =
   | "PENDING"
   | "CONFIRMED"
+  | "PROCESSING"
   | "READY"
   | "COLLECTED"
   | "CANCELLED";
@@ -38,6 +39,7 @@ export interface IOrder {
   pickupDate: string | null;
   note: string | null;
   confirmedAt: string | null;
+  processingAt: string | null;
   readyAt: string | null;
   collectedAt: string | null;
   cancelledAt: string | null;

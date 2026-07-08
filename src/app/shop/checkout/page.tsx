@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Checkout",
   description:
-    "Check out your custom Khady's Kitchen order - pay online or when you collect in Kumasi.",
+    "Check out your custom Khady's Kitchen order - pay online, or call to pay offline before baking starts. Pickup in Kumasi.",
   path: "/shop/checkout",
   index: false,
 });
