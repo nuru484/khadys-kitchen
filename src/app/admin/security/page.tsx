@@ -84,6 +84,7 @@ function PasswordCard() {
         >
           <TextField
             label="Current password"
+            placeholder="Your current password"
             type="password"
             revealable
             autoComplete="current-password"
@@ -93,6 +94,7 @@ function PasswordCard() {
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[18px]">
             <TextField
               label="New password"
+              placeholder="At least 8 characters"
               type="password"
               revealable
               autoComplete="new-password"
@@ -101,6 +103,7 @@ function PasswordCard() {
             />
             <TextField
               label="Confirm new password"
+              placeholder="Re-enter the new password"
               type="password"
               revealable
               autoComplete="new-password"
@@ -195,6 +198,7 @@ function TwoFactorCard() {
           <div className="mt-4 grid max-w-[360px] gap-3">
             <TextField
               label="Confirm your password to disable"
+              placeholder="Your password"
               type="password"
               revealable
               autoComplete="current-password"
@@ -234,6 +238,7 @@ function TwoFactorCard() {
         <div className="mt-4 grid max-w-[360px] gap-3">
           <TextField
             label="Enter the 6-digit code from your email"
+            placeholder="123456"
             inputMode="numeric"
             maxLength={6}
             value={code}

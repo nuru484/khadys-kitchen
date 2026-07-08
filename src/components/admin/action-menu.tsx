@@ -23,18 +23,40 @@ export function ActionMenu({
   label,
   align = "right",
   className,
+  trigger,
+  triggerClassName,
+  triggerStyle,
+  triggerAriaLabel,
 }: {
   items: ActionItem[];
   /** Labelled pill trigger ("More", "Actions"); omit for the ⋯ icon button. */
   label?: string;
   align?: "left" | "right";
   className?: string;
+  /** Fully custom trigger content (wins over `label`) — rendered inside the
+   * menu button so the portal/flip/keyboard logic stays shared. Receives the
+   * open state (e.g. to rotate a chevron). */
+  trigger?: (open: boolean) => React.ReactNode;
+  /** Classes for the custom trigger's button (replaces the default styling). */
+  triggerClassName?: string;
+  /** Inline styles for the custom trigger's button (e.g. status colours). */
+  triggerStyle?: React.CSSProperties;
+  /** Accessible name for a custom trigger whose content isn't self-describing. */
+  triggerAriaLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const focusedRef = useRef(false);
-  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  const [pos, setPos] = useState<{
+    left: number;
+    /** Set when opening downward. */
+    top?: number;
+    /** Set when flipped upward (distance from the viewport bottom) — anchoring
+     * by `bottom` keeps the flip exact whatever the menu's real height. */
+    bottom?: number;
+    maxHeight?: number;
+  } | null>(null);
 
   const closeAndRestore = () => {
     setOpen(false);
@@ -94,13 +116,43 @@ export function ActionMenu({
       align === "right"
         ? Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8))
         : Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
-    setPos({ left, top: rect.bottom + 6 });
+
+    // Flip above the trigger when the menu wouldn't fit below (a row near the
+    // viewport bottom) — a fixed-position menu can't be scrolled into view.
+    // Measure the real menu when it's mounted; estimate from the item count on
+    // first open (~41px per item + container padding).
+    const menuHeight =
+      menuRef.current?.offsetHeight ?? items.length * 41 + 14;
+    const margin = 6;
+    const spaceBelow = window.innerHeight - rect.bottom - margin - 8;
+    const spaceAbove = rect.top - margin - 8;
+    if (menuHeight > spaceBelow && spaceAbove > spaceBelow) {
+      setPos({
+        left,
+        bottom: window.innerHeight - rect.top + margin,
+        // Ultra-short viewports: cap and let the menu scroll internally.
+        maxHeight: menuHeight > spaceAbove ? spaceAbove : undefined,
+      });
+    } else {
+      setPos({
+        left,
+        top: rect.bottom + margin,
+        maxHeight: menuHeight > spaceBelow ? spaceBelow : undefined,
+      });
+    }
   };
 
   useLayoutEffect(() => {
     if (open) place();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Second pass once the menu exists in the DOM: re-place using its measured
+  // height, so the flip/clamp decision doesn't rest on the estimate.
+  useLayoutEffect(() => {
+    if (open && pos && menuRef.current) place();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, pos !== null]);
 
   useEffect(() => {
     if (!open) return;
@@ -149,7 +201,19 @@ export function ActionMenu({
       className={cn("relative inline-block", className)}
       onClick={(e) => e.stopPropagation()}
     >
-      {label ? (
+      {trigger ? (
+        <button
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={triggerAriaLabel}
+          onClick={() => setOpen((o) => !o)}
+          className={triggerClassName}
+          style={triggerStyle}
+        >
+          {trigger(open)}
+        </button>
+      ) : label ? (
         <button
           type="button"
           aria-haspopup="menu"
@@ -197,8 +261,17 @@ export function ActionMenu({
               aria-orientation="vertical"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={onMenuKeyDown}
-              className="fixed z-[120] w-[190px] rounded-[14px] border border-ink/15 bg-card p-1.5"
-              style={{ animation: "kk-rise .15s ease both", left: pos.left, top: pos.top }}
+              className={cn(
+                "fixed z-[120] w-[190px] rounded-[14px] border border-ink/15 bg-card p-1.5",
+                pos.maxHeight !== undefined && "overflow-y-auto",
+              )}
+              style={{
+                animation: "kk-rise .15s ease both",
+                left: pos.left,
+                top: pos.top,
+                bottom: pos.bottom,
+                maxHeight: pos.maxHeight,
+              }}
             >
               {items.map((item) => (
                 <button

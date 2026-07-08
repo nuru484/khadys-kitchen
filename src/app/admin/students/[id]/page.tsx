@@ -8,12 +8,13 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { RippleLoader } from "@/components/ui/Loader";
 import { PageActions } from "@/components/admin/page-actions";
+import { StatusPicker } from "@/components/admin/status-picker";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { EditStudentModal } from "@/components/admin/edit-student-modal";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { formatMoney } from "@/lib/format-money";
-import { formatDate, formatDateTime } from "@/lib/format-date";
+import { formatDateTime } from "@/lib/format-date";
 import { useAuthRole } from "@/hooks/use-auth-role";
 import {
   useDeleteStudentMutation,
@@ -75,9 +76,9 @@ export default function StudentDetailPage() {
     ["Phone", student.phone],
     ["Email", student.email ?? "—"],
     ["Location", student.location ?? "—"],
-    ["Enrolled", formatDate(student.enrolledAt)],
-    ["Graduated", formatDate(student.graduatedAt)],
-    ["Suspended", formatDate(student.suspendedAt)],
+    ["Enrolled", formatDateTime(student.enrolledAt)],
+    ["Graduated", formatDateTime(student.graduatedAt)],
+    ["Suspended", formatDateTime(student.suspendedAt)],
   ];
 
   return (
@@ -115,51 +116,6 @@ export default function StudentDetailPage() {
         <PageActions
           actions={[
             { label: "Edit", primary: true, onClick: () => setEditing(true) },
-            ...(student.status !== "ACTIVE"
-              ? [
-                  {
-                    label: "Reactivate",
-                    isLoading: statusBusy,
-                    onClick: () =>
-                      confirm({
-                        title: "Reactivate this student?",
-                        description: "They will be marked active again.",
-                        confirmText: "Reactivate",
-                        onConfirm: () => changeStatus("activate"),
-                      }),
-                  },
-                ]
-              : []),
-            ...(student.status === "ACTIVE"
-              ? [
-                  {
-                    label: "Suspend",
-                    isLoading: statusBusy,
-                    onClick: () =>
-                      confirm({
-                        title: "Suspend this student?",
-                        description: "They will be marked suspended.",
-                        confirmText: "Suspend",
-                        onConfirm: () => changeStatus("suspend"),
-                      }),
-                  },
-                ]
-              : []),
-            ...(student.status !== "GRADUATED"
-              ? [
-                  {
-                    label: "Graduate",
-                    isLoading: statusBusy,
-                    onClick: () =>
-                      confirm({
-                        title: "Graduate this student?",
-                        description: "This marks the student as graduated.",
-                        confirmText: "Graduate",
-                        onConfirm: () => changeStatus("graduate"),
-                      }),
-                  },
-                ]
-              : []),
             ...(isAdmin
               ? [
                   {
@@ -185,7 +141,42 @@ export default function StudentDetailPage() {
         <Card className="p-[clamp(20px,3vw,28px)]">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-serif text-[19px]">Details</h2>
-            <StatusBadge status={student.status} />
+            {/* Current status doubles as the lifecycle picker — the same
+                transitions and confirmations as the old header buttons. */}
+            <StatusPicker
+              status={student.status}
+              options={[
+                ...(student.status !== "ACTIVE"
+                  ? [{ value: "activate" as const, label: "Reactivate", disabled: statusBusy }]
+                  : []),
+                ...(student.status === "ACTIVE"
+                  ? [{ value: "suspend" as const, label: "Suspend", disabled: statusBusy }]
+                  : []),
+                ...(student.status !== "GRADUATED"
+                  ? [{ value: "graduate" as const, label: "Graduate", disabled: statusBusy }]
+                  : []),
+              ]}
+              onSelect={(action) => {
+                const copy = {
+                  activate: {
+                    title: "Reactivate this student?",
+                    description: "They will be marked active again.",
+                    confirmText: "Reactivate",
+                  },
+                  suspend: {
+                    title: "Suspend this student?",
+                    description: "They will be marked suspended.",
+                    confirmText: "Suspend",
+                  },
+                  graduate: {
+                    title: "Graduate this student?",
+                    description: "This marks the student as graduated.",
+                    confirmText: "Graduate",
+                  },
+                }[action];
+                confirm({ ...copy, onConfirm: () => changeStatus(action) });
+              }}
+            />
           </div>
           <div className="grid gap-2.5">
             {info.map(([label, value]) => (
@@ -242,7 +233,14 @@ export default function StudentDetailPage() {
                       <span className="font-medium">{formatMoney(p.amount, p.currency)}</span>
                       <span className="text-ink/55">{p.method.replace("_", " ")}</span>
                       <StatusBadge status={p.status} />
-                      <span className="text-ink/45">{formatDateTime(p.paidAt ?? null)}</span>
+                      <span className="text-right text-ink/45">
+                        {formatDateTime(p.paidAt ?? null)}
+                        {p.reversedAt ? (
+                          <span className="block text-[12px] text-ink/40">
+                            Reversed {formatDateTime(p.reversedAt)}
+                          </span>
+                        ) : null}
+                      </span>
                     </div>
                   ))
                 )}

@@ -269,7 +269,7 @@ export default function StyleGuidePage() {
                 code="404"
                 title="This shelf is empty."
                 description="The page you're after was either eaten or never baked. The good stuff is back at the counter."
-                actions={[{ label: "← Back to the bakery", href: routes.home, variant: "dark" }]}
+                actions={[{ label: "← Back to home", href: routes.home, variant: "dark" }]}
               />
               <div className="mt-2"><Caption>404 · not found</Caption></div>
             </div>

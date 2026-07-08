@@ -103,6 +103,7 @@ export function WalkInOrderModal({
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label="Customer name"
+            placeholder="e.g. Ama Mensah"
             error={errors.fullName?.message}
             {...register("fullName")}
           />
@@ -138,6 +139,7 @@ export function WalkInOrderModal({
                   type="number"
                   min={1}
                   max={500}
+                  placeholder="Qty"
                   aria-label="Quantity"
                   aria-invalid={errors.items?.[i]?.quantity ? true : undefined}
                   {...register(`items.${i}.quantity`, { valueAsNumber: true })}
@@ -176,7 +178,11 @@ export function WalkInOrderModal({
           </button>
         </div>
 
-        <TextField label="Note (optional)" {...register("note")} />
+        <TextField
+          label="Note (optional)"
+          placeholder="Cake message, allergies, pickup time…"
+          {...register("note")}
+        />
 
         <div className="flex justify-between border-t border-ink/10 pt-3 text-[15px]">
           <span className="text-ink/55">Total</span>

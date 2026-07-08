@@ -55,7 +55,8 @@ export function routeMeta(pathname: string): { crumb: string; title: string } {
 
   if (pathname.startsWith("/admin/payments")) return { crumb: "Money", title: "Payments & payouts" };
 
-  if (pathname.startsWith("/admin/team")) return { crumb: "Configuration", title: "Team & roles" };
+  if (pathname === "/admin/team") return { crumb: "Configuration", title: "Team & roles" };
+  if (pathname.startsWith("/admin/team/")) return { crumb: "Configuration · Team", title: "Team member" };
   if (pathname.startsWith("/admin/audit")) return { crumb: "Configuration", title: "Audit log" };
 
   if (pathname.startsWith("/admin/profile")) return { crumb: "Account", title: "Admin profile" };

@@ -55,12 +55,14 @@ export function EditCustomerModal({
       <div className="grid gap-4">
         <TextField
           label="Name"
+          placeholder="e.g. Ama Mensah"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
         />
         <TextField
           label="Email (optional)"
           type="email"
+          placeholder="name@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />

@@ -49,7 +49,7 @@ export function LabeledSelect({
  * filters" toggle; from lg up it's an inline toolbar.
  */
 export function FilterBar({
-  search,
+  search = "",
   onSearch,
   searchPlaceholder = "Search…",
   activeCount = 0,
@@ -57,8 +57,9 @@ export function FilterBar({
   action,
   children,
 }: {
-  search: string;
-  onSearch: (value: string) => void;
+  search?: string;
+  /** Provide to render a search field; omit for a filters-only toolbar. */
+  onSearch?: (value: string) => void;
   searchPlaceholder?: string;
   activeCount?: number;
   resultLabel?: string;
@@ -68,17 +69,20 @@ export function FilterBar({
   children?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const hasSearch = Boolean(onSearch);
 
   return (
     <div className="mb-[18px]">
-      {/* Mobile / tablet: collapse the toolbar behind a toggle. */}
-      <div className="flex items-center justify-between gap-3 lg:hidden">
+      {/* Mobile / tablet: collapse the toolbar behind a toggle. The row wraps so
+          a persistent action drops onto its own line on very narrow screens
+          (e.g. a Galaxy Fold) instead of squeezing the button text. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 lg:hidden">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-controls="admin-filters"
-          className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-ink/25 px-4 py-2.5 font-sans text-[13px] font-semibold text-ink transition-colors hover:border-accent"
+          className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-ink/25 px-4 py-2.5 font-sans text-[13px] font-semibold text-ink transition-colors hover:border-accent"
         >
           <svg
             aria-hidden="true"
@@ -91,7 +95,7 @@ export function FilterBar({
           >
             <path d="M4 6h16M7 12h10M10 18h4" />
           </svg>
-          Search &amp; filters
+          {hasSearch ? "Search & filters" : "Filters"}
           {activeCount > 0 ? (
             <span className="grid h-5 min-w-[20px] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-[#FDFAF3]">
               {activeCount}
@@ -122,31 +126,33 @@ export function FilterBar({
           "lg:flex lg:flex-wrap lg:items-end lg:gap-2.5",
         )}
       >
-        <div className="relative col-span-2 lg:col-span-1 lg:min-w-[180px] lg:max-w-[320px] lg:flex-[1_1_200px]">
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] text-ink/45"
-          >
-            ⌕
-          </span>
-          <input
-            value={search}
-            onChange={(e) => onSearch(e.target.value)}
-            placeholder={searchPlaceholder}
-            aria-label={searchPlaceholder}
-            className="w-full rounded-full border-[1.5px] border-ink/20 bg-transparent py-[10px] pl-10 pr-10 font-sans text-[14.5px] text-ink outline-none transition-colors focus:border-accent"
-          />
-          {search ? (
-            <button
-              type="button"
-              onClick={() => onSearch("")}
-              aria-label="Clear search"
-              className="absolute right-3 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center rounded-full bg-ink/10 text-[11px] font-bold text-ink/55 transition-colors hover:bg-ink/20 hover:text-ink"
+        {hasSearch ? (
+          <div className="relative col-span-2 lg:col-span-1 lg:min-w-[180px] lg:max-w-[320px] lg:flex-[1_1_200px]">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] text-ink/45"
             >
-              ✕
-            </button>
-          ) : null}
-        </div>
+              ⌕
+            </span>
+            <input
+              value={search}
+              onChange={(e) => onSearch?.(e.target.value)}
+              placeholder={searchPlaceholder}
+              aria-label={searchPlaceholder}
+              className="w-full rounded-full border-[1.5px] border-ink/20 bg-transparent py-[10px] pl-10 pr-10 font-sans text-[14.5px] text-ink outline-none transition-colors focus:border-accent"
+            />
+            {search ? (
+              <button
+                type="button"
+                onClick={() => onSearch?.("")}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center rounded-full bg-ink/10 text-[11px] font-bold text-ink/55 transition-colors hover:bg-ink/20 hover:text-ink"
+              >
+                ✕
+              </button>
+            ) : null}
+          </div>
+        ) : null}
 
         {children}
 

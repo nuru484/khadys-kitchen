@@ -12,7 +12,7 @@ import {
 } from "@/lib/admin/order-actions";
 import { useAuthRole } from "@/hooks/use-auth-role";
 import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
-import { SkeletonCells } from "@/components/admin/table-bits";
+import { DateTimeCell, SkeletonCells } from "@/components/admin/table-bits";
 import { WalkInOrderModal } from "@/components/admin/walk-in-order-modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
@@ -20,7 +20,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format-money";
-import { formatDate } from "@/lib/format-date";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { useTableQuery } from "@/hooks/use-table-query";
@@ -34,6 +33,7 @@ const STATUS_FILTERS = [
   "all",
   "PENDING",
   "CONFIRMED",
+  "PROCESSING",
   "READY",
   "COLLECTED",
   "CANCELLED",
@@ -109,7 +109,7 @@ export default function OrdersPage() {
         searchPlaceholder="Search code, name, phone…"
         activeCount={activeCount}
         resultLabel={meta ? `${String(meta.total)} total` : undefined}
-        action={<Button onClick={() => setRecording(true)}>+ Walk-in order</Button>}
+        action={<Button size="sm" onClick={() => setRecording(true)}>+ Walk-in order</Button>}
       >
         {productId ? (
           <button
@@ -205,7 +205,7 @@ export default function OrdersPage() {
                           <StatusBadge status={o.status} />
                         </td>
                         <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
-                          {formatDate(o.createdAt)}
+                          <DateTimeCell iso={o.createdAt} />
                         </td>
                         <td className="px-6 py-4 text-right">
                           <ActionMenu

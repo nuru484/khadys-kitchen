@@ -6,12 +6,11 @@ import { Card, Pager } from "@/components/admin/ui";
 import { ActionMenu } from "@/components/admin/action-menu";
 import { EditCustomerModal } from "@/components/admin/edit-customer-modal";
 import { FilterBar } from "@/components/admin/filter-bar";
-import { SkeletonCells } from "@/components/admin/table-bits";
+import { DateTimeCell, SkeletonCells } from "@/components/admin/table-bits";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format-money";
-import { formatDate } from "@/lib/format-date";
 import { useTableQuery } from "@/hooks/use-table-query";
 import type { ICustomer } from "@/types/customer.types";
 import { useGetCustomersQuery } from "@/redux/customers/customers-api";
@@ -116,7 +115,7 @@ export default function CustomersPage() {
                         {formatMoney(c.totalSpent)}
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
-                        {formatDate(c.lastOrderAt)}
+                        <DateTimeCell iso={c.lastOrderAt} />
                       </td>
                       <td className="px-6 py-4 text-right">
                         <ActionMenu

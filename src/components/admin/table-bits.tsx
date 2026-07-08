@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/admin/ui";
 import { cn } from "@/lib/utils";
+import { formatDate, formatTime } from "@/lib/format-date";
 
 /**
  * Pulsing placeholder rows for a loading table, designed to sit INSIDE the
@@ -52,5 +53,19 @@ export function TableSkeletonRows({ rows = 5 }: { rows?: number }) {
         </div>
       ))}
     </Card>
+  );
+}
+
+/**
+ * A timestamp in a data table: the date on one line with the time as small
+ * muted text beneath — keeps rows narrow instead of one long date-time string.
+ */
+export function DateTimeCell({ iso }: { iso: string | null | undefined }) {
+  if (!iso) return <>—</>;
+  return (
+    <div className="whitespace-nowrap leading-tight">
+      <div>{formatDate(iso)}</div>
+      <div className="mt-0.5 text-[11.5px] text-ink/45">{formatTime(iso)}</div>
+    </div>
   );
 }

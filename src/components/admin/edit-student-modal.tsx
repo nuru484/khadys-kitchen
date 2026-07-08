@@ -87,24 +87,28 @@ export function EditStudentModal({
       <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="grid gap-4">
         <TextField
           label="Full name"
+          placeholder="e.g. Ama Mensah"
           error={errors.fullName?.message}
           {...register("fullName")}
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label="Phone"
+            placeholder="+233 24 000 0000"
             error={errors.phone?.message}
             {...register("phone")}
           />
           <TextField
             label="Email (optional)"
             type="email"
+            placeholder="student@example.com"
             error={errors.email?.message}
             {...register("email")}
           />
         </div>
         <TextField
           label="Location (optional)"
+          placeholder="e.g. Kumasi"
           error={errors.location?.message}
           {...register("location")}
         />
@@ -114,6 +118,7 @@ export function EditStudentModal({
           </span>
           <textarea
             rows={3}
+            placeholder="Any notes about this student…"
             className="w-full rounded-[12px] border-[1.5px] border-ink/20 bg-cream px-[15px] py-3 font-sans text-[15px] text-ink outline-none transition-colors focus:border-accent"
             {...register("notes")}
           />

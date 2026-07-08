@@ -1,12 +1,12 @@
 "use client";
 
 import { Card, Pager } from "@/components/admin/ui";
-import { LabeledSelect } from "@/components/admin/filter-bar";
-import { SkeletonCells } from "@/components/admin/table-bits";
+import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
+import { DateTimeCell, SkeletonCells } from "@/components/admin/table-bits";
+import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
-import { formatDateTime } from "@/lib/format-date";
 import { useTableQuery } from "@/hooks/use-table-query";
 import { useGetAuditLogsQuery } from "@/redux/audit/audit-api";
 import type { IAuditListQuery } from "@/types/audit.types";
@@ -70,7 +70,17 @@ export default function AuditPage() {
 
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
-      <div className="mb-[18px] flex flex-wrap items-end gap-2.5">
+      <FilterBar
+        activeCount={
+          (filters.entity !== "all" ? 1 : 0) + (filters.action !== "all" ? 1 : 0)
+        }
+        resultLabel={meta ? `${String(meta.total)} events` : undefined}
+        action={
+          <Button variant="outline" size="sm" onClick={() => void refetch()}>
+            Refresh
+          </Button>
+        }
+      >
         <LabeledSelect
           label="Entity"
           value={filters.entity}
@@ -95,19 +105,7 @@ export default function AuditPage() {
             </option>
           ))}
         </LabeledSelect>
-        <button
-          type="button"
-          onClick={() => void refetch()}
-          className="min-h-[42px] rounded-full border-[1.5px] border-ink/20 px-4 text-[13px] font-semibold text-ink transition-colors hover:border-accent"
-        >
-          Refresh
-        </button>
-        {meta ? (
-          <span className="ml-auto text-[13px] text-ink/50">
-            {meta.total} events
-          </span>
-        ) : null}
-      </div>
+      </FilterBar>
 
       {isError ? (
         <ErrorState error={error} onRetry={() => void refetch()} />
@@ -147,7 +145,7 @@ export default function AuditPage() {
                         className="border-b border-ink/[0.08] align-top last:border-0"
                       >
                         <td className="whitespace-nowrap px-6 py-3.5 text-[13px] text-ink/70">
-                          {formatDateTime(log.createdAt)}
+                          <DateTimeCell iso={log.createdAt} />
                         </td>
                         <td className="px-4 py-3.5 text-[13.5px]">
                           {log.actor ? (

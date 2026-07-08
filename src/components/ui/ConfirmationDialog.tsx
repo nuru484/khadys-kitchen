@@ -104,13 +104,15 @@ export function ConfirmationDialog({
         </label>
       ) : null}
 
+      {/* Same footprint as the shared Button `md` size, so dialogs read at the
+          system's medium scale instead of oversized bespoke pills. */}
       <div className="flex flex-wrap justify-center gap-2.5">
         <button
           type="button"
           onClick={confirm}
           disabled={gated}
           className={cn(
-            "cursor-pointer rounded-full border-none px-6 py-[13px] text-[14px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+            "cursor-pointer rounded-full border-none px-5 py-2.5 text-[13.5px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 md:text-[14px]",
             styles.confirm,
           )}
         >
@@ -119,7 +121,7 @@ export function ConfirmationDialog({
         <button
           type="button"
           onClick={() => onOpenChange(false)}
-          className="cursor-pointer rounded-full border-[1.5px] border-ink/25 bg-transparent px-6 py-[11.5px] text-[14px] font-semibold text-ink transition-colors hover:border-ink"
+          className="cursor-pointer rounded-full border-[1.5px] border-ink/25 bg-transparent px-5 py-[9px] text-[13.5px] font-semibold text-ink transition-colors hover:border-ink md:text-[14px]"
         >
           {cancelText}
         </button>

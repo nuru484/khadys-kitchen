@@ -13,7 +13,7 @@ import { PageActions } from "@/components/admin/page-actions";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { formatMoney } from "@/lib/format-money";
-import { formatDate } from "@/lib/format-date";
+import { formatDateTime } from "@/lib/format-date";
 import { useGetCustomerByIdQuery } from "@/redux/customers/customers-api";
 import { useGetOrdersQuery } from "@/redux/orders/orders-api";
 import type { ICustomer } from "@/types/customer.types";
@@ -78,8 +78,8 @@ export default function CustomerDetailPage() {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[18px]">
         <StatTile label="Orders" value={String(customer.orderCount)} />
         <StatTile label="Total spent" value={formatMoney(customer.totalSpent)} />
-        <StatTile label="Last order" value={formatDate(customer.lastOrderAt)} />
-        <StatTile label="Customer since" value={formatDate(customer.createdAt)} />
+        <StatTile label="Last order" value={formatDateTime(customer.lastOrderAt)} />
+        <StatTile label="Customer since" value={formatDateTime(customer.createdAt)} />
       </div>
 
       {customer.notes ? (
@@ -126,7 +126,7 @@ export default function CustomerDetailPage() {
                       <StatusBadge status={o.status} />
                     </td>
                     <td className="whitespace-nowrap px-4 py-3.5 text-[13.5px] text-ink/70">
-                      {formatDate(o.createdAt)}
+                      {formatDateTime(o.createdAt)}
                     </td>
                     <td className="px-6 py-3.5 text-right text-ink/40">→</td>
                   </tr>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/admin/ui";
+import { Skeleton } from "@/components/ui/Skeleton";
 import {
   BestSellersMeters,
   RevenueChart,
@@ -44,9 +45,13 @@ function TileLink({
       <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink/50">
         {label}
       </div>
-      <div className="mt-2 font-serif text-[clamp(24px,2.6vw,30px)]">{value}</div>
+      <div className="mt-2 font-serif text-[clamp(24px,2.6vw,30px)]">
+        {value}
+      </div>
       {note ? (
-        <div className="mt-1 text-[12.5px] font-semibold text-accent">{note}</div>
+        <div className="mt-1 text-[12.5px] font-semibold text-accent">
+          {note}
+        </div>
       ) : null}
     </Link>
   );
@@ -78,22 +83,22 @@ function RangePicker({
         </Select>
       </div>
       <div className="-mx-1 hidden gap-1.5 overflow-x-auto px-1 pb-0.5 sm:flex">
-      {STATS_RANGE_OPTIONS.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          onClick={() => onChange(o.id)}
-          aria-pressed={range === o.id}
-          className={cn(
-            "flex-none cursor-pointer whitespace-nowrap rounded-full px-3.5 py-2 text-[12.5px] font-semibold transition-colors",
-            range === o.id
-              ? "bg-ink text-cream"
-              : "border-[1.5px] border-ink/20 bg-transparent text-ink/60 hover:border-ink/45 hover:text-ink",
-          )}
-        >
-          {o.label}
-        </button>
-      ))}
+        {STATS_RANGE_OPTIONS.map((o) => (
+          <button
+            key={o.id}
+            type="button"
+            onClick={() => onChange(o.id)}
+            aria-pressed={range === o.id}
+            className={cn(
+              "flex-none cursor-pointer whitespace-nowrap rounded-full px-3.5 py-2 text-[12.5px] font-semibold transition-colors",
+              range === o.id
+                ? "bg-ink text-cream"
+                : "border-[1.5px] border-ink/20 bg-transparent text-ink/60 hover:border-ink/45 hover:text-ink",
+            )}
+          >
+            {o.label}
+          </button>
+        ))}
       </div>
     </>
   );
@@ -115,15 +120,42 @@ export default function DashboardPage() {
       <RangePicker range={range} onChange={setRange} />
 
       {isLoading ? (
-        <div className="grid gap-5">
+        <div className="grid gap-5" aria-busy="true">
+          {/* Stat tiles: label + big number + sublabel, echoing the real cards. */}
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-3.5">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-[118px] animate-pulse rounded-[18px] bg-ink/[0.06]" />
+              <div
+                key={i}
+                className="grid content-start gap-3 rounded-[18px] border border-ink/10 bg-card p-[clamp(16px,2.4vw,22px)]"
+              >
+                <Skeleton className="h-3 w-[55%]" />
+                <Skeleton className="h-7 w-[45%]" />
+                <Skeleton className="h-2.5 w-[72%]" />
+              </div>
             ))}
           </div>
+          {/* Chart cards: title + value + a bar-chart silhouette. */}
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-[18px]">
-            <div className="h-[260px] animate-pulse rounded-[18px] bg-ink/[0.06]" />
-            <div className="h-[260px] animate-pulse rounded-[18px] bg-ink/[0.06]" />
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-[18px] border border-ink/10 bg-card p-[clamp(18px,2.8vw,24px)]"
+              >
+                <Skeleton className="h-3.5 w-[38%]" />
+                <Skeleton className="mt-2 h-6 w-[28%]" />
+                <div className="mt-6 flex h-[150px] items-end gap-2">
+                  {["48%", "70%", "55%", "82%", "60%", "95%", "52%", "74%"].map(
+                    (h, j) => (
+                      <Skeleton
+                        key={j}
+                        className="flex-1 rounded-t-md"
+                        style={{ height: h }}
+                      />
+                    ),
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       ) : isError || !stats ? (
@@ -143,7 +175,26 @@ export default function DashboardPage() {
         {stats && !isError ? (
           <BakeSchoolCard bakeSchool={stats.bakeSchool} />
         ) : isLoading ? (
-          <div className="h-[220px] animate-pulse rounded-[18px] bg-ink/[0.06]" />
+          <div
+            aria-busy="true"
+            className="rounded-[18px] border border-ink/10 bg-card p-[clamp(18px,2.8vw,24px)]"
+          >
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <Skeleton className="h-4 w-[38%]" />
+              <Skeleton className="h-6 w-[22%] rounded-full" />
+            </div>
+            <div className="grid gap-3.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-4"
+                >
+                  <Skeleton className="h-3 w-[42%]" />
+                  <Skeleton className="h-3 w-[16%]" />
+                </div>
+              ))}
+            </div>
+          </div>
         ) : null}
         <ActivitySection activity={activity} />
       </div>
@@ -205,12 +256,10 @@ function AggregatesSection({
           <RevenueChart series={shop.revenue.series} range={range} />
           <BestSellersMeters data={shop.bestSellers} range={range} />
         </div>
-
       </div>
     </>
   );
 }
-
 
 /** Bake School snapshot — pairs with Recent activity on large screens; each
  * sits on its own row on tablets and phones. */
@@ -221,50 +270,52 @@ function BakeSchoolCard({
 }) {
   return (
     <Card className="p-[clamp(18px,2.8vw,24px)]">
-        <div className="mb-4 flex items-baseline justify-between gap-3">
-          <h3 className="font-serif text-[19px] font-normal">Bake School</h3>
-          <Link
-            href="/admin/applications"
-            className="whitespace-nowrap text-[13px] font-semibold text-accent no-underline hover:underline"
-          >
-            Applications →
-          </Link>
+      <div className="mb-4 flex items-baseline justify-between gap-3">
+        <h3 className="font-serif text-[19px] font-normal">Bake School</h3>
+        <Link
+          href="/admin/applications"
+          className="whitespace-nowrap text-[13px] font-semibold text-accent no-underline hover:underline"
+        >
+          Applications →
+        </Link>
+      </div>
+      <div className="grid gap-2.5 text-[14.5px]">
+        <div className="flex justify-between gap-4">
+          <span className="text-ink/55">Pending applications</span>
+          <span className="font-semibold">
+            {bakeSchool.pendingApplications}
+          </span>
         </div>
-        <div className="grid gap-2.5 text-[14.5px]">
-          <div className="flex justify-between gap-4">
-            <span className="text-ink/55">Pending applications</span>
-            <span className="font-semibold">{bakeSchool.pendingApplications}</span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-ink/55">Active students</span>
-            <span className="font-semibold">{bakeSchool.activeStudents}</span>
-          </div>
+        <div className="flex justify-between gap-4">
+          <span className="text-ink/55">Active students</span>
+          <span className="font-semibold">{bakeSchool.activeStudents}</span>
         </div>
-        {bakeSchool.openCohort ? (
-          <Link
-            href={`/admin/classes/${bakeSchool.openCohort.id}`}
-            className="mt-4 block rounded-[14px] border border-ink/10 bg-oat/40 px-4 py-3.5 no-underline transition-colors hover:border-accent/50"
-          >
-            <div className="text-[12px] font-semibold uppercase tracking-[0.1em] text-accent">
-              Enrolling now
-            </div>
-            <div className="mt-1 text-[15px] font-semibold text-ink">
-              {bakeSchool.openCohort.name}
-            </div>
-            <div className="mt-0.5 text-[13px] text-ink/60">
-              {bakeSchool.openCohort.students}
-              {bakeSchool.openCohort.capacity
-                ? ` of ${String(bakeSchool.openCohort.capacity)}`
-                : ""}{" "}
-              admitted · {bakeSchool.openCohort.applications} application
-              {bakeSchool.openCohort.applications === 1 ? "" : "s"}
-            </div>
-          </Link>
-        ) : (
-          <p className="mt-4 text-[13.5px] text-ink/50">
-            No cohort is currently open for applications.
-          </p>
-        )}
+      </div>
+      {bakeSchool.openCohort ? (
+        <Link
+          href={`/admin/classes/${bakeSchool.openCohort.id}`}
+          className="mt-4 block rounded-[14px] border border-ink/10 bg-oat/40 px-4 py-3.5 no-underline transition-colors hover:border-accent/50"
+        >
+          <div className="text-[12px] font-semibold uppercase tracking-[0.1em] text-accent">
+            Enrolling now
+          </div>
+          <div className="mt-1 text-[15px] font-semibold text-ink">
+            {bakeSchool.openCohort.name}
+          </div>
+          <div className="mt-0.5 text-[13px] text-ink/60">
+            {bakeSchool.openCohort.students}
+            {bakeSchool.openCohort.capacity
+              ? ` of ${String(bakeSchool.openCohort.capacity)}`
+              : ""}{" "}
+            admitted · {bakeSchool.openCohort.applications} application
+            {bakeSchool.openCohort.applications === 1 ? "" : "s"}
+          </div>
+        </Link>
+      ) : (
+        <p className="mt-4 text-[13.5px] text-ink/50">
+          No cohort is currently open for applications.
+        </p>
+      )}
     </Card>
   );
 }
@@ -295,9 +346,15 @@ function ActivitySection({
         </Link>
       </div>
       {activity.isLoading ? (
-        <div className="grid gap-2.5">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-5 animate-pulse rounded bg-ink/[0.06]" />
+        <div className="grid gap-3.5" aria-busy="true">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-8 w-8 flex-none rounded-full" />
+              <div className="grid flex-1 gap-1.5">
+                <Skeleton className="h-3 w-[70%]" />
+                <Skeleton className="h-2.5 w-[35%]" />
+              </div>
+            </div>
           ))}
         </div>
       ) : activity.isError ? (
