@@ -104,30 +104,54 @@ function Sidebar({
           );
         })}
       </nav>
-      <div className="grid gap-3 border-t border-cream/15 px-5 py-[18px]">
-        <div className="flex items-center gap-3">
-          {account.picture ? (
-            <Image
-              src={account.picture}
-              alt={account.name}
-              width={38}
-              height={38}
-              className="h-[38px] w-[38px] flex-none rounded-full object-cover"
-            />
-          ) : (
-            <span className="grid h-[38px] w-[38px] flex-none place-items-center rounded-full bg-accent font-serif text-[15px] text-[#FDFAF3]">
-              {account.initials}
-            </span>
-          )}
-          <div className="min-w-0">
-            <div className="truncate text-[14px] font-semibold">{account.name}</div>
-            <div className="text-[12px] text-cream/55">{account.meta}</div>
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
+      <AccountMenu account={account} onLogout={onLogout} loggingOut={loggingOut} />
+    </aside>
+  );
+}
+
+/**
+ * Sidebar footer: the signed-in account row is a button that opens a small
+ * menu (upward, since it sits at the bottom) with Back to site and Sign out —
+ * the footer itself stays a single tidy row.
+ */
+function AccountMenu({
+  account,
+  onLogout,
+  loggingOut,
+}: {
+  account: { name: string; meta: string; initials: string; picture: string | null };
+  onLogout: () => void;
+  loggingOut: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+
+  // Close on Escape or any click outside the footer block.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    const onClick = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest("[data-account-menu]")) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [open]);
+
+  return (
+    <div data-account-menu className="relative border-t border-cream/15 px-3.5 py-3.5">
+      {open ? (
+        <div className="absolute inset-x-3.5 bottom-full mb-1.5 grid overflow-hidden rounded-[14px] border border-cream/15 bg-ink shadow-[0_-8px_28px_rgba(0,0,0,0.35)]">
           <Link
             href="/"
-            className="text-[13px] text-cream/65 no-underline transition-colors hover:text-cream"
+            onClick={() => setOpen(false)}
+            className="px-4 py-3 text-[13.5px] font-semibold text-cream/80 no-underline transition-colors hover:bg-cream/10 hover:text-cream"
           >
             ← Back to site
           </Link>
@@ -135,13 +159,55 @@ function Sidebar({
             type="button"
             onClick={onLogout}
             disabled={loggingOut}
-            className="cursor-pointer text-[13px] font-semibold text-accent-2 transition-colors hover:text-cream disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer border-t border-cream/10 px-4 py-3 text-left text-[13.5px] font-semibold text-accent-2 transition-colors hover:bg-cream/10 hover:text-cream disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loggingOut ? "Signing out…" : "Sign out"}
           </button>
         </div>
-      </div>
-    </aside>
+      ) : null}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="flex w-full cursor-pointer items-center gap-3 rounded-[12px] px-1.5 py-1.5 text-left transition-colors hover:bg-cream/10"
+      >
+        {account.picture ? (
+          <Image
+            src={account.picture}
+            alt={account.name}
+            width={38}
+            height={38}
+            className="h-[38px] w-[38px] flex-none rounded-full object-cover"
+          />
+        ) : (
+          <span className="grid h-[38px] w-[38px] flex-none place-items-center rounded-full bg-accent font-serif text-[15px] text-[#FDFAF3]">
+            {account.initials}
+          </span>
+        )}
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[14px] font-semibold text-cream">
+            {account.name}
+          </span>
+          <span className="block text-[12px] text-cream/55">{account.meta}</span>
+        </span>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className={cn(
+            "h-4 w-4 flex-none text-cream/55 transition-transform",
+            open && "rotate-180",
+          )}
+        >
+          <path d="m18 15-6-6-6 6" />
+        </svg>
+      </button>
+    </div>
   );
 }
 
