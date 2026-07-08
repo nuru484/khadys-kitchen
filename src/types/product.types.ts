@@ -16,6 +16,8 @@ export interface IProduct {
   leadTimeDays: number;
   image: string | null;
   isAvailable: boolean;
+  /** Shows in the home page's "This morning's bakes" section. */
+  isFeatured: boolean;
   stock: number | null;
   position: number;
   createdAt: string;
@@ -38,6 +40,8 @@ export interface IProductListQuery {
   limit?: number;
   category?: string;
   isAvailable?: boolean;
+  /** `true` = only home-page-featured items. */
+  featured?: boolean;
   search?: string;
 }
 
@@ -49,8 +53,9 @@ export interface IProductInput {
   price: number;
   unit?: string;
   leadTimeDays?: number;
-  image?: string;
+  image?: string | null;
   isAvailable?: boolean;
+  isFeatured?: boolean;
   stock?: number | null;
   position?: number;
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, Pager } from "@/components/admin/ui";
 import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
@@ -9,6 +8,7 @@ import { SkeletonCells } from "@/components/admin/table-bits";
 import { ActionMenu } from "@/components/admin/action-menu";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
@@ -101,12 +101,9 @@ export default function ItemsPage() {
         activeCount={activeCount}
         resultLabel={meta ? `${String(meta.total)} total` : undefined}
         action={
-          <Link
-            href="/admin/items/new"
-            className="inline-block rounded-full bg-accent px-4 py-2.5 text-[13px] font-semibold text-[#FDFAF3] no-underline transition-colors hover:bg-ink lg:px-5 lg:text-[13.5px]"
-          >
+          <ButtonLink href="/admin/items/new" size="sm">
             + New item
-          </Link>
+          </ButtonLink>
         }
       >
         <LabeledSelect
@@ -215,20 +212,25 @@ export default function ItemsPage() {
                           : `${String(p.leadTimeDays)} day${p.leadTimeDays === 1 ? "" : "s"}`}
                       </td>
                       <td className="px-4 py-3.5">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggle(p.id, p.name, !p.isAvailable);
-                          }}
-                          className="cursor-pointer"
-                          title={p.isAvailable ? "Take off sale" : "Put on sale"}
-                        >
-                          <StatusBadge
-                            status={p.isAvailable ? "PUBLISHED" : "DRAFT"}
-                            label={p.isAvailable ? "Available" : "Unavailable"}
-                          />
-                        </button>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggle(p.id, p.name, !p.isAvailable);
+                            }}
+                            className="cursor-pointer"
+                            title={p.isAvailable ? "Take off sale" : "Put on sale"}
+                          >
+                            <StatusBadge
+                              status={p.isAvailable ? "PUBLISHED" : "DRAFT"}
+                              label={p.isAvailable ? "Available" : "Unavailable"}
+                            />
+                          </button>
+                          {p.isFeatured ? (
+                            <StatusBadge status="UPCOMING" label="Featured" />
+                          ) : null}
+                        </div>
                       </td>
                       <td className="px-6 py-3.5 text-right">
                         <ActionMenu

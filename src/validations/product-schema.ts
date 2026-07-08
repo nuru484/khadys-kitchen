@@ -40,8 +40,8 @@ export const productSchema = z.object({
     ),
   unit: z.string().trim().min(1, "A sale unit is required").max(60),
   leadTimeDays: wholeNumber(60, "Enter a whole number of days (0–60)"),
-  image: z.union([z.literal(""), z.string().url("Enter a valid image URL")]),
   isAvailable: z.boolean(),
+  isFeatured: z.boolean(),
   /** Empty = made to order (no stock cap). */
   stock: wholeNumber(1_000_000, "Enter a whole number"),
   position: wholeNumber(10_000, "Enter a whole number"),

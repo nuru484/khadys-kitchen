@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "@/components/admin/ui";
+import { FileUploadField } from "@/components/admin/file-upload-field";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { TextField } from "@/components/ui/TextField";
@@ -22,8 +22,6 @@ import {
   type ProductFormValues,
 } from "@/validations/product-schema";
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-
 /** Form values → the backend `createProductSchema` payload (GHS → pesewas). */
 function toPayload(v: ProductFormValues): IProductInput {
   return {
@@ -33,8 +31,8 @@ function toPayload(v: ProductFormValues): IProductInput {
     price: Math.round(Number(v.price) * 100),
     unit: v.unit,
     leadTimeDays: v.leadTimeDays === "" ? 0 : Number(v.leadTimeDays),
-    image: v.image || undefined,
     isAvailable: v.isAvailable,
+    isFeatured: v.isFeatured,
     stock: v.stock === "" ? null : Number(v.stock),
     position: v.position === "" ? 0 : Number(v.position),
   };
@@ -48,8 +46,8 @@ function toForm(p: IProduct): ProductFormValues {
     price: String(p.price / 100),
     unit: p.unit,
     leadTimeDays: String(p.leadTimeDays),
-    image: p.image ?? "",
     isAvailable: p.isAvailable,
+    isFeatured: p.isFeatured,
     stock: p.stock === null ? "" : String(p.stock),
     position: String(p.position),
   };
@@ -62,8 +60,8 @@ const EMPTY: ProductFormValues = {
   price: "",
   unit: "Each",
   leadTimeDays: "0",
-  image: "",
   isAvailable: true,
+  isFeatured: false,
   stock: "",
   position: "0",
 };
@@ -80,50 +78,36 @@ export function ProductForm({ product }: { product?: IProduct }) {
   const editing = Boolean(product);
   const [createProduct, { isLoading: creating }] = useCreateProductMutation();
   const [updateProduct, { isLoading: updating }] = useUpdateProductMutation();
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: product ? toForm(product) : EMPTY,
   });
 
-  const image = watch("image");
-  // The photo is only STAGED here (local object-URL preview). Nothing reaches
-  // Cloudinary until the form is submitted, so cancelling the form never
-  // leaves an orphaned upload behind.
-  const [stagedFile, setStagedFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string>(product?.image ?? "");
-
-  const pickImage = (file: File | undefined) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      notify.error("Please choose an image file");
-      return;
-    }
-    if (file.size > MAX_IMAGE_BYTES) {
-      notify.error("Image must be under 5MB");
-      return;
-    }
-    if (preview.startsWith("blob:")) URL.revokeObjectURL(preview);
-    setStagedFile(file);
-    setPreview(URL.createObjectURL(file));
-    if (fileRef.current) fileRef.current.value = "";
-  };
+  // The photo is only STAGED here; it uploads on submit, so cancelling never
+  // orphans an image. `cleared` removes the existing photo.
+  const [photo, setPhoto] = useState<{ cleared: boolean; file: File | null }>({
+    cleared: false,
+    file: null,
+  });
 
   const onSubmit = async (v: ProductFormValues) => {
     try {
-      const payload = toPayload(v);
-      const photo = stagedFile ?? undefined;
+      const payload: IProductInput = {
+        ...toPayload(v),
+        // undefined = keep, null = clear; a staged file overwrites on upload.
+        image: photo.cleared ? null : (product?.image ?? undefined),
+      };
+      const file = photo.file ?? undefined;
       if (product) {
-        await updateProduct({ id: product.id, body: payload, photo }).unwrap();
+        await updateProduct({ id: product.id, body: payload, photo: file }).unwrap();
         notify.success("Product updated");
       } else {
-        await createProduct({ body: payload, photo }).unwrap();
+        await createProduct({ body: payload, photo: file }).unwrap();
         notify.success("Product created");
       }
       router.push("/admin/items");
@@ -142,47 +126,64 @@ export function ProductForm({ product }: { product?: IProduct }) {
       className="grid gap-[18px]"
       style={{ animation: "kk-rise .5s both" }}
     >
-      <Card className="grid gap-4 p-[clamp(20px,3vw,28px)]">
-        <h2 className="font-serif text-[19px]">Details</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <TextField
-            label="Name"
-            placeholder="e.g. Butter Croissant"
-            error={errors.name?.message}
-            {...register("name")}
-          />
-          <div className="grid gap-[7px]">
-            <span className={labelClass}>Category</span>
-            <Select {...register("category")}>
-              {PRODUCT_CATEGORIES.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.label}
-                </option>
-              ))}
-            </Select>
+      {/* Details take the bulk of the width; the photo sits alongside on lg so
+          the upload doesn't leave a wide empty strip. Stacks below on smaller. */}
+      <div className="grid gap-[18px] lg:grid-cols-[minmax(0,3fr)_minmax(240px,1fr)]">
+        <Card className="grid gap-4 p-[clamp(20px,3vw,28px)]">
+          <h2 className="font-serif text-[19px]">Details</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <TextField
+              label="Name"
+              placeholder="e.g. Butter Croissant"
+              error={errors.name?.message}
+              {...register("name")}
+            />
+            <div className="grid gap-[7px]">
+              <span className={labelClass}>Category</span>
+              <Select {...register("category")}>
+                {PRODUCT_CATEGORIES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
-        </div>
-        <div className="grid gap-[7px]">
-          <span className={labelClass}>Description</span>
-          <textarea
-            rows={4}
-            placeholder="What makes this bake special?"
-            {...register("description")}
-            className="w-full rounded-[12px] border-[1.5px] border-ink/20 bg-cream px-[15px] py-3 font-sans text-[15px] text-ink outline-none transition-colors focus:border-accent"
+          <div className="grid gap-[7px]">
+            <span className={labelClass}>Description</span>
+            <textarea
+              rows={4}
+              placeholder="What makes this bake special?"
+              {...register("description")}
+              className="w-full rounded-[12px] border-[1.5px] border-ink/20 bg-cream px-[15px] py-3 font-sans text-[15px] text-ink outline-none transition-colors focus:border-accent"
+            />
+            {errors.description ? (
+              <span className="text-[12.5px] font-semibold text-danger">
+                {errors.description.message}
+              </span>
+            ) : null}
+          </div>
+        </Card>
+
+        <Card className="p-[clamp(20px,3vw,28px)]">
+          <h2 className="mb-4 font-serif text-[19px]">Photo</h2>
+          <FileUploadField
+            label="Product photo"
+            kind="image"
+            accept="image/*"
+            hint="JPG, PNG or WebP, up to 10MB."
+            currentUrl={product?.image}
+            onChange={setPhoto}
           />
-          {errors.description ? (
-            <span className="text-[12.5px] font-semibold text-danger">
-              {errors.description.message}
-            </span>
-          ) : null}
-        </div>
-      </Card>
+        </Card>
+      </div>
 
       <Card className="grid gap-4 p-[clamp(20px,3vw,28px)]">
         <h2 className="font-serif text-[19px]">Pricing & availability</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label="Price (GHS)"
+            placeholder="e.g. 25.00"
             type="number"
             step="0.01"
             min="0"
@@ -197,6 +198,7 @@ export function ProductForm({ product }: { product?: IProduct }) {
           />
           <TextField
             label="Lead time (days)"
+            placeholder="e.g. 2"
             type="number"
             min="0"
             hint="0 = available same day"
@@ -205,6 +207,7 @@ export function ProductForm({ product }: { product?: IProduct }) {
           />
           <TextField
             label="Stock (optional)"
+            placeholder="e.g. 20"
             type="number"
             min="0"
             hint="Leave empty for made to order (no cap)"
@@ -213,6 +216,7 @@ export function ProductForm({ product }: { product?: IProduct }) {
           />
           <TextField
             label="Position"
+            placeholder="e.g. 0"
             type="number"
             min="0"
             hint="Lower numbers show first in the shop"
@@ -227,46 +231,14 @@ export function ProductForm({ product }: { product?: IProduct }) {
             />
             Available in the shop
           </label>
-        </div>
-      </Card>
-
-      <Card className="grid gap-4 p-[clamp(20px,3vw,28px)]">
-        <h2 className="font-serif text-[19px]">Photo</h2>
-        <div className="flex flex-wrap items-center gap-5">
-          {preview || image ? (
-            <Image
-              src={preview || image}
-              alt="Product"
-              width={132}
-              height={132}
-              className="h-[132px] w-[132px] rounded-[16px] border border-ink/10 object-cover"
+          <label className="flex items-center gap-3 self-end pb-3 text-[14.5px] font-medium">
+            <input
+              type="checkbox"
+              {...register("isFeatured")}
+              className="h-[18px] w-[18px] accent-[--color-accent]"
             />
-          ) : (
-            <div className="grid h-[132px] w-[132px] place-items-center rounded-[16px] border-[1.5px] border-dashed border-ink/25 text-[12px] text-ink/45">
-              No photo yet
-            </div>
-          )}
-          <div className="grid gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileRef.current?.click()}
-            >
-              {preview || image ? "Replace photo" : "Choose photo"}
-            </Button>
-            <span className="text-[12.5px] text-ink/50">
-              JPG or PNG, up to 5MB.
-              {stagedFile ? " Uploads when you save." : ""}
-            </span>
-          </div>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => void pickImage(e.target.files?.[0])}
-          />
+            Featured on the home page
+          </label>
         </div>
       </Card>
 
