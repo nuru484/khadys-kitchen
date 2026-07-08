@@ -13,6 +13,7 @@ import { FieldError } from "@/components/ui/FieldError";
 import { cn } from "@/lib/utils";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
+import { formatMoney } from "@/lib/format-money";
 import { useCreateApplicationMutation } from "@/redux/applications/applications-api";
 import type { ITraining } from "@/types/training.types";
 
@@ -22,11 +23,20 @@ const inputClass =
 const labelClass =
   "grid gap-2 text-[13.5px] font-semibold uppercase tracking-[0.06em] text-ink/70";
 
-/** Where the code is stashed before a Paystack redirect, read back on /apply/verify. */
+/** Where the code is stashed before a Paystack redirect, read back on /trainings/verify. */
 export const APPLY_CODE_KEY = "kk_apply_code";
 
 export function ApplicationForm({ training }: { training: ITraining }) {
   const fieldId = useId();
+  // The hostel question only exists for classes that offer one (a HOSTEL-kind
+  // fee item); its price hint comes from that same item.
+  const hostelFee = training.feeItems?.find((item) => item.kind === "HOSTEL");
+  const hostelPriceHint = hostelFee
+    ? (hostelFee.priceLabel ??
+      (hostelFee.amount > 0
+        ? `${formatMoney(hostelFee.amount, training.currency)}${hostelFee.suffix ? ` ${hostelFee.suffix}` : ""}`
+        : null))
+    : null;
   const [submitted, setSubmitted] = useState(false);
   const [applicantName, setApplicantName] = useState("friend");
   const [receiptCode, setReceiptCode] = useState("");
@@ -109,7 +119,7 @@ export function ApplicationForm({ training }: { training: ITraining }) {
         Applications open
       </p>
       <h2 className="mb-3.5 text-center font-serif text-[clamp(32px,4vw,52px)] font-normal">
-        Apply to the next cohort
+        Apply for this class
       </h2>
       <p className="mx-auto mb-[clamp(32px,4vw,44px)] max-w-[48ch] text-center text-[16px] leading-[1.65] text-ink/65">
         Fill this in and Khady&rsquo;s team will reach you on WhatsApp within two
@@ -138,8 +148,10 @@ export function ApplicationForm({ training }: { training: ITraining }) {
           </div>
           <p className="text-[14.5px] leading-[1.6] text-ink/55">
             Keep this code safe — quote it to pay in person, or to check your
-            status. Asked for hostel? We&rsquo;ll confirm availability first, only
-            12 places.
+            status.
+            {hostel === true
+              ? " Asked for a hostel place? We'll confirm availability first."
+              : ""}
           </p>
         </div>
       ) : (
@@ -204,28 +216,33 @@ export function ApplicationForm({ training }: { training: ITraining }) {
             </label>
           </div>
 
-          <div className="grid gap-2.5">
-            <span className="text-[13.5px] font-semibold uppercase tracking-[0.06em] text-ink/70">
-              Do you need a hostel place?{" "}
-              <span className="font-normal normal-case tracking-normal">
-                (only 12 available - GHS 700 for 2 months)
+          {hostelFee ? (
+            <div className="grid gap-2.5">
+              <span className="text-[13.5px] font-semibold uppercase tracking-[0.06em] text-ink/70">
+                Do you need a hostel place?
+                {hostelPriceHint ? (
+                  <span className="font-normal normal-case tracking-normal">
+                    {" "}
+                    ({hostelPriceHint})
+                  </span>
+                ) : null}
               </span>
-            </span>
-            <div className="flex flex-wrap gap-2.5">
-              <ChoiceButton
-                selected={hostel === true}
-                onClick={() => setValue("hostel", true)}
-              >
-                Yes, reserve me a bed
-              </ChoiceButton>
-              <ChoiceButton
-                selected={hostel === false}
-                onClick={() => setValue("hostel", false)}
-              >
-                No, I&rsquo;ll commute
-              </ChoiceButton>
+              <div className="flex flex-wrap gap-2.5">
+                <ChoiceButton
+                  selected={hostel === true}
+                  onClick={() => setValue("hostel", true)}
+                >
+                  Yes, reserve me a bed
+                </ChoiceButton>
+                <ChoiceButton
+                  selected={hostel === false}
+                  onClick={() => setValue("hostel", false)}
+                >
+                  No, I&rsquo;ll commute
+                </ChoiceButton>
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <div className="grid gap-2.5">
             <span className="text-[13.5px] font-semibold uppercase tracking-[0.06em] text-ink/70">

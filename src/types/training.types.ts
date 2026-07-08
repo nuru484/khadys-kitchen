@@ -1,7 +1,7 @@
 /**
- * A published Bake School training (cohort), mirroring the backend
- * `toTrainingDTO`. The hero on the class page is static; this drives the class
- * info below it — stats, the fee table, and the items-to-bring list.
+ * Trainings (classes students enrol in), mirroring the backend `toTrainingDTO`.
+ * A training stands alone — its name IS its kind ("Bakery Class", "Wedding
+ * Cake Class"…).
  */
 export interface IFeeItem {
   id: string;
@@ -18,36 +18,38 @@ export interface IFeeItem {
   position: number;
 }
 
-export interface IRequirement {
-  name: string;
-  note: string | null;
-}
-
-export interface IStat {
-  label: string;
-  value: string;
-}
-
 export interface ITraining {
   id: string;
   name: string;
   slug: string;
-  numeral: string | null;
-  description: string;
-  currency: string;
-  status: string;
-  applicationsOpen: boolean;
-  isPublished: boolean;
-  capacity: number | null;
-  hostelCapacity: number | null;
+  /** One short paragraph shown on cards and at the top of the class page. */
+  summary: string;
+  coverImage: string | null;
+  /** "What you'll learn" bullets. */
+  learnOutcomes: string[];
+  /** Tools/items to bring. */
+  whatToBring: string[];
+  /** "What's included" bullets. */
+  included: string[];
+  /** Who it's for / prerequisites. */
+  forWho: string[];
+  /** Downloadable prospectus (PDF) URL. */
+  prospectusUrl: string | null;
   startDate: string | null;
   endDate: string | null;
-  costsIntro: string | null;
-  costsNote: string | null;
-  bringIntro: string | null;
-  stats: IStat[];
-  requirements: IRequirement[];
-  highlights: string[];
+  /** e.g. "Saturdays, 9am–1pm". */
+  schedule: string | null;
+  /** e.g. "2 months". */
+  duration: string | null;
+  /** e.g. "In-person · Kumasi studio". */
+  mode: string | null;
+  hasCertificate: boolean;
+  currency: string;
+  capacity: number | null;
+  applicationsOpen: boolean;
+  isPublished: boolean;
+  /** Shows in the home page's featured trainings section (newest 3). */
+  isFeatured: boolean;
   feeItems?: IFeeItem[];
   counts?: { applications: number; students: number };
   createdAt: string;
@@ -61,7 +63,7 @@ export interface IPaginationMeta {
   totalPages: number;
 }
 
-/** `GET /trainings` — published cohorts, newest first. */
+/** `GET /trainings` — published classes, newest first. */
 export interface ITrainingListResponse {
   message: string;
   data: ITraining[];
@@ -84,36 +86,34 @@ export interface IFeeItemInput {
   position?: number;
 }
 
-export interface IRequirementInput {
-  name: string;
-  note?: string;
-}
-
 /** Body for creating/updating a training (the admin form). */
 export interface ITrainingInput {
   name: string;
-  numeral?: string;
-  description: string;
-  status?: string;
-  applicationsOpen?: boolean;
-  isPublished?: boolean;
+  summary: string;
+  coverImage?: string | null;
+  learnOutcomes?: string[];
+  whatToBring?: string[];
+  included?: string[];
+  forWho?: string[];
+  prospectusUrl?: string | null;
   startDate?: string;
   endDate?: string;
+  schedule?: string;
+  duration?: string;
+  mode?: string;
+  hasCertificate?: boolean;
   capacity?: number;
-  hostelCapacity?: number;
-  costsIntro?: string;
-  costsNote?: string;
-  bringIntro?: string;
-  stats?: IStat[];
-  requirements?: IRequirementInput[];
-  highlights?: string[];
+  applicationsOpen?: boolean;
+  isPublished?: boolean;
+  isFeatured?: boolean;
   feeItems?: IFeeItemInput[];
 }
 
 export interface ITrainingListQuery {
   page?: number;
   limit?: number;
-  status?: string;
   applicationsOpen?: boolean;
+  /** `true` = only home-page-featured classes. */
+  featured?: boolean;
   search?: string;
 }

@@ -3,41 +3,6 @@
  * Mirrors the copy from the designs so the pages stay data-driven rather than
  * hard-coding rows in the markup.
  */
-import { shopProduct } from "@/lib/routes";
-
-export interface Bake {
-  name: string;
-  price: string;
-  href: string;
-  desc: string;
-  img: string;
-}
-
-/** "This morning's bakes" cards on the landing page. */
-export const bakes: Bake[] = [
-  {
-    name: "Butter Croissant",
-    price: "GHS 25",
-    href: shopProduct("butter-croissant"),
-    desc: "27 layers of cultured butter, laminated over two days. Shatters on cue.",
-    img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=900&q=80&auto=format&fit=crop",
-  },
-  {
-    name: "Country Sourdough",
-    price: "GHS 60",
-    href: shopProduct("country-sourdough"),
-    desc: "48-hour cold ferment, stone-milled flour, a crust that sings when it cools.",
-    img: "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=900&q=80&auto=format&fit=crop",
-  },
-  {
-    name: "Celebration Cake",
-    price: "from GHS 350",
-    href: shopProduct("celebration-cake"),
-    desc: "Khady's signature layer cakes - made to order for birthdays and weddings.",
-    img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=900&q=80&auto=format&fit=crop",
-  },
-];
-
 /** Rotating word marquee under the hero. */
 export const marqueeItems: string[] = [
   "SOURDOUGH",

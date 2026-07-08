@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ButtonLink } from "@/components/ui/Button";
 import { Pager } from "@/components/admin/ui";
-import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
+import { FilterBar } from "@/components/admin/filter-bar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
@@ -12,21 +13,21 @@ import { useTableQuery } from "@/hooks/use-table-query";
 import { useGetTrainingsQuery } from "@/redux/trainings/trainings-api";
 import type { ITrainingListQuery } from "@/types/training.types";
 
-const STATUS_FILTERS = ["all", "DRAFT", "UPCOMING", "ONGOING", "COMPLETED"];
-const DEFAULTS = { status: "all" };
+const DEFAULTS = {};
 const PAGE_SIZE = 12;
 
 export default function ClassesPage() {
-  const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
-    useTableQuery({ defaults: DEFAULTS, pageSize: PAGE_SIZE });
+  const { page, search, setSearch, setPage, queryParams } = useTableQuery({
+    defaults: DEFAULTS,
+    pageSize: PAGE_SIZE,
+  });
 
   const { data, isLoading, isFetching, isError, error, refetch } =
     useGetTrainingsQuery(queryParams as ITrainingListQuery);
 
   const trainings = data?.data ?? [];
   const meta = data?.meta;
-  const hasActiveFilters =
-    Boolean(search.trim()) || filters.status !== "all" || page > 1;
+  const hasActiveFilters = Boolean(search.trim()) || page > 1;
   // Truly empty (not just filtered to nothing): skip the toolbar entirely.
   const noDataAtAll =
     !isLoading && !isError && (meta?.total ?? 0) === 0 && !hasActiveFilters;
@@ -36,7 +37,7 @@ export default function ClassesPage() {
       <div style={{ animation: "kk-rise .5s both" }}>
         <EmptyState
           title="No trainings yet"
-          description="Create your first Bake School cohort to start taking applications."
+          description="Create your first Bake School class to start taking applications."
           action={{ label: "+ New training", href: "/admin/classes/new" }}
         />
       </div>
@@ -49,48 +50,34 @@ export default function ClassesPage() {
         search={search}
         onSearch={setSearch}
         searchPlaceholder="Search trainings…"
-        activeCount={filters.status !== "all" ? 1 : 0}
         action={
-          <Link
-            href="/admin/classes/new"
-            className="inline-block rounded-full bg-accent px-4 py-2.5 text-[13px] font-semibold text-[#FDFAF3] no-underline transition-colors hover:bg-ink lg:px-5 lg:text-[13.5px]"
-          >
+          <ButtonLink href="/admin/classes/new" size="sm">
             + New training
-          </Link>
+          </ButtonLink>
         }
-      >
-        <LabeledSelect
-          label="Status"
-          value={filters.status}
-          active={filters.status !== "all"}
-          onChange={(v) => setFilter("status", v)}
-        >
-          {STATUS_FILTERS.map((f) => (
-            <option key={f} value={f}>
-              {f === "all" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
-            </option>
-          ))}
-        </LabeledSelect>
-      </FilterBar>
+      />
 
       {isError ? (
         <ErrorState error={error} onRetry={() => void refetch()} />
       ) : isLoading ? (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-[18px]">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-[210px] animate-pulse rounded-[20px] bg-ink/[0.06]" />
+            <div key={i} className="h-[264px] animate-pulse rounded-[20px] bg-ink/[0.06]" />
           ))}
         </div>
       ) : trainings.length === 0 ? (
         <EmptyState
           title="No matching trainings"
-          description="Nothing matches your current search or filter — try clearing them."
+          description="Nothing matches your current search — try clearing it."
         />
       ) : (
         <>
           <div
             className={cn(
               "grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-[18px] transition-opacity",
+              // auto-fit stretches a lone card across the whole row — pin two
+              // tracks on lg so a single card keeps its two-up width.
+              trainings.length === 1 && "lg:grid-cols-2",
               isFetching && "opacity-60",
             )}
           >
@@ -98,18 +85,27 @@ export default function ClassesPage() {
               <Link
                 key={t.id}
                 href={`/admin/classes/${t.id}`}
-                className="group flex flex-col gap-3.5 rounded-[20px] border border-ink/10 bg-card p-[clamp(22px,3vw,30px)] no-underline transition-[transform,border-color] hover:-translate-y-[3px] hover:border-accent/50"
+                className="group flex min-h-[264px] flex-col gap-3.5 rounded-[20px] border border-ink/10 bg-card p-[clamp(22px,3vw,30px)] no-underline transition-[transform,border-color] hover:-translate-y-[3px] hover:border-accent/50"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <span className="grid h-[54px] w-[54px] place-items-center rounded-full border-[1.5px] border-ink/20 font-serif text-[20px]">
-                    {t.numeral ?? "—"}
+                {/* Duration eyebrow on its own line, the state pills on one
+                    tidy row beneath — a clear top-down hierarchy at any width. */}
+                <div className="grid gap-2.5">
+                  <span className="flex items-center gap-2.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-accent">
+                    {t.duration ?? "—"}
+                    <span aria-hidden="true" className="h-px flex-1 bg-ink/10" />
                   </span>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <StatusBadge status={t.status} />
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <StatusBadge
                       status={t.isPublished ? "PUBLISHED" : "DRAFT"}
-                      label={t.isPublished ? "Published" : "Unpublished"}
+                      label={t.isPublished ? "Published" : "Draft"}
                     />
+                    <StatusBadge
+                      status={t.applicationsOpen ? "ACTIVE" : "WITHDRAWN"}
+                      label={t.applicationsOpen ? "Apps open" : "Apps closed"}
+                    />
+                    {t.isFeatured ? (
+                      <StatusBadge status="UPCOMING" label="Featured" />
+                    ) : null}
                   </div>
                 </div>
                 <div>
@@ -120,9 +116,9 @@ export default function ClassesPage() {
                   </div>
                 </div>
                 <p className="line-clamp-2 flex-1 text-[14px] leading-[1.6] text-ink/[0.68]">
-                  {t.description}
+                  {t.summary}
                 </p>
-                <div className="flex gap-6 border-t border-ink/10 pt-3.5">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-ink/10 pt-3.5">
                   <div>
                     <div className="font-serif text-[22px]">
                       {t.counts?.applications ?? 0}

@@ -11,20 +11,52 @@ import type {
   ITrainingResponse,
 } from "@/types/training.types";
 
+/** Files an admin selects on the form. Present ones travel WITH the save as
+ * multipart (a `payload` JSON part + the file fields the backend expects). */
+export interface TrainingFiles {
+  coverImage?: File;
+  prospectus?: File;
+}
+
+const hasFile = (f?: TrainingFiles) => Boolean(f?.coverImage || f?.prospectus);
+
+const toMultipart = (body: unknown, files: TrainingFiles): FormData => {
+  const form = new FormData();
+  form.append("payload", JSON.stringify(body));
+  if (files.coverImage) form.append("coverImage", files.coverImage);
+  if (files.prospectus) form.append("prospectus", files.prospectus);
+  return form;
+};
+
 /**
- * Trainings — public (`getCurrentTraining`) + the admin console CRUD, all
- * injected into the single `apiSlice`. Tag-based cache invalidation keeps the
- * list + detail fresh after any mutation (no manual refetch).
+ * Trainings, injected into the single `apiSlice`. The public surface lists
+ * published classes; the admin surface is full CRUD (with multipart cover
+ * image + prospectus uploads). Tag-based cache invalidation keeps list + detail
+ * fresh after any mutation (no manual refetch).
  */
 export const trainingsApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getCurrentTraining: builder.query<ITraining | null, void>({
-      query: () => ({ url: "trainings?limit=1", method: "GET" }),
-      transformResponse: (res: ITrainingListResponse) => res.data[0] ?? null,
+    // ── Public ──────────────────────────────────────────────────────────────
+    getPublicTrainings: builder.query<
+      ITrainingListResponse,
+      ITrainingListQuery | void
+    >({
+      query: (params) => ({
+        url: `trainings${toQueryString(params ?? {})}`,
+        method: "GET",
+      }),
       providesTags: ["Trainings"],
     }),
 
-    // ── Admin ───────────────────────────────────────────────────────────────
+    getPublicTrainingBySlug: builder.query<ITraining, string>({
+      query: (slug) => ({ url: `trainings/${slug}`, method: "GET" }),
+      transformResponse: (res: ITrainingResponse) => res.data,
+      // Slug-keyed detail also carries the list tag so list-level
+      // invalidations (publish/edit) refresh it too.
+      providesTags: (_r, _e, slug) => [{ type: "Training", id: slug }, "Trainings"],
+    }),
+
+    // ── Admin: trainings ────────────────────────────────────────────────────
     getTrainings: builder.query<ITrainingListResponse, ITrainingListQuery | void>(
       {
         query: (params) => ({
@@ -50,20 +82,26 @@ export const trainingsApi = apiSlice.injectEndpoints({
       providesTags: (_r, _e, id) => [{ type: "Training", id }],
     }),
 
-    createTraining: builder.mutation<ITrainingResponse, ITrainingInput>({
-      query: (body) => ({ url: "admin/trainings", method: "POST", body }),
+    createTraining: builder.mutation<
+      ITrainingResponse,
+      { body: ITrainingInput; files?: TrainingFiles }
+    >({
+      query: ({ body, files }) => ({
+        url: "admin/trainings",
+        method: "POST",
+        body: hasFile(files) ? toMultipart(body, files!) : body,
+      }),
       invalidatesTags: ["Trainings"],
     }),
 
-
     updateTraining: builder.mutation<
       ITrainingResponse,
-      { id: string; body: Partial<ITrainingInput> }
+      { id: string; body: Partial<ITrainingInput>; files?: TrainingFiles }
     >({
-      query: ({ id, body }) => ({
+      query: ({ id, body, files }) => ({
         url: `admin/trainings/${id}`,
         method: "PATCH",
-        body,
+        body: hasFile(files) ? toMultipart(body, files!) : body,
       }),
       invalidatesTags: (_r, _e, { id }) => [{ type: "Training", id }, "Trainings"],
     }),
@@ -160,7 +198,8 @@ export const trainingsApi = apiSlice.injectEndpoints({
 });
 
 export const {
-  useGetCurrentTrainingQuery,
+  useGetPublicTrainingsQuery,
+  useGetPublicTrainingBySlugQuery,
   useGetTrainingsQuery,
   useGetTrainingByIdQuery,
   useCreateTrainingMutation,

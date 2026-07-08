@@ -48,10 +48,10 @@ export function Hero() {
             See the bakes
           </Link>
           <Link
-            href={routes.apply}
+            href={routes.trainings}
             className="border-b-[1.5px] border-ink/35 px-2 py-4 text-[15px] font-semibold tracking-[0.06em] text-ink no-underline transition-colors hover:border-ink"
           >
-            Learn to bake →
+            Explore trainings →
           </Link>
         </div>
         <div className="mt-12 flex flex-nowrap items-start gap-x-[clamp(12px,3.5vw,32px)] border-t border-ink/15 pt-[26px]">
@@ -87,10 +87,14 @@ export function Hero() {
         </Reveal>
         <div
           className="absolute bottom-0 left-[-14px] grid h-[clamp(96px,12vw,124px)] w-[clamp(96px,12vw,124px)] place-items-center rounded-full bg-accent text-[#FDFAF3]"
-          style={{ animation: "kk-spin 24s linear infinite" }}
           aria-hidden="true"
         >
-          <svg viewBox="0 0 100 100" className="h-full w-full">
+          {/* Only the text ring spins; the monogram stays upright. */}
+          <svg
+            viewBox="0 0 100 100"
+            className="absolute inset-0 h-full w-full"
+            style={{ animation: "kk-spin 24s linear infinite" }}
+          >
             <defs>
               <path
                 id="kk-circ"
@@ -102,15 +106,10 @@ export function Hero() {
                 FRESH DAILY · BAKED BY HAND ·{" "}
               </textPath>
             </text>
-            <text
-              x="50"
-              y="56"
-              textAnchor="middle"
-              className="fill-[#FDFAF3] font-serif text-[20px]"
-            >
-              KK
-            </text>
           </svg>
+          <span className="relative font-serif text-[clamp(22px,2.6vw,28px)] tracking-[0.04em]">
+            KK
+          </span>
         </div>
       </div>
     </section>

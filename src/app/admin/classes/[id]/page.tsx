@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/admin/ui";
-import { Button } from "@/components/ui/Button";
+import { PageActions } from "@/components/admin/page-actions";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { RippleLoader } from "@/components/ui/Loader";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { ApplicationsTable } from "@/components/admin/applications-table";
 import { StudentsTable } from "@/components/admin/students-table";
@@ -21,6 +22,15 @@ import {
   usePublishTrainingMutation,
   useUnpublishTrainingMutation,
 } from "@/redux/trainings/trainings-api";
+import type { ITraining } from "@/types/training.types";
+
+/** The four public bullet lists, rendered as cards only when non-empty. */
+const BULLET_SECTIONS: { title: string; pick: (t: ITraining) => string[] }[] = [
+  { title: "What you'll learn", pick: (t) => t.learnOutcomes },
+  { title: "What's included", pick: (t) => t.included },
+  { title: "Who it's for", pick: (t) => t.forWho },
+  { title: "What to bring", pick: (t) => t.whatToBring },
+];
 
 export default function TrainingDetailPage() {
   const params = useParams<{ id: string }>();
@@ -78,15 +88,19 @@ export default function TrainingDetailPage() {
     ? `${formatDate(training.startDate)}${training.endDate ? ` – ${formatDate(training.endDate)}` : ""}`
     : "—";
   const facts: [string, string][] = [
-    ["Status", training.status],
-    ["Visibility", training.isPublished ? "Published" : "Unpublished"],
-    ["Applications", training.applicationsOpen ? "Open" : "Closed"],
     ["Runs", dateRange],
+    ["Schedule", training.schedule ?? "—"],
+    ["Duration", training.duration ?? "—"],
+    ["Mode", training.mode ?? "—"],
+    ["Certificate", training.hasCertificate ? "Yes" : "No"],
     ["Capacity", training.capacity != null ? `${String(training.capacity)} seats` : "—"],
-    ["Hostel", training.hostelCapacity != null ? `${String(training.hostelCapacity)} places` : "—"],
+    ["Applicants", String(training.counts?.applications ?? 0)],
+    ["Students", String(training.counts?.students ?? 0)],
     ["Currency", training.currency],
     ["Slug", training.slug],
   ];
+
+  const bulletCards = BULLET_SECTIONS.filter(({ pick }) => pick(training).length > 0);
 
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
@@ -95,65 +109,98 @@ export default function TrainingDetailPage() {
       </Link>
 
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          {training.numeral ? (
-            <p className="mb-1 text-[12.5px] font-semibold uppercase tracking-[0.16em] text-accent">
-              Cohort {training.numeral}
-            </p>
-          ) : null}
-          <h1 className="font-serif text-[clamp(26px,3.4vw,38px)] font-normal">{training.name}</h1>
-        </div>
-        <div className="flex flex-wrap gap-2.5">
-          <Link
-            href={`/admin/classes/${id}/edit`}
-            className="rounded-full border-[1.5px] border-ink/25 px-5 py-2.5 text-[13.5px] font-semibold text-ink no-underline transition-colors hover:border-ink"
-          >
-            Edit
-          </Link>
-          <Button
-            variant={training.isPublished ? "outline" : "primary"}
-            isLoading={publishing || unpublishing}
-            onClick={() =>
-              confirm({
-                title: training.isPublished
-                  ? "Unpublish this training?"
-                  : "Publish this training?",
-                description: training.isPublished
-                  ? "It will no longer be visible on the website."
-                  : "It will go live on the website for applicants to see and apply.",
-                confirmText: training.isPublished ? "Unpublish" : "Publish",
-                onConfirm: togglePublish,
-              })
-            }
-          >
-            {training.isPublished ? "Unpublish" : "Publish"}
-          </Button>
-          {isAdmin ? (
-            <Button
-              variant="danger"
-              onClick={() =>
+        <h1 className="font-serif text-[clamp(26px,3.4vw,38px)] font-normal">{training.name}</h1>
+        {/* Same action cluster as the other detail pages (consistent sm
+            buttons; extras collapse into "More" on phones). */}
+        <PageActions
+          actions={[
+            {
+              label: "Edit",
+              onClick: () => router.push(`/admin/classes/${id}/edit`),
+            },
+            {
+              label: training.isPublished ? "Unpublish" : "Publish",
+              variant: training.isPublished ? "outline" : "primary",
+              isLoading: publishing || unpublishing,
+              primary: true,
+              onClick: () =>
                 confirm({
-                  title: "Delete this training?",
-                  description:
-                    "This hides the cohort and its data. This can't be undone from here.",
-                  confirmText: "Delete training",
-                  isDestructive: true,
-                  onConfirm: onDelete,
-                })
-              }
-            >
-              Delete
-            </Button>
-          ) : null}
-        </div>
+                  title: training.isPublished
+                    ? "Unpublish this training?"
+                    : "Publish this training?",
+                  description: training.isPublished
+                    ? "It will no longer be visible on the website."
+                    : "It will go live on the website for applicants to see and apply.",
+                  confirmText: training.isPublished ? "Unpublish" : "Publish",
+                  onConfirm: togglePublish,
+                }),
+            },
+            ...(isAdmin
+              ? [
+                  {
+                    label: "Delete",
+                    variant: "danger" as const,
+                    onClick: () =>
+                      confirm({
+                        title: "Delete this training?",
+                        description:
+                          "This hides the class and its data. This can't be undone from here.",
+                        confirmText: "Delete training",
+                        isDestructive: true,
+                        onConfirm: onDelete,
+                      }),
+                  },
+                ]
+              : []),
+          ]}
+        />
       </div>
 
       <div className="grid gap-[18px]">
+        {/* Overview — summary, key facts, cover + prospectus */}
         <Card className="p-[clamp(20px,3vw,28px)]">
-          <h2 className="mb-4 font-serif text-[19px]">Overview</h2>
-          <p className="max-w-[75ch] text-[14.5px] leading-[1.7] text-ink/70">
-            {training.description}
-          </p>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-serif text-[19px]">Overview</h2>
+            <div className="flex flex-wrap gap-2">
+              <StatusBadge
+                status={training.isPublished ? "PUBLISHED" : "DRAFT"}
+                label={training.isPublished ? "Published" : "Draft"}
+              />
+              <StatusBadge
+                status={training.applicationsOpen ? "ACTIVE" : "WITHDRAWN"}
+                label={training.applicationsOpen ? "Applications open" : "Applications closed"}
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-start gap-6">
+            {training.coverImage ? (
+              <div className="w-[min(100%,220px)] flex-none overflow-hidden rounded-[14px] border border-ink/10 bg-oat/40">
+                {/* Cover images are pasted URLs from any host, so next/image's
+                    remotePatterns allowlist can't serve them. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={training.coverImage}
+                  alt={`${training.name} cover`}
+                  className="aspect-[4/3] w-full object-cover"
+                />
+              </div>
+            ) : null}
+            <div className="min-w-[min(100%,280px)] flex-1">
+              <p className="max-w-[75ch] text-[14.5px] leading-[1.7] text-ink/70">
+                {training.summary}
+              </p>
+              {training.prospectusUrl ? (
+                <a
+                  href={training.prospectusUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-block text-[13.5px] font-semibold text-accent"
+                >
+                  View prospectus ↗
+                </a>
+              ) : null}
+            </div>
+          </div>
           <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-ink/10 pt-5 sm:grid-cols-3 lg:grid-cols-4">
             {facts.map(([label, value]) => (
               <div key={label}>
@@ -166,16 +213,9 @@ export default function TrainingDetailPage() {
           </div>
         </Card>
 
-        {/* Fees — full width, two columns */}
+        {/* Fees */}
         <Card className="p-[clamp(20px,3vw,28px)]">
-          <h2 className="mb-1.5 font-serif text-[19px]">Fees</h2>
-          {training.costsIntro ? (
-            <p className="mb-4 text-[13.5px] leading-[1.6] text-ink/60">
-              {training.costsIntro}
-            </p>
-          ) : (
-            <div className="mb-4" />
-          )}
+          <h2 className="mb-4 font-serif text-[19px]">Fees</h2>
           {training.feeItems && training.feeItems.length > 0 ? (
             <div className="grid gap-2.5 sm:grid-cols-2">
               {training.feeItems.map((f) => (
@@ -197,69 +237,27 @@ export default function TrainingDetailPage() {
           ) : (
             <p className="text-[14px] text-ink/50">No fees configured.</p>
           )}
-          {training.costsNote ? (
-            <p className="mt-4 border-t border-ink/10 pt-4 text-[13px] leading-[1.6] text-ink/55">
-              {training.costsNote}
-            </p>
-          ) : null}
         </Card>
 
-        {/* Items to bring + At a glance, side by side */}
-        {training.requirements.length > 0 || training.stats.length > 0 ? (
+        {/* The public bullet lists, two per row */}
+        {bulletCards.length > 0 ? (
           <div className="grid gap-[18px] lg:grid-cols-2">
-            {training.requirements.length > 0 ? (
-              <Card className="p-[clamp(20px,3vw,28px)]">
-                <h2 className="mb-1.5 font-serif text-[19px]">Items to bring</h2>
-                {training.bringIntro ? (
-                  <p className="mb-3.5 text-[13.5px] leading-[1.6] text-ink/60">
-                    {training.bringIntro}
-                  </p>
-                ) : (
-                  <div className="mb-3" />
-                )}
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {training.requirements.map((r) => (
-                    <div key={r.name} className="rounded-[10px] bg-oat/30 px-3 py-2 text-[13.5px]">
-                      <span className="font-medium text-ink/80">{r.name}</span>
-                      {r.note ? <span className="text-ink/50"> · {r.note}</span> : null}
-                    </div>
+            {bulletCards.map(({ title, pick }) => (
+              <Card key={title} className="p-[clamp(20px,3vw,28px)]">
+                <h2 className="mb-3.5 font-serif text-[19px]">{title}</h2>
+                <ul className="grid list-none gap-2 p-0">
+                  {pick(training).map((item) => (
+                    <li
+                      key={item}
+                      className="rounded-[10px] bg-oat/30 px-3 py-2 text-[13.5px] text-ink/80"
+                    >
+                      {item}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </Card>
-            ) : null}
-            {training.stats.length > 0 ? (
-              <Card className="p-[clamp(20px,3vw,28px)]">
-                <h2 className="mb-4 font-serif text-[19px]">At a glance</h2>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-                  {training.stats.map((st) => (
-                    <div key={st.label}>
-                      <div className="font-serif text-[26px]">{st.value}</div>
-                      <div className="mt-0.5 text-[12px] uppercase tracking-[0.06em] text-ink/55">
-                        {st.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            ) : null}
+            ))}
           </div>
-        ) : null}
-
-        {/* Prospectus */}
-        {training.highlights.length > 0 ? (
-          <Card className="p-[clamp(20px,3vw,28px)]">
-            <h2 className="mb-4 font-serif text-[19px]">Prospectus</h2>
-            <div className="flex flex-wrap gap-2">
-              {training.highlights.map((h) => (
-                <span
-                  key={h}
-                  className="rounded-full border border-ink/12 bg-oat/40 px-3 py-1.5 text-[13px] text-ink/70"
-                >
-                  {h}
-                </span>
-              ))}
-            </div>
-          </Card>
         ) : null}
       </div>
 

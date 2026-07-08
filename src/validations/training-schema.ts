@@ -2,8 +2,9 @@ import { z } from "zod";
 
 /**
  * Admin create/edit training form. Mirrors the backend create schema. Money is
- * entered in GHS and converted to pesewas on submit; the list arrays (fee items,
- * requirements, stats, highlights) drive the public class page.
+ * entered in GHS and converted to pesewas on submit; the bullet lists (what
+ * you'll learn, what to bring, what's included, who it's for) drive the public
+ * class page.
  */
 export const FEE_KINDS = [
   "REGISTRATION",
@@ -12,13 +13,6 @@ export const FEE_KINDS = [
   "INGREDIENTS",
   "CERTIFICATE",
   "OTHER",
-] as const;
-
-export const TRAINING_STATUSES = [
-  "DRAFT",
-  "UPCOMING",
-  "ONGOING",
-  "COMPLETED",
 ] as const;
 
 const feeItemSchema = z.object({
@@ -32,39 +26,31 @@ const feeItemSchema = z.object({
   priceLabel: z.string().trim().max(60).optional(),
 });
 
-const requirementSchema = z.object({
-  name: z.string().trim().min(1, "Required").max(200),
-  note: z.string().trim().max(200).optional(),
-});
-
-const statSchema = z.object({
-  value: z.string().trim().min(1, "Required").max(40),
-  label: z.string().trim().min(1, "Required").max(60),
-});
-
-// Kept as strings in the form (no coerce, so form input === output types);
-// parsed + validated on submit / by the backend.
-const optionalCount = z.string().optional();
+// Modeled as objects so react-hook-form's useFieldArray has stable ids.
+const bulletList = z.array(
+  z.object({ value: z.string().trim().min(1, "Required").max(300) }),
+);
 
 export const trainingSchema = z.object({
-  name: z.string().trim().min(1, "A cohort name is required").max(150),
-  numeral: z.string().trim().max(20).optional(),
-  description: z.string().trim().min(1, "A description is required").max(5000),
-  status: z.enum(TRAINING_STATUSES),
-  applicationsOpen: z.boolean(),
-  isPublished: z.boolean(),
+  name: z.string().trim().min(1, "A training name is required").max(150),
+  summary: z.string().trim().min(1, "A summary is required").max(2000),
+  learnOutcomes: bulletList,
+  whatToBring: bulletList,
+  included: bulletList,
+  forWho: bulletList,
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  capacity: optionalCount,
-  hostelCapacity: optionalCount,
-  costsIntro: z.string().trim().max(1000).optional(),
-  costsNote: z.string().trim().max(1000).optional(),
-  bringIntro: z.string().trim().max(1000).optional(),
+  schedule: z.string().trim().max(200).optional(),
+  duration: z.string().trim().max(100).optional(),
+  mode: z.string().trim().max(150).optional(),
+  hasCertificate: z.boolean(),
+  // Kept as a string in the form (no coerce, so form input === output types);
+  // parsed + validated on submit / by the backend.
+  capacity: z.string().optional(),
+  applicationsOpen: z.boolean(),
+  isPublished: z.boolean(),
+  isFeatured: z.boolean(),
   feeItems: z.array(feeItemSchema),
-  requirements: z.array(requirementSchema),
-  stats: z.array(statSchema).max(4, "At most 4 stats"),
-  // Modeled as objects so react-hook-form's useFieldArray has stable ids.
-  highlights: z.array(z.object({ value: z.string().trim().min(1).max(300) })),
 });
 
 export type TrainingFormValues = z.infer<typeof trainingSchema>;

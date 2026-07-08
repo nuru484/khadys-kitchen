@@ -11,11 +11,11 @@ export function VerifyClient() {
       codeKey={APPLY_CODE_KEY}
       success={(code) => ({
         description: `Thank you! Your application${code ? ` ${code}` : ""} is paid. Khady’s team will be in touch on WhatsApp.`,
-        action: { label: "Back to the bakery", href: routes.home },
+        action: { label: "Back to home", href: routes.home },
       })}
       failure={(code, message) => ({
         description: `${message}${code ? ` Your application code is ${code}.` : ""}`,
-        action: { label: "Back to apply", href: routes.apply },
+        action: { label: "Back to trainings", href: routes.trainings },
       })}
     />
   );

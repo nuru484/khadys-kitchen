@@ -3,61 +3,47 @@ import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { routes } from "@/lib/routes";
 
-const PILLS = [
-  "Weekly practicals",
-  "95% ingredients provided",
-  "Hostel for 12 students",
-];
-
+/**
+ * Compact trainings banner at the foot of the landing page — one cover-style
+ * card (image under an ink wash) with a headline, a single line, and one
+ * button to the trainings catalogue. Deliberately short on mobile.
+ */
 export function BakeSchoolCta() {
   return (
-    <section
-      id="school"
-      className="mx-auto max-w-[1280px] px-[clamp(20px,5vw,48px)] py-[clamp(56px,8vw,100px)]"
-    >
-      <Reveal className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] items-center gap-[clamp(32px,5vw,64px)] overflow-hidden rounded-[28px] bg-ink p-[clamp(28px,4.5vw,56px)] text-cream">
-        <div>
-          <p className="mb-[18px] text-[13px] font-semibold uppercase tracking-[0.22em] text-accent-2">
-            Khady&rsquo;s Bake School · Kumasi
-          </p>
-          <h2 className="mb-[22px] text-balance font-serif text-[clamp(30px,3.6vw,48px)] font-normal leading-[1.12]">
-            Don&rsquo;t just taste it. Learn to bake it.
-          </h2>
-          <p className="mb-7 max-w-[48ch] text-[16.5px] leading-[1.7] text-cream/75">
-            Hands-on classes with weekly practicals - you bake every week and
-            take your cake home. 95% of ingredients and tools provided, hostel
-            available.
-          </p>
-          <div className="mb-8 flex flex-wrap gap-2.5">
-            {PILLS.map((pill) => (
-              <span
-                key={pill}
-                className="rounded-full border border-cream/30 px-4 py-2 text-[13.5px] tracking-[0.04em]"
-              >
-                {pill}
-              </span>
-            ))}
+    <section className="mx-auto max-w-[1280px] px-[clamp(20px,5vw,48px)] py-[clamp(48px,7vw,96px)]">
+      <Reveal className="relative overflow-hidden rounded-[28px] bg-ink text-cream">
+        <Image
+          src="https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=1600&q=80&auto=format&fit=crop"
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="(max-width: 1280px) 100vw, 1280px"
+          className="object-cover opacity-40"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/70 to-ink/30"
+        />
+        <div className="relative flex flex-wrap items-center justify-between gap-x-12 gap-y-7 px-[clamp(24px,4.5vw,56px)] py-[clamp(36px,5vw,64px)]">
+          <div className="max-w-[52ch]">
+            <p className="mb-3.5 text-[13px] font-semibold uppercase tracking-[0.22em] text-accent-2">
+              Khady&rsquo;s Kitchen Trainings · Kumasi
+            </p>
+            <h2 className="mb-3.5 text-balance font-serif text-[clamp(28px,3.4vw,44px)] font-normal leading-[1.12]">
+              Don&rsquo;t just taste it. Learn to bake it.
+            </h2>
+            <p className="text-[16px] leading-[1.65] text-cream/80">
+              Hands-on classes for every level - from your first loaf to
+              wedding cakes - taught in Khady&rsquo;s own kitchen.
+            </p>
           </div>
           <Link
-            href={routes.apply}
+            href={routes.trainings}
             className="inline-block rounded-full bg-accent px-[34px] py-4 text-[15px] font-semibold tracking-[0.06em] text-[#FDFAF3] no-underline transition-colors hover:bg-cream hover:text-ink"
           >
-            Apply for classes →
+            Explore trainings →
           </Link>
         </div>
-
-        <Reveal
-          variant="mask-img"
-          className="relative block h-[clamp(300px,36vw,460px)] w-full overflow-hidden rounded-[18px]"
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=1200&q=80&auto=format&fit=crop"
-            alt="Freshly baked cupcakes from class practicals"
-            fill
-            sizes="(max-width: 900px) 100vw, 45vw"
-            className="object-cover"
-          />
-        </Reveal>
       </Reveal>
     </section>
   );

@@ -3,7 +3,7 @@ import { Reveal } from "@/components/reveal";
 
 export function Story() {
   return (
-    <section id="story" className="border-y border-ink/10 bg-oat">
+    <section id="about" className="border-y border-ink/10 bg-oat">
       <Reveal className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] items-center gap-[clamp(36px,6vw,72px)] px-[clamp(20px,5vw,48px)] py-[clamp(56px,8vw,100px)]">
         <Reveal
           variant="mask-img"
@@ -20,7 +20,7 @@ export function Story() {
 
         <div>
           <p className="mb-5 text-[13px] font-semibold uppercase tracking-[0.22em] text-accent">
-            Our story
+            About
           </p>
           <h2 className="mb-6 font-serif text-[clamp(32px,4vw,52px)] font-normal leading-[1.1]">
             Two ovens, one obsession.
