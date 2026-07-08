@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ProductCard } from "@/components/shop/product-card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ShopCardSkeleton } from "@/components/ui/ShopCardSkeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Select } from "@/components/ui/Select";
 import { cn } from "@/lib/utils";
@@ -157,12 +158,12 @@ export function ShopBrowser() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-[clamp(20px,3vw,32px)] sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        aria-busy="true"
+        className="grid grid-cols-1 gap-[clamp(20px,3vw,32px)] sm:grid-cols-2 lg:grid-cols-3"
+      >
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-[420px] animate-pulse rounded-[18px] bg-ink/[0.06]"
-          />
+          <ShopCardSkeleton key={i} />
         ))}
       </div>
     );

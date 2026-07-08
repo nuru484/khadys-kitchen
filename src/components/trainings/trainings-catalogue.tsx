@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { TrainingCard } from "@/components/trainings/training-card";
+import { TrainingGridSkeleton } from "@/components/trainings/training-card-skeleton";
 import { Select } from "@/components/ui/Select";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -145,16 +146,7 @@ export function TrainingsCatalogue() {
   }
 
   if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 gap-[clamp(20px,3vw,32px)] sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-[420px] animate-pulse rounded-[18px] bg-ink/[0.06]"
-          />
-        ))}
-      </div>
-    );
+    return <TrainingGridSkeleton />;
   }
 
   if (trainings.length === 0) {

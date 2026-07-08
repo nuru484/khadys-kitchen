@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { ButtonLink } from "@/components/ui/Button";
 import { Pager } from "@/components/admin/ui";
 import {
@@ -122,7 +123,24 @@ export default function ClassesPage() {
       ) : isLoading ? (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-[18px]">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-[264px] animate-pulse rounded-[20px] bg-ink/[0.06]" />
+            <div
+              key={i}
+              aria-busy="true"
+              className="grid min-h-[264px] content-start gap-3.5 rounded-[20px] border border-ink/10 bg-card p-[clamp(22px,3vw,30px)]"
+            >
+              <Skeleton className="h-3 w-2/5" />
+              <div className="flex gap-1.5">
+                <Skeleton className="h-5 w-20 rounded-full" />
+                <Skeleton className="h-5 w-24 rounded-full" />
+              </div>
+              <Skeleton className="h-6 w-[70%]" />
+              <Skeleton className="h-3 w-1/2" />
+              <Skeleton className="h-3 w-[85%]" />
+              <div className="mt-auto flex gap-6 border-t border-ink/10 pt-3.5">
+                <Skeleton className="h-8 w-12" />
+                <Skeleton className="h-8 w-12" />
+              </div>
+            </div>
           ))}
         </div>
       ) : trainings.length === 0 ? (

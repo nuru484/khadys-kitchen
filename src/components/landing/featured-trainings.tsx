@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { TrainingCard } from "@/components/trainings/training-card";
+import { TrainingCardSkeleton } from "@/components/trainings/training-card-skeleton";
 import { routes } from "@/lib/routes";
 import { useGetPublicTrainingsQuery } from "@/redux/trainings/trainings-api";
 
@@ -43,13 +44,9 @@ export function FeaturedTrainings() {
       </Reveal>
 
       {isLoading ? (
-        <div className={GRID_CLASS}>
+        <div className={GRID_CLASS} aria-busy="true">
           {Array.from({ length: 3 }, (_, i) => (
-            <div
-              key={i}
-              aria-busy="true"
-              className="h-[420px] animate-pulse rounded-[18px] bg-ink/[0.06]"
-            />
+            <TrainingCardSkeleton key={i} />
           ))}
         </div>
       ) : (
