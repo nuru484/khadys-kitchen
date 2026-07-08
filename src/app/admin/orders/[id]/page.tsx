@@ -165,7 +165,7 @@ export default function OrderDetailPage() {
             {info.map(([label, value]) => (
               <div
                 key={label as string}
-                className="flex justify-between gap-4 text-[14px]"
+                className="flex flex-col gap-0.5 min-[480px]:flex-row min-[480px]:justify-between min-[480px]:gap-4 text-[14px]"
               >
                 <span className="text-ink/55">{label}</span>
                 <span className="font-medium text-ink">{value}</span>
@@ -199,7 +199,7 @@ export default function OrderDetailPage() {
               {order.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex justify-between gap-4 text-[14px]"
+                  className="flex flex-col gap-0.5 min-[480px]:flex-row min-[480px]:justify-between min-[480px]:gap-4 text-[14px]"
                 >
                   <span className="text-ink/70">
                     {item.productId ? (

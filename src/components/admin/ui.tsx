@@ -148,10 +148,13 @@ export function StatTile({
   label,
   value,
   note,
+  sub,
 }: {
   label: string;
   value: string;
   note?: string;
+  /** Muted small line under the value (e.g. the time beneath a date). */
+  sub?: string;
 }) {
   return (
     <div className="min-w-0 rounded-[18px] border border-ink/10 bg-card px-[22px] py-5">
@@ -159,6 +162,7 @@ export function StatTile({
         {label}
       </div>
       <div className="mt-2 font-serif text-[clamp(24px,2.6vw,30px)]">{value}</div>
+      {sub ? <div className="mt-0.5 text-[12.5px] text-ink/45">{sub}</div> : null}
       {note ? (
         <div className="mt-1 text-[12.5px] font-semibold text-accent">{note}</div>
       ) : null}

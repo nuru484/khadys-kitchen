@@ -23,9 +23,9 @@ const titleCase = (s: string) =>
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-ink/[0.08] py-3 last:border-0">
+    <div className="flex flex-col gap-0.5 min-[480px]:flex-row min-[480px]:justify-between min-[480px]:gap-4 border-b border-ink/[0.08] py-3 last:border-0 min-[480px]:items-start">
       <span className="flex-none text-[13.5px] text-ink/55">{label}</span>
-      <span className="min-w-0 text-right text-[14.5px] font-medium text-ink [overflow-wrap:anywhere]">
+      <span className="min-w-0 text-[14.5px] font-medium text-ink [overflow-wrap:anywhere] min-[480px]:text-right">
         {children}
       </span>
     </div>

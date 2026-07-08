@@ -206,7 +206,7 @@ export default function ApplicationDetailPage() {
             {info.map(([label, value]) => (
               <div
                 key={label}
-                className="flex justify-between gap-4 text-[14px]"
+                className="flex flex-col gap-0.5 min-[480px]:flex-row min-[480px]:justify-between min-[480px]:gap-4 text-[14px]"
               >
                 <span className="text-ink/55">{label}</span>
                 <span className="font-medium text-ink">{value}</span>
@@ -238,7 +238,7 @@ export default function ApplicationDetailPage() {
             {(app.feeLines ?? []).map((f) => (
               <div
                 key={f.id}
-                className="flex justify-between gap-4 text-[14px]"
+                className="flex flex-col gap-0.5 min-[480px]:flex-row min-[480px]:justify-between min-[480px]:gap-4 text-[14px]"
               >
                 <span className="text-ink/70">{f.name}</span>
                 <span className="font-medium">

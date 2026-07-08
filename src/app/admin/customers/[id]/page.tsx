@@ -13,7 +13,7 @@ import { PageActions } from "@/components/admin/page-actions";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { formatMoney } from "@/lib/format-money";
-import { formatDateTime } from "@/lib/format-date";
+import { formatDate, formatDateTime, formatTime } from "@/lib/format-date";
 import { useGetCustomerByIdQuery } from "@/redux/customers/customers-api";
 import { useGetOrdersQuery } from "@/redux/orders/orders-api";
 import type { ICustomer } from "@/types/customer.types";
@@ -75,11 +75,20 @@ export default function CustomerDetailPage() {
         />
       </div>
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-[18px]">
+      {/* 1-up on phones, 2-up on tablets, 4-up from xl. */}
+      <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Orders" value={String(customer.orderCount)} />
         <StatTile label="Total spent" value={formatMoney(customer.totalSpent)} />
-        <StatTile label="Last order" value={formatDateTime(customer.lastOrderAt)} />
-        <StatTile label="Customer since" value={formatDateTime(customer.createdAt)} />
+        <StatTile
+          label="Last order"
+          value={formatDate(customer.lastOrderAt)}
+          sub={customer.lastOrderAt ? formatTime(customer.lastOrderAt) : undefined}
+        />
+        <StatTile
+          label="Customer since"
+          value={formatDate(customer.createdAt)}
+          sub={formatTime(customer.createdAt)}
+        />
       </div>
 
       {customer.notes ? (
