@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, Pager } from "@/components/admin/ui";
 import { FilterBar, LabeledSelect } from "@/components/admin/filter-bar";
-import { SkeletonCells } from "@/components/admin/table-bits";
+import { DateTimeCell, SkeletonCells } from "@/components/admin/table-bits";
+import { ActionMenu } from "@/components/admin/action-menu";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -26,7 +28,14 @@ const OWNER_FILTERS = [
   { id: "application", label: "Bake school" },
 ];
 const STATUS_FILTERS = ["all", "PENDING", "SUCCESS", "FAILED", "REVERSED"];
-const METHOD_FILTERS = ["all", "PAYSTACK", "CASH", "MOMO", "BANK_TRANSFER", "OTHER"];
+const METHOD_FILTERS = [
+  "all",
+  "PAYSTACK",
+  "CASH",
+  "MOMO",
+  "BANK_TRANSFER",
+  "OTHER",
+];
 const DEFAULTS = { owner: "all", status: "all", method: "all" };
 const PAGE_SIZE = 15;
 
@@ -34,6 +43,7 @@ const titleCase = (s: string) =>
   s.charAt(0) + s.slice(1).toLowerCase().replace("_", " ");
 
 export default function PaymentsPage() {
+  const router = useRouter();
   const { page, search, filters, setSearch, setFilter, setPage, queryParams } =
     useTableQuery({ defaults: DEFAULTS, pageSize: PAGE_SIZE });
 
@@ -77,7 +87,9 @@ export default function PaymentsPage() {
       }).unwrap();
       notify.success("Payment reversed");
     } catch (err) {
-      notify.error("Couldn't reverse", { description: extractApiError(err).message });
+      notify.error("Couldn't reverse", {
+        description: extractApiError(err).message,
+      });
     }
   };
 
@@ -169,78 +181,119 @@ export default function PaymentsPage() {
                 </thead>
                 <tbody>
                   {isLoading ? (
-                    <SkeletonCells widths={["w-40", "w-32", "w-20", "w-20", "w-20", "w-24", "w-16"]} />
+                    <SkeletonCells
+                      widths={[
+                        "w-40",
+                        "w-32",
+                        "w-20",
+                        "w-20",
+                        "w-20",
+                        "w-24",
+                        "w-16",
+                      ]}
+                    />
                   ) : (
                     rows.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="border-b border-ink/[0.08] last:border-0"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="max-w-[220px] truncate text-[13px] font-semibold text-ink">
-                          {p.reference}
-                        </div>
-                        {p.note ? (
-                          <div className="mt-0.5 max-w-[220px] truncate text-[12px] text-ink/50">
-                            {p.note}
+                      <tr
+                        key={p.id}
+                        className="border-b border-ink/[0.08] last:border-0"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="max-w-[220px] truncate text-[13px] font-semibold text-ink">
+                            {p.reference}
                           </div>
-                        ) : null}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[13.5px]">
-                        {p.order ? (
-                          <Link
-                            href={`/admin/orders/${p.order.id}`}
-                            className="font-semibold text-accent"
-                          >
-                            {p.order.code}
-                          </Link>
-                        ) : p.application ? (
-                          <Link
-                            href={`/admin/applications/${p.application.id}`}
-                            className="font-semibold text-accent"
-                          >
-                            {p.application.code}
-                          </Link>
-                        ) : (
-                          "—"
-                        )}
-                        <div className="mt-0.5 text-[12px] text-ink/50">
-                          {p.order?.fullName ?? p.application?.fullName ?? ""}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[14px] font-medium">
-                        {formatMoney(p.amount, p.currency)}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
-                        {titleCase(p.method)}
-                      </td>
-                      <td className="px-4 py-4">
-                        <StatusBadge status={p.status} />
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-[13px] text-ink/60">
-                        {formatDateTime(p.paidAt ?? null)}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        {isAdmin && p.status === "SUCCESS" ? (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              confirm({
-                                title: "Reverse this payment?",
-                                description:
-                                  "Paystack payments are refunded via Paystack; cash/MoMo are marked reversed. The owning order or application is re-credited.",
-                                confirmText: "Reverse payment",
-                                isDestructive: true,
-                                onConfirm: () => doRefund(p),
-                              })
-                            }
-                            className="text-[13px] font-semibold text-danger"
-                          >
-                            Reverse
-                          </button>
-                        ) : null}
-                      </td>
-                    </tr>
+                          {p.note ? (
+                            <div className="mt-0.5 max-w-[220px] truncate text-[12px] text-ink/50">
+                              {p.note}
+                            </div>
+                          ) : null}
+                        </td>
+                        <td className="px-4 py-4 text-[13.5px]">
+                          {p.order ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-accent">
+                                  Order
+                                </span>
+                                <Link
+                                  href={`/admin/orders/${p.order.id}`}
+                                  className="font-semibold text-accent"
+                                >
+                                  {p.order.code}
+                                </Link>
+                              </div>
+                              <div className="mt-1 max-w-[240px] truncate text-[12px] text-ink/55">
+                                {p.order.fullName}
+                              </div>
+                            </>
+                          ) : p.application ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="rounded-full bg-ink/[0.07] px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-ink/60">
+                                  Training
+                                </span>
+                                <Link
+                                  href={`/admin/applications/${p.application.id}`}
+                                  className="font-semibold text-accent"
+                                >
+                                  {p.application.code}
+                                </Link>
+                              </div>
+                              <div className="mt-1 max-w-[240px] truncate text-[12px] text-ink/55">
+                                {p.application.fullName} ·{" "}
+                                {p.application.trainingName}
+                              </div>
+                            </>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-4 text-[14px] font-medium">
+                          {formatMoney(p.amount, p.currency)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-4 text-[13.5px] text-ink/70">
+                          {titleCase(p.method)}
+                        </td>
+                        <td className="px-4 py-4">
+                          <StatusBadge status={p.status} />
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-4 text-[13px] text-ink/60">
+                          <DateTimeCell iso={p.paidAt ?? null} />
+                          {p.reversedAt ? (
+                            <div className="mt-1 text-[11.5px] text-ink/45">
+                              Reversed {formatDateTime(p.reversedAt)}
+                            </div>
+                          ) : null}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <ActionMenu
+                            items={[
+                              {
+                                label: "View details",
+                                onClick: () =>
+                                  router.push(`/admin/payments/${p.id}`),
+                              },
+                              ...(isAdmin && p.status === "SUCCESS"
+                                ? [
+                                    {
+                                      label: "Reverse payment",
+                                      variant: "danger" as const,
+                                      onClick: () =>
+                                        confirm({
+                                          title: "Reverse this payment?",
+                                          description:
+                                            "Paystack payments are refunded via Paystack; cash/MoMo are marked reversed. The owning order or application is re-credited.",
+                                          confirmText: "Reverse payment",
+                                          isDestructive: true,
+                                          onConfirm: () => doRefund(p),
+                                        }),
+                                    },
+                                  ]
+                                : []),
+                            ]}
+                          />
+                        </td>
+                      </tr>
                     ))
                   )}
                 </tbody>

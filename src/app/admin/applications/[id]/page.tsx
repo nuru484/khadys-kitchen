@@ -10,11 +10,12 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { RippleLoader } from "@/components/ui/Loader";
 import { RecordPaymentModal } from "@/components/admin/record-payment-modal";
 import { PageActions } from "@/components/admin/page-actions";
+import { StatusPicker } from "@/components/admin/status-picker";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { formatMoney } from "@/lib/format-money";
-import { formatDate, formatDateTime } from "@/lib/format-date";
+import { formatDateTime } from "@/lib/format-date";
 import {
   useDeleteApplicationMutation,
   useGetApplicationByIdQuery,
@@ -57,7 +58,10 @@ export default function ApplicationDetailPage() {
     return (
       <div style={{ animation: "kk-rise .5s both" }}>
         <ErrorState error={error} onRetry={() => void refetch()} />
-        <Link href="/admin/applications" className="mt-3 inline-block font-semibold text-accent">
+        <Link
+          href="/admin/applications"
+          className="mt-3 inline-block font-semibold text-accent"
+        >
           ← All applications
         </Link>
       </div>
@@ -69,7 +73,9 @@ export default function ApplicationDetailPage() {
       await updateStatus({ id, status }).unwrap();
       notify.success("Status updated");
     } catch (err) {
-      notify.error("Couldn't update status", { description: extractApiError(err).message });
+      notify.error("Couldn't update status", {
+        description: extractApiError(err).message,
+      });
     }
   };
 
@@ -78,7 +84,9 @@ export default function ApplicationDetailPage() {
       await refund({ paymentId, applicationId: id }).unwrap();
       notify.success("Payment reversed");
     } catch (err) {
-      notify.error("Couldn't reverse", { description: extractApiError(err).message });
+      notify.error("Couldn't reverse", {
+        description: extractApiError(err).message,
+      });
     }
   };
 
@@ -87,7 +95,9 @@ export default function ApplicationDetailPage() {
       await remind(id).unwrap();
       notify.success("Reminder sent");
     } catch (err) {
-      notify.error("Couldn't send reminder", { description: extractApiError(err).message });
+      notify.error("Couldn't send reminder", {
+        description: extractApiError(err).message,
+      });
     }
   };
 
@@ -97,7 +107,9 @@ export default function ApplicationDetailPage() {
       notify.success("Application deleted");
       router.push("/admin/applications");
     } catch (err) {
-      notify.error("Couldn't delete", { description: extractApiError(err).message });
+      notify.error("Couldn't delete", {
+        description: extractApiError(err).message,
+      });
     }
   };
 
@@ -106,24 +118,32 @@ export default function ApplicationDetailPage() {
     ["Email", app.email ?? "—"],
     ["Location", app.location ?? "—"],
     ["Needs hostel", app.needsHostel ? "Yes" : "No"],
-    ["Applied", formatDate(app.createdAt)],
+    ["Applied", formatDateTime(app.createdAt)],
   ];
 
   return (
     <div style={{ animation: "kk-rise .5s both" }}>
-      <Link href="/admin/applications" className="mb-4 inline-block text-[13.5px] font-semibold text-accent">
+      <Link
+        href="/admin/applications"
+        className="mb-4 inline-block text-[13.5px] font-semibold text-accent"
+      >
         ← All applications
       </Link>
 
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="break-words font-serif text-[clamp(26px,3.4vw,36px)] font-normal">{app.fullName}</h1>
+          <h1 className="break-words font-serif text-[clamp(26px,3.4vw,36px)] font-normal">
+            {app.fullName}
+          </h1>
           <div className="mt-1 text-[13.5px] text-ink/55">
             {app.code}
             {app.training ? (
               <>
                 {" · "}
-                <Link href={`/admin/classes/${app.training.id}`} className="font-semibold text-accent">
+                <Link
+                  href={`/admin/classes/${app.training.id}`}
+                  className="font-semibold text-accent"
+                >
                   {app.training.name}
                 </Link>
               </>
@@ -131,24 +151,8 @@ export default function ApplicationDetailPage() {
           </div>
         </div>
         <PageActions
-          actions={[
-            ...applicationStatusActionsFor(isAdmin)
-              .filter((a) => a.status !== app.status)
-              .map((a, i) => ({
-                label: a.label,
-                variant: a.variant,
-                // Admit (or the first sensible transition) stays visible on phones.
-                primary: i === 0 && a.variant !== "danger",
-                onClick: () =>
-                  confirm({
-                    title: `${a.label} this applicant?`,
-                    description: applicationStatusCopy(a.status),
-                    confirmText: a.label,
-                    isDestructive: a.variant === "danger",
-                    onConfirm: () => doStatus(a.status),
-                  }),
-              })),
-            ...(isAdmin
+          actions={
+            isAdmin
               ? [
                   {
                     label: "Delete",
@@ -163,8 +167,8 @@ export default function ApplicationDetailPage() {
                       }),
                   },
                 ]
-              : []),
-          ]}
+              : []
+          }
         />
       </div>
 
@@ -172,11 +176,38 @@ export default function ApplicationDetailPage() {
         <Card className="p-[clamp(20px,3vw,28px)]">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="font-serif text-[19px]">Applicant</h2>
-            <StatusBadge status={app.status} />
+            {/* Current status doubles as the transition picker — the same
+                confirmations (and staff can't reject) as the old buttons. */}
+            <StatusPicker
+              status={app.status}
+              options={applicationStatusActionsFor(isAdmin)
+                .filter((a) => a.status !== app.status)
+                .map((a) => ({
+                  value: a.status,
+                  label: a.label,
+                  danger: a.variant === "danger",
+                }))}
+              onSelect={(status) => {
+                const action = applicationStatusActionsFor(isAdmin).find(
+                  (a) => a.status === status,
+                );
+                if (!action) return;
+                confirm({
+                  title: `${action.label} this applicant?`,
+                  description: applicationStatusCopy(status),
+                  confirmText: action.label,
+                  isDestructive: action.variant === "danger",
+                  onConfirm: () => doStatus(status),
+                });
+              }}
+            />
           </div>
           <div className="grid gap-2.5">
             {info.map(([label, value]) => (
-              <div key={label} className="flex justify-between gap-4 text-[14px]">
+              <div
+                key={label}
+                className="flex justify-between gap-4 text-[14px]"
+              >
                 <span className="text-ink/55">{label}</span>
                 <span className="font-medium text-ink">{value}</span>
               </div>
@@ -205,16 +236,31 @@ export default function ApplicationDetailPage() {
           </div>
           <div className="grid gap-2">
             {(app.feeLines ?? []).map((f) => (
-              <div key={f.id} className="flex justify-between gap-4 text-[14px]">
+              <div
+                key={f.id}
+                className="flex justify-between gap-4 text-[14px]"
+              >
                 <span className="text-ink/70">{f.name}</span>
-                <span className="font-medium">{formatMoney(f.amount, app.currency)}</span>
+                <span className="font-medium">
+                  {formatMoney(f.amount, app.currency)}
+                </span>
               </div>
             ))}
           </div>
           <div className="mt-3 grid gap-1.5 border-t border-ink/10 pt-3 text-[14px]">
-            <Row label="Total due" value={formatMoney(app.amountDue, app.currency)} />
-            <Row label="Paid" value={formatMoney(app.amountPaid, app.currency)} />
-            <Row label="Balance" value={formatMoney(app.balance, app.currency)} strong />
+            <Row
+              label="Total due"
+              value={formatMoney(app.amountDue, app.currency)}
+            />
+            <Row
+              label="Paid"
+              value={formatMoney(app.amountPaid, app.currency)}
+            />
+            <Row
+              label="Balance"
+              value={formatMoney(app.balance, app.currency)}
+              strong
+            />
           </div>
         </Card>
       </div>
@@ -254,13 +300,22 @@ export default function ApplicationDetailPage() {
                 className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-ink/10 px-4 py-3 text-[14px]"
               >
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold">{formatMoney(p.amount, p.currency)}</span>
-                  <span className="text-ink/55">{p.method.replace("_", " ")}</span>
+                  <span className="font-semibold">
+                    {formatMoney(p.amount, p.currency)}
+                  </span>
+                  <span className="text-ink/55">
+                    {p.method.replace("_", " ")}
+                  </span>
                   <StatusBadge status={p.status} />
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-[13px] text-ink/50">
+                  <span className="text-right text-[13px] text-ink/50">
                     {formatDateTime(p.paidAt ?? null)}
+                    {p.reversedAt ? (
+                      <span className="block text-[12px] text-ink/45">
+                        Reversed {formatDateTime(p.reversedAt)}
+                      </span>
+                    ) : null}
                   </span>
                   {isAdmin && p.status === "SUCCESS" ? (
                     <button
@@ -281,6 +336,9 @@ export default function ApplicationDetailPage() {
                     </button>
                   ) : null}
                 </div>
+                {p.note ? (
+                  <p className="w-full text-[13px] text-ink/55">{p.note}</p>
+                ) : null}
               </div>
             ))}
           </div>
@@ -299,11 +357,21 @@ export default function ApplicationDetailPage() {
   );
 }
 
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function Row({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
   return (
     <div className="flex justify-between gap-4">
       <span className="text-ink/55">{label}</span>
-      <span className={strong ? "font-semibold text-ink" : "font-medium text-ink"}>
+      <span
+        className={strong ? "font-semibold text-ink" : "font-medium text-ink"}
+      >
         {value}
       </span>
     </div>

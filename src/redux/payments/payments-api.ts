@@ -4,6 +4,7 @@ import type { IPayment } from "@/types/application.types";
 import type {
   ILedgerListQuery,
   ILedgerListResponse,
+  ILedgerPayment,
 } from "@/types/payment.types";
 
 /** The unified admin payments ledger — every payment across shop orders and
@@ -15,6 +16,16 @@ export const paymentsApi = apiSlice.injectEndpoints({
         url: `admin/payments${toQueryString(params ?? {})}`,
         method: "GET",
       }),
+      providesTags: ["Payments"],
+    }),
+
+    getPaymentById: builder.query<
+      { message: string; data: ILedgerPayment },
+      string
+    >({
+      query: (id) => ({ url: `admin/payments/${id}`, method: "GET" }),
+      // The list tag is enough: refunds invalidate "Payments", which refetches
+      // this detail too.
       providesTags: ["Payments"],
     }),
 
@@ -52,4 +63,8 @@ export const paymentsApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useGetPaymentsQuery, useRefundPaymentMutation } = paymentsApi;
+export const {
+  useGetPaymentsQuery,
+  useGetPaymentByIdQuery,
+  useRefundPaymentMutation,
+} = paymentsApi;

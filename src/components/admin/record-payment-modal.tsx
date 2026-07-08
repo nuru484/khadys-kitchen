@@ -101,6 +101,7 @@ export function RecordPaymentModal({
       <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="grid gap-4">
         <TextField
           label="Amount (GHS)"
+          placeholder="e.g. 50.00"
           type="number"
           step="0.01"
           error={errors.amount?.message}
@@ -118,7 +119,11 @@ export function RecordPaymentModal({
             ))}
           </Select>
         </div>
-        <TextField label="Note (optional)" {...register("note")} />
+        <TextField
+          label="Note (optional)"
+          placeholder="e.g. Deposit paid at the counter"
+          {...register("note")}
+        />
         <div className="mt-1 flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel

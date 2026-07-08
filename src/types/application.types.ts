@@ -53,7 +53,7 @@ export interface IApplication {
   feeLines?: IFeeLine[];
   payments?: IPayment[];
   student?: { id: string; code: string; status: string } | null;
-  training?: { id: string; name: string; numeral: string | null; slug: string };
+  training?: { id: string; name: string; slug: string };
 }
 
 export interface IApplicationListResponse {
@@ -94,6 +94,8 @@ export interface IPayment {
   status: "PENDING" | "SUCCESS" | "FAILED" | "REVERSED";
   reference: string;
   paidAt: string | null;
+  /** Set when a SUCCESS payment was later refunded/reversed. */
+  reversedAt: string | null;
   createdAt: string;
   note: string | null;
 }
