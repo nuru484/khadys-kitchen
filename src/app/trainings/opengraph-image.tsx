@@ -13,5 +13,6 @@ export default function TrainingsOpengraphImage() {
     eyebrow: "Khady's Kitchen Trainings",
     title: "Learn to bake.",
     subtitle: "Hands-on baking, pastry & wedding-cake classes in Kumasi.",
+    cta: "See classes & apply at khadyskitchen.com →",
   });
 }

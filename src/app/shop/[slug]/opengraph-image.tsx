@@ -29,5 +29,6 @@ export default async function ProductOpengraphImage({
     subtitle: product
       ? "Baked to order for pickup in Kumasi."
       : "Croissants, sourdough, celebration cakes & more.",
+    cta: "Order it at khadyskitchen.com →",
   });
 }

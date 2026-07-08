@@ -13,5 +13,6 @@ export default function ShopOpengraphImage() {
     eyebrow: "The Shop · Order custom bakes",
     title: "Baked to order.",
     subtitle: "Croissants, sourdough, celebration cakes & more - fresh for pickup.",
+    cta: "Order online at khadyskitchen.com →",
   });
 }

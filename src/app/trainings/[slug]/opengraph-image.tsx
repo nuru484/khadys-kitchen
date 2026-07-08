@@ -36,5 +36,6 @@ export default async function TrainingOpengraphImage({
     subtitle: training
       ? "A hands-on baking class in Kumasi."
       : "Hands-on baking, pastry & wedding-cake classes in Kumasi.",
+    cta: "See dates & apply at khadyskitchen.com →",
   });
 }
