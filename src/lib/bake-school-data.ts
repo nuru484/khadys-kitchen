@@ -3,16 +3,6 @@
  * Mirrors the copy from the designs so the pages stay data-driven rather than
  * hard-coding rows in the markup.
  */
-/** Rotating word marquee under the hero. */
-export const marqueeItems: string[] = [
-  "SOURDOUGH",
-  "CROISSANTS",
-  "MEAT PIES",
-  "CELEBRATION CAKES",
-  "BOFROT",
-  "BAGUETTES",
-];
-
 export interface Fee {
   num: string;
   name: string;
