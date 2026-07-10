@@ -4,7 +4,7 @@ import { Reveal } from '@/components/reveal';
 import { routes } from '@/lib/routes';
 
 const STATS = [
-  { value: '4:30 am', label: 'First bake' },
+  { value: '8:00 am', label: 'First bake' },
   { value: '14', label: 'Daily bakes' },
   { value: 'Zero', label: 'Day-old sales' },
 ];

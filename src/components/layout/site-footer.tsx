@@ -3,12 +3,6 @@ import Image from "next/image";
 import { SocialLinks } from "@/components/social-links";
 import { routes } from "@/lib/routes";
 
-const HOURS = [
-  { days: "Wed - Fri", time: "7 am - sold out" },
-  { days: "Sat - Sun", time: "8 am - 2 pm" },
-  { days: "Mon - Tue", time: "Resting the ovens" },
-];
-
 const FOOTER_LINKS = [
   { label: "Home", href: routes.home },
   { label: "Shop", href: routes.shop },
@@ -42,23 +36,19 @@ export function SiteFooter({ cta }: SiteFooterProps) {
           </Link>
         </div>
 
-        <div>
+        <div className="lg:justify-self-center">
           <h3 className="mb-5 text-[13px] font-semibold uppercase tracking-[0.2em] text-accent-2">
-            Hours
+            Explore
           </h3>
           <div className="grid gap-3 text-[16px]">
-            {HOURS.map((row, i) => (
-              <div
-                key={row.days}
-                className={
-                  i < HOURS.length - 1
-                    ? "flex justify-between gap-4 border-b border-cream/15 pb-3"
-                    : "flex justify-between gap-4"
-                }
+            {FOOTER_LINKS.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-cream/80 no-underline transition-colors hover:text-cream"
               >
-                <span>{row.days}</span>
-                <span className="text-cream/70">{row.time}</span>
-              </div>
+                {link.label}
+              </Link>
             ))}
           </div>
         </div>
@@ -76,16 +66,9 @@ export function SiteFooter({ cta }: SiteFooterProps) {
             hello@khadyskitchen.com
           </p>
           <SocialLinks tone="dark" size="sm" className="mb-[22px]" />
-          <div className="flex flex-wrap gap-x-[18px] gap-y-2 text-[14px]">
-            {FOOTER_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-cream/80 no-underline transition-colors hover:text-cream"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="flex justify-between gap-4 border-t border-cream/15 pt-3 text-[16px]">
+            <span>Mon - Sun</span>
+            <span className="text-cream/70">8 am - 5 pm</span>
           </div>
         </div>
       </div>

@@ -93,7 +93,7 @@ export function ContactChannels() {
             label="Visit"
             value="Kumasi, Ghana"
             href="https://maps.google.com/?q=Kumasi,Ghana"
-            desc="Wed - Fri 7 am until sold out · Sat - Sun 8 am - 2 pm · closed Mon - Tue."
+            desc="Open Mon - Sun · 8 am - 5 pm."
           />
         </Reveal>
       </div>
