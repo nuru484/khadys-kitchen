@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { siteConfig } from "@/lib/site";
+import type { Metadata } from 'next';
+import { siteConfig } from '@/lib/site';
 
 /**
  * Shared per-page metadata builder - the Khady's Kitchen counterpart to
@@ -45,7 +45,7 @@ const clampDescription = (description: string): string => {
   if (description.length <= MAX_DESCRIPTION) return description;
   // Cut on a word boundary so the ellipsis never splits a word.
   const slice = description.slice(0, MAX_DESCRIPTION - 1);
-  const atWord = slice.slice(0, slice.lastIndexOf(" "));
+  const atWord = slice.slice(0, slice.lastIndexOf(' '));
   return `${(atWord || slice).trimEnd()}…`;
 };
 
@@ -74,11 +74,11 @@ export function pageMetadata({
       url: path,
       siteName: siteConfig.name,
       locale: siteConfig.locale,
-      type: "website",
+      type: 'website',
       ...(ogImage ? { images: [ogImage] } : {}),
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title: fullTitle,
       description,
       ...(image ? { images: [image] } : {}),
