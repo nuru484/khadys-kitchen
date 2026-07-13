@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ShopCardSkeleton } from "@/components/ui/ShopCardSkeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LabeledSelect } from "@/components/ui/LabeledSelect";
+import { DateInput } from "@/components/ui/DateInput";
 import { cn } from "@/lib/utils";
 import { useGetPublicProductsQuery } from "@/redux/products/products-api";
 import {
@@ -266,11 +267,12 @@ export function ShopBrowser({
 
           <label className="grid gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink/55">
             Need by
-            <input
-              type="date"
+            <DateInput
               value={byDate}
               min={tomorrow}
               onChange={(e) => changeByDate(e.target.value)}
+              placeholder="Any date"
+              placeholderClassName="normal-case tracking-normal font-normal text-[14px]"
               className={cn(
                 "w-full cursor-pointer rounded-[10px] border-[1.5px] bg-transparent px-3 py-[9px] font-sans text-[14px] font-medium normal-case tracking-normal text-ink outline-none transition-colors focus:border-accent lg:w-auto",
                 byDate ? "border-accent text-accent" : "border-ink/20",

@@ -1,4 +1,4 @@
-import { forwardRef, useId, useState } from "react";
+import { forwardRef, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export interface TextFieldProps
@@ -21,7 +21,7 @@ export interface TextFieldProps
  */
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
   function TextField(
-    { label, error, valid, hint, revealable, className, id, type, ...props },
+    { label, error, valid, hint, revealable, className, id, type, onChange, ...props },
     ref,
   ) {
     const autoId = useId();
@@ -32,6 +32,21 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     const canReveal = revealable && type === "password";
     const inputType = canReveal && revealed ? "text" : type;
 
+    // Date fields: mobile browsers render an empty <input type="date"> as a
+    // bare box, so while empty the native text is hidden and the placeholder
+    // prop is overlaid instead. Emptiness is read off the DOM node after every
+    // render — react-hook-form's reset() writes values without an event.
+    // The deliberately dependency-less effect re-checks each render (the
+    // same-value setState bails out, so this can't loop).
+    const isDate = type === "date";
+    const innerRef = useRef<HTMLInputElement | null>(null);
+    const [dateEmpty, setDateEmpty] = useState(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+      if (isDate) setDateEmpty(!innerRef.current?.value);
+    });
+    const showDateHint = isDate && dateEmpty && Boolean(props.placeholder);
+
     return (
       <div className="grid gap-[7px]">
         <label
@@ -40,16 +55,37 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         >
           {label}
         </label>
-        <div className="relative">
+        <div className="group relative">
           <input
-            ref={ref}
+            ref={(node) => {
+              innerRef.current = node;
+              if (typeof ref === "function") ref(node);
+              else if (ref) ref.current = node;
+            }}
             id={fieldId}
             type={inputType}
             aria-invalid={error ? true : undefined}
             aria-describedby={error || hint ? msgId : undefined}
+            onChange={(e) => {
+              if (isDate) setDateEmpty(!e.target.value);
+              onChange?.(e);
+            }}
+            onClick={
+              isDate
+                ? (e) => {
+                    try {
+                      e.currentTarget.showPicker?.();
+                    } catch {
+                      // Unsupported — the native tap behaviour still opens it.
+                    }
+                  }
+                : undefined
+            }
             className={cn(
               "w-full rounded-[12px] border-[1.5px] bg-cream px-[15px] py-3 font-sans text-[15px] text-ink outline-none transition-colors",
               canReveal && "pr-11",
+              isDate && "cursor-pointer",
+              showDateHint && "text-transparent focus:text-ink",
               error
                 ? "border-danger bg-danger/[0.04]"
                 : valid
@@ -59,6 +95,14 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             )}
             {...props}
           />
+          {showDateHint ? (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-[15px] z-[1] flex items-center text-[15px] text-ink/45 group-focus-within:hidden"
+            >
+              {props.placeholder}
+            </span>
+          ) : null}
           {canReveal ? (
             <button
               type="button"

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { TrainingCard } from "@/components/trainings/training-card";
 import { TrainingGridSkeleton } from "@/components/trainings/training-card-skeleton";
 import { LabeledSelect } from "@/components/ui/LabeledSelect";
+import { DateInput } from "@/components/ui/DateInput";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
@@ -229,10 +230,11 @@ export function TrainingsCatalogue({
 
           <label className="grid gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink/55">
             Starts from
-            <input
-              type="date"
+            <DateInput
               value={startsFrom}
               onChange={(e) => changeStartsFrom(e.target.value)}
+              placeholder="Any date"
+              placeholderClassName="normal-case tracking-normal font-normal text-[14px]"
               className={cn(
                 "w-full min-w-0 cursor-pointer rounded-[10px] border-[1.5px] bg-transparent px-3 py-[9px] font-sans text-[14px] font-medium normal-case tracking-normal text-ink outline-none transition-colors focus:border-accent lg:w-auto",
                 startsFrom ? "border-accent text-accent" : "border-ink/20",

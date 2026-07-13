@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { Select } from "@/components/ui/Select";
+import { DateInput } from "@/components/ui/DateInput";
 import { cn } from "@/lib/utils";
 
 /**
@@ -43,12 +44,55 @@ export function LabeledSelect({
   );
 }
 
+/** Shared pill styling for the Filters / Actions disclosure toggles. */
+function TogglePill({
+  open,
+  onToggle,
+  controls,
+  badge,
+  children,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  controls: string;
+  badge?: number;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={open}
+      aria-controls={controls}
+      className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-ink/25 px-4 py-2.5 font-sans text-[13px] font-semibold text-ink transition-colors hover:border-accent"
+    >
+      {children}
+      {badge ? (
+        <span className="grid h-5 min-w-[20px] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-[#FDFAF3]">
+          {badge}
+        </span>
+      ) : null}
+      <span
+        aria-hidden="true"
+        className={cn("text-[11px] transition-transform", open && "rotate-180")}
+      >
+        ▾
+      </span>
+    </button>
+  );
+}
+
 /**
- * Admin filter toolbar, styled like the storefront shop: a rounded search field
- * plus labelled dropdowns. On mobile/tablet everything collapses behind a
- * toggle; from lg up it's an inline toolbar — unless `collapseFilters` is set
- * (pages with four-plus filters), where the search stays inline and only the
- * filters sit behind the toggle at every width.
+ * Admin filter toolbar, mobile-first:
+ *
+ * - Phones/tablets (below lg): the search field is always visible and spans the
+ *   full width; beneath it the Filters toggle sits on the left with the result
+ *   count and action button(s) on the right. More than two actions collapse
+ *   behind an "Actions" toggle that expands a stacked panel, just like the
+ *   filters do. The filters themselves always live behind the Filters toggle.
+ * - Desktop (lg up): the search sits inline; filters are inline too, unless
+ *   `collapseFilters` keeps them behind the toggle (pages with four-plus
+ *   filters). Actions render as a plain button row on the right.
  */
 export function FilterBar({
   search = "",
@@ -57,6 +101,7 @@ export function FilterBar({
   activeCount = 0,
   resultLabel,
   action,
+  actions,
   collapseFilters = false,
   onClear,
   children,
@@ -67,8 +112,11 @@ export function FilterBar({
   searchPlaceholder?: string;
   activeCount?: number;
   resultLabel?: string;
-  /** Persistent action (e.g. a "New" button) — stays visible when collapsed. */
+  /** Single persistent action (e.g. a "New" button). */
   action?: ReactNode;
+  /** Several persistent actions — more than two collapse behind an "Actions"
+   * toggle on phones. Wins over `action` when both are given. */
+  actions?: ReactNode[];
   /** Keep the filters behind the toggle on desktop too — for toolbars with
    * four or more filters that would otherwise crowd the row. */
   collapseFilters?: boolean;
@@ -78,18 +126,14 @@ export function FilterBar({
   /** The LabeledSelect filters. */
   children?: ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const hasSearch = Boolean(onSearch);
+  const actionItems = actions ?? (action !== undefined && action !== null ? [action] : []);
+  const collapseActions = actionItems.length > 2;
 
   const searchField = hasSearch ? (
-    <div
-      className={cn(
-        "relative",
-        collapseFilters
-          ? "min-w-0 flex-[1_1_180px] lg:max-w-[320px]"
-          : "col-span-full lg:col-span-1 lg:min-w-[180px] lg:max-w-[320px] lg:flex-[1_1_200px]",
-      )}
-    >
+    <div className="relative w-full lg:w-auto lg:min-w-[180px] lg:max-w-[320px] lg:flex-[1_1_200px]">
       <span
         aria-hidden="true"
         className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] text-ink/45"
@@ -116,13 +160,12 @@ export function FilterBar({
     </div>
   ) : null;
 
-  const toggle = (
-    <button
-      type="button"
-      onClick={() => setOpen((o) => !o)}
-      aria-expanded={open}
-      aria-controls="admin-filters"
-      className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-ink/25 px-4 py-2.5 font-sans text-[13px] font-semibold text-ink transition-colors hover:border-accent"
+  const filtersToggle = (
+    <TogglePill
+      open={filtersOpen}
+      onToggle={() => setFiltersOpen((o) => !o)}
+      controls="admin-filters"
+      badge={activeCount}
     >
       <svg
         aria-hidden="true"
@@ -135,19 +178,8 @@ export function FilterBar({
       >
         <path d="M4 6h16M7 12h10M10 18h4" />
       </svg>
-      {hasSearch && !collapseFilters ? "Search & filters" : "Filters"}
-      {activeCount > 0 ? (
-        <span className="grid h-5 min-w-[20px] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-[#FDFAF3]">
-          {activeCount}
-        </span>
-      ) : null}
-      <span
-        aria-hidden="true"
-        className={cn("text-[11px] transition-transform", open && "rotate-180")}
-      >
-        ▾
-      </span>
-    </button>
+      Filters
+    </TogglePill>
   );
 
   const clearButton =
@@ -161,88 +193,96 @@ export function FilterBar({
       </button>
     ) : null;
 
-  const panelGrid =
-    "grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(150px,1fr))]";
-
-  if (collapseFilters) {
-    // Search stays inline at every width; only the filters live behind the
-    // toggle, so a five-filter toolbar never crowds the row. On phones the
-    // persistent action gets its own full-width row (with the result count
-    // opposite) instead of floating awkwardly beside wrapped controls.
-    return (
-      <div className="mb-[18px]">
-        <div className="flex flex-wrap items-center gap-3">
-          {searchField}
-          {toggle}
-          {!open ? clearButton : null}
-          {action || resultLabel ? (
-            <div className="flex w-full items-center justify-end gap-3 sm:ml-auto sm:w-auto">
-              {resultLabel ? (
-                <span className="mr-auto whitespace-nowrap text-[13px] text-ink/55 sm:mr-0">
-                  {resultLabel}
-                </span>
-              ) : null}
-              {action}
-            </div>
-          ) : null}
-        </div>
-        <div id="admin-filters" className={cn("mt-3", open ? panelGrid : "hidden")}>
-          {children}
-          <div className="col-span-full flex items-center">{clearButton}</div>
-        </div>
-      </div>
-    );
-  }
+  const resultText = resultLabel ? (
+    <span className="whitespace-nowrap text-[13px] text-ink/55">
+      {resultLabel}
+    </span>
+  ) : null;
 
   return (
     <div className="mb-[18px]">
-      {/* Mobile / tablet: collapse the toolbar behind a toggle. A persistent
-          action wraps onto its own full-width row on very narrow screens
-          (e.g. a Galaxy Fold) instead of squeezing the button text. */}
-      <div className="flex flex-wrap items-center gap-3 lg:hidden">
-        <div className="mr-auto flex items-center gap-3">
-          {toggle}
-          {!open ? clearButton : null}
-        </div>
-        {action ??
-          (resultLabel ? (
-            <span className="whitespace-nowrap text-[13px] text-ink/55">
-              {resultLabel}
-            </span>
-          ) : null)}
-      </div>
-
-      {/* Controls: stacked column on mobile (revealed by the toggle), inline
-          toolbar from lg up. */}
-      <div
-        id="admin-filters"
-        className={cn(
-          "mt-3 gap-3 lg:mt-0",
-          // Phones: two columns. Tablets: auto-fit tracks, so up to four
-          // compact filters share a row and wrap only when they'd overflow.
-          open
-            ? "grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(150px,1fr))]"
-            : "hidden",
-          "lg:flex lg:flex-wrap lg:items-end lg:gap-2.5",
-        )}
-      >
+      <div className="flex flex-wrap items-center gap-3 lg:items-end">
+        {/* Row 1 on phones: the search, full width, always visible. */}
         {searchField}
 
-        {children}
+        {/* Row 2 on phones: Filters toggle left; count + actions right. When
+            the right side doesn't fit it wraps onto its own right-aligned
+            line instead of squeezing. */}
+        <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 lg:hidden">
+          <div className="flex items-center gap-3">
+            {filtersToggle}
+            {!filtersOpen ? clearButton : null}
+          </div>
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-2.5">
+            {resultText}
+            {collapseActions ? (
+              <TogglePill
+                open={actionsOpen}
+                onToggle={() => setActionsOpen((o) => !o)}
+                controls="admin-actions"
+              >
+                Actions
+              </TogglePill>
+            ) : (
+              actionItems.map((a, i) => <Fragment key={i}>{a}</Fragment>)
+            )}
+          </div>
+        </div>
 
-        {clearButton ? (
-          <div className="col-span-full flex items-center lg:col-span-1 lg:self-center">
-            {clearButton}
+        {/* Desktop: Filters toggle only in collapse mode (otherwise the
+            filters render inline), then count + the full action row. */}
+        <div className="hidden lg:flex lg:items-center lg:gap-3">
+          {collapseFilters ? filtersToggle : null}
+          {!collapseFilters || !filtersOpen ? clearButton : null}
+        </div>
+        <div className="hidden lg:ml-auto lg:flex lg:items-center lg:gap-2.5 lg:self-center">
+          {resultText}
+          {actionItems.map((a, i) => (
+            <Fragment key={i}>{a}</Fragment>
+          ))}
+        </div>
+
+        {/* Collapsed actions panel (phones): the buttons stack full-width,
+            revealed like the filters. */}
+        {collapseActions ? (
+          <div
+            id="admin-actions"
+            className={cn(
+              "order-[98] w-full gap-2.5 lg:hidden [&>*]:w-full",
+              actionsOpen ? "grid" : "hidden",
+            )}
+          >
+            {actionItems.map((a, i) => (
+              <Fragment key={i}>{a}</Fragment>
+            ))}
           </div>
         ) : null}
 
-        <div className="col-span-2 hidden items-center justify-end gap-3 lg:ml-auto lg:flex">
-          {resultLabel ? (
-            <span className="whitespace-nowrap text-[13px] text-ink/55">
-              {resultLabel}
-            </span>
+        {/* The filters. Phones: a 2-col panel behind the toggle. Desktop:
+            inline in the toolbar row (`lg:contents`) — or the same panel
+            behind the toggle when `collapseFilters` is set. */}
+        <div
+          id="admin-filters"
+          className={cn(
+            "order-last w-full",
+            filtersOpen
+              ? "grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(150px,1fr))]"
+              : "hidden",
+            !collapseFilters &&
+              "lg:contents",
+          )}
+        >
+          {children}
+          {filtersOpen ? (
+            <div
+              className={cn(
+                "col-span-full flex items-center",
+                !collapseFilters && "lg:hidden",
+              )}
+            >
+              {clearButton}
+            </div>
           ) : null}
-          {action}
         </div>
       </div>
     </div>
@@ -250,8 +290,10 @@ export function FilterBar({
 }
 
 /**
- * From/To created-date window, sent to the API as YYYY-MM-DD (native date
- * inputs). Same labelled styling as the dropdowns; either side may be empty.
+ * From/To created-date window, sent to the API as YYYY-MM-DD. Same labelled
+ * styling as the dropdowns; either side may be empty. DateInput overlays an
+ * "Any date" hint while empty — mobile browsers otherwise render an empty
+ * date input as a bare box.
  */
 export function DateRangeFields({
   from,
@@ -272,21 +314,21 @@ export function DateRangeFields({
     <div className="contents">
       <label className="grid gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink/55">
         From
-        <input
-          type="date"
+        <DateInput
           value={from}
           max={to || undefined}
           onChange={(e) => onFrom(e.target.value)}
+          placeholder="Any date"
           className={cn(cls, from ? "border-accent/60" : "border-ink/20")}
         />
       </label>
       <label className="grid gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink/55">
         To
-        <input
-          type="date"
+        <DateInput
           value={to}
           min={from || undefined}
           onChange={(e) => onTo(e.target.value)}
+          placeholder="Any date"
           className={cn(cls, to ? "border-accent/60" : "border-ink/20")}
         />
       </label>

@@ -8,6 +8,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
 import { ChoiceButton } from "@/components/ui/ChoiceButton";
+import { DateInput } from "@/components/ui/DateInput";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FieldError } from "@/components/ui/FieldError";
 import {
@@ -200,10 +201,11 @@ export function CheckoutForm() {
           </label>
           <label className={labelClass}>
             Pickup date (optional)
-            <input
+            <DateInput
               {...register("pickupDate")}
-              type="date"
               min={minDate}
+              placeholder="Select date"
+              placeholderClassName="left-4 text-[16px] normal-case tracking-normal font-normal"
               aria-invalid={errors.pickupDate ? true : undefined}
               aria-describedby={
                 errors.pickupDate ? `${fieldId}-pickupDate` : undefined

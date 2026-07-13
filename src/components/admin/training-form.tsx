@@ -383,8 +383,18 @@ export function TrainingForm({ training }: { training?: ITraining }) {
         <h2 className="mb-4 font-serif text-[20px]">Logistics</h2>
         <div className="grid gap-[18px]">
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-[18px]">
-            <TextField label="Start date" type="date" {...register("startDate")} />
-            <TextField label="End date" type="date" {...register("endDate")} />
+            <TextField
+              label="Start date"
+              type="date"
+              placeholder="Select date"
+              {...register("startDate")}
+            />
+            <TextField
+              label="End date"
+              type="date"
+              placeholder="Select date"
+              {...register("endDate")}
+            />
             <TextField
               label="Capacity"
               type="number"
