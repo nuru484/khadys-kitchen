@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { BackLink } from "@/components/admin/back-link";
+import { ItemDetailSkeleton } from "@/components/admin/detail-skeletons";
 import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/admin/ui";
 import { cn } from "@/lib/utils";
@@ -11,7 +12,6 @@ import { ProductForm } from "@/components/admin/product-form";
 import { PageActions } from "@/components/admin/page-actions";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { RippleLoader } from "@/components/ui/Loader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { notify } from "@/lib/notify";
 import { revalidatePublicPaths } from "@/lib/revalidate-public";
@@ -37,8 +37,11 @@ export default function ItemDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="grid min-h-[50vh] place-items-center">
-        <RippleLoader />
+      <div>
+        <BackLink href="/admin/items">
+          ← All items
+        </BackLink>
+        <ItemDetailSkeleton />
       </div>
     );
   }

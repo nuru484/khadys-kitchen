@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { BackLink } from "@/components/admin/back-link";
+import { PaymentDetailSkeleton } from "@/components/admin/detail-skeletons";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/admin/ui";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { RippleLoader } from "@/components/ui/Loader";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { formatMoney } from "@/lib/format-money";
@@ -47,8 +47,11 @@ export default function PaymentDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="grid min-h-[50vh] place-items-center">
-        <RippleLoader />
+      <div>
+        <BackLink href="/admin/payments">
+          ← All payments
+        </BackLink>
+        <PaymentDetailSkeleton />
       </div>
     );
   }

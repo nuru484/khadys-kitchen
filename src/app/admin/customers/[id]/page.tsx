@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { BackLink } from "@/components/admin/back-link";
+import { CustomerDetailSkeleton } from "@/components/admin/detail-skeletons";
 import { useParams, useRouter } from "next/navigation";
 import { Card, StatTile, detailTitleCls } from "@/components/admin/ui";
 import { ROW_BADGE, RowCard, RowCardList } from "@/components/admin/table-bits";
 import { EditCustomerModal } from "@/components/admin/edit-customer-modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { RippleLoader } from "@/components/ui/Loader";
 import { PageActions } from "@/components/admin/page-actions";
 import { formatMoney } from "@/lib/format-money";
 import { formatDate, formatDateTime, formatTime } from "@/lib/format-date";
@@ -27,8 +27,11 @@ export default function CustomerDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="grid min-h-[50vh] place-items-center">
-        <RippleLoader />
+      <div>
+        <BackLink href="/admin/customers">
+          ← All customers
+        </BackLink>
+        <CustomerDetailSkeleton />
       </div>
     );
   }

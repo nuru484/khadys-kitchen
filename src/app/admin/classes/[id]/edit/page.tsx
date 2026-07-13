@@ -1,9 +1,9 @@
 "use client";
 
 import { BackLink } from "@/components/admin/back-link";
+import { DetailFormSkeleton } from "@/components/admin/detail-skeletons";
 import { useParams } from "next/navigation";
 import { TrainingForm } from "@/components/admin/training-form";
-import { RippleLoader } from "@/components/ui/Loader";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { useGetTrainingByIdQuery } from "@/redux/trainings/trainings-api";
 
@@ -14,8 +14,11 @@ export default function EditTrainingPage() {
 
   if (isLoading) {
     return (
-      <div className="grid min-h-[50vh] place-items-center">
-        <RippleLoader />
+      <div>
+        <BackLink href="/admin/classes">
+          ← All trainings
+        </BackLink>
+        <DetailFormSkeleton cards={3} />
       </div>
     );
   }

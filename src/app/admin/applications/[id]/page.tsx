@@ -3,12 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { BackLink } from "@/components/admin/back-link";
+import { ApplicationDetailSkeleton } from "@/components/admin/detail-skeletons";
 import { useParams, useRouter } from "next/navigation";
 import { Card, detailTitleCls } from "@/components/admin/ui";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { RippleLoader } from "@/components/ui/Loader";
 import { RecordPaymentModal } from "@/components/admin/record-payment-modal";
 import { PageActions } from "@/components/admin/page-actions";
 import { StatusPicker } from "@/components/admin/status-picker";
@@ -52,8 +52,11 @@ export default function ApplicationDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="grid min-h-[50vh] place-items-center">
-        <RippleLoader />
+      <div>
+        <BackLink href="/admin/applications">
+          ← All applications
+        </BackLink>
+        <ApplicationDetailSkeleton />
       </div>
     );
   }

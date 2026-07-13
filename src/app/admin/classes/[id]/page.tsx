@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { BackLink } from "@/components/admin/back-link";
+import { ClassDetailSkeleton } from "@/components/admin/detail-skeletons";
 import { useParams, useRouter } from "next/navigation";
 import { Card, detailTitleCls } from "@/components/admin/ui";
 import { PageActions } from "@/components/admin/page-actions";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { RippleLoader } from "@/components/ui/Loader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useConfirm } from "@/components/admin/use-confirm";
 import { ApplicationsTable } from "@/components/admin/applications-table";
@@ -49,8 +49,11 @@ export default function TrainingDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="grid min-h-[50vh] place-items-center">
-        <RippleLoader />
+      <div>
+        <BackLink href="/admin/classes">
+          ← All trainings
+        </BackLink>
+        <ClassDetailSkeleton />
       </div>
     );
   }

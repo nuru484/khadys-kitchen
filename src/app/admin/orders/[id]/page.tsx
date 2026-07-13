@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { BackLink } from "@/components/admin/back-link";
+import { OrderDetailSkeleton } from "@/components/admin/detail-skeletons";
 import { useParams } from "next/navigation";
 import { Card, detailTitleCls } from "@/components/admin/ui";
 import { RecordPaymentModal } from "@/components/admin/record-payment-modal";
@@ -18,7 +19,6 @@ import { ROW_BADGE } from "@/components/admin/table-bits";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { RippleLoader } from "@/components/ui/Loader";
 import { notify } from "@/lib/notify";
 import { extractApiError } from "@/lib/extract-api-error";
 import { formatMoney } from "@/lib/format-money";
@@ -47,8 +47,11 @@ export default function OrderDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="grid min-h-[50vh] place-items-center">
-        <RippleLoader />
+      <div>
+        <BackLink href="/admin/orders">
+          ← All orders
+        </BackLink>
+        <OrderDetailSkeleton />
       </div>
     );
   }
