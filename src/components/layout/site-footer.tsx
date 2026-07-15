@@ -20,9 +20,17 @@ export function SiteFooter({ cta }: SiteFooterProps) {
     <footer id="visit" className="bg-ink text-cream">
       <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-[clamp(36px,5vw,64px)] px-[clamp(20px,5vw,48px)] py-[clamp(56px,8vw,100px)]">
         <div>
-          <h2 className="mb-[22px] font-serif text-[clamp(32px,4vw,52px)] font-normal leading-[1.1]">
-            Come while it&rsquo;s warm.
-          </h2>
+          <span className="mb-7 flex items-center gap-2.5 font-serif text-[19px] tracking-[0.02em] text-cream">
+            <Image
+              src="/logo.png"
+              alt=""
+              aria-hidden="true"
+              width={36}
+              height={36}
+              className="h-9 w-9 rounded-full object-contain"
+            />
+            Khady&rsquo;s Kitchen
+          </span>
           <p className="mb-8 max-w-[42ch] text-[17px] leading-[1.7] text-cream/70">
             Swing by the kitchen in Kumasi, or join one of our baking classes -
             the ovens are always on.
@@ -72,32 +80,38 @@ export function SiteFooter({ cta }: SiteFooterProps) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-cream/15 px-[clamp(20px,5vw,48px)] py-6 text-[13px] tracking-[0.1em] text-cream/55">
-        <span className="flex items-center gap-2.5 font-serif text-[17px] tracking-[0.02em] text-cream">
-          <Image
-            src="/logo.png"
-            alt=""
-            aria-hidden="true"
-            width={32}
-            height={32}
-            className="h-8 w-8 rounded-full object-contain"
-          />
-          Khady&rsquo;s Kitchen
-        </span>
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <Link
-            href={routes.privacy}
-            className="text-cream/70 no-underline transition-colors hover:text-cream"
-          >
-            Privacy
-          </Link>
-          <Link
-            href={routes.terms}
-            className="text-cream/70 no-underline transition-colors hover:text-cream"
-          >
-            Terms
-          </Link>
-          <span>© 2026 · The authentic taste · Kumasi</span>
+      <div className="border-t border-cream/15 py-6 text-[13px] tracking-[0.1em] text-cream/55">
+        <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-4 px-[clamp(12px,5vw,48px)] text-center sm:flex-row sm:justify-between sm:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 sm:justify-start">
+            <span className="whitespace-nowrap text-[clamp(10px,3.7vw,13px)] tracking-normal sm:tracking-[0.1em] sm:text-[13px]">
+              © 2026 Khady&rsquo;s Kitchen. All rights reserved.
+            </span>
+            <span className="whitespace-nowrap">
+              Developed by{" "}
+              <a
+                href="https://manuru.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-cream no-underline transition-colors hover:text-accent-2"
+              >
+                manuru
+              </a>
+            </span>
+          </div>
+          <div className="flex items-center gap-x-6">
+            <Link
+              href={routes.privacy}
+              className="text-cream/70 no-underline transition-colors hover:text-cream"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href={routes.terms}
+              className="text-cream/70 no-underline transition-colors hover:text-cream"
+            >
+              Terms of Services
+            </Link>
+          </div>
         </div>
       </div>
       {/* Clearance for the fixed mobile tab bar so nothing hides behind it. */}
