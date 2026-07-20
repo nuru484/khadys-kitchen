@@ -26,9 +26,9 @@ const photos = (count: number) =>
 const idle = { data: undefined, isLoading: false, isError: false };
 
 beforeAll(() => {
-  // jsdom implements neither; the showcase calls both for the filmstrip and
-  // the mobile pager scroll.
-  Element.prototype.scrollIntoView = vi.fn();
+  // jsdom does not implement smooth scrolling; the pager calls it on page
+  // changes.
+  window.scrollTo = vi.fn();
 });
 
 beforeEach(() => {
@@ -38,17 +38,23 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("GalleryShowcase", () => {
-  it("renders the server-fetched photos and the slide counter", () => {
+  it("renders the server-fetched photos as a board of framed prints", () => {
     render(<GalleryShowcase initialImages={photos(3)} />);
-    expect(screen.getByText("1 / 3")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Photo 2" }),
-    ).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /View photo/ })).toHaveLength(
+      3,
+    );
+    // No enlarged view until a print is tapped.
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("moves through slides with next/prev, wrapping at the ends", async () => {
+  it("browses the enlarged print with next/prev, wrapping at the ends", async () => {
     const user = userEvent.setup();
     render(<GalleryShowcase initialImages={photos(3)} />);
+
+    await user.click(
+      screen.getAllByRole("button", { name: /View photo/ })[0],
+    );
+    expect(screen.getByText("1 / 3")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Next photo" }));
     expect(screen.getByText("2 / 3")).toBeInTheDocument();
@@ -58,22 +64,24 @@ describe("GalleryShowcase", () => {
     expect(screen.getByText("3 / 3")).toBeInTheDocument();
   });
 
-  it("jumps to a slide from its filmstrip thumbnail and can pause", async () => {
+  it("browses the enlarged print with the arrow keys", async () => {
     const user = userEvent.setup();
-    render(<GalleryShowcase initialImages={[photo(1), photo(2, "Bench work")]} />);
+    render(
+      <GalleryShowcase initialImages={[photo(1), photo(2, "Bench work")]} />,
+    );
 
-    await user.click(screen.getByRole("button", { name: "Photo 2: Bench work" }));
+    await user.click(
+      screen.getAllByRole("button", { name: /View photo/ })[0],
+    );
+    expect(screen.getByText("1 / 2")).toBeInTheDocument();
+
+    await user.keyboard("{ArrowRight}");
     expect(screen.getByText("2 / 2")).toBeInTheDocument();
-    // The caption renders in both the carousel overlay and the mobile grid
-    // (the two views are toggled by CSS, so both live in the DOM).
+    // The caption renders on the board label and in the lightbox.
     expect(screen.getAllByText("Bench work").length).toBeGreaterThan(0);
 
-    const pause = screen.getByRole("button", { name: "Pause the slideshow" });
-    expect(pause).toHaveAttribute("aria-pressed", "false");
-    await user.click(pause);
-    expect(
-      screen.getByRole("button", { name: "Resume the slideshow" }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await user.keyboard("{ArrowLeft}");
+    expect(screen.getByText("1 / 2")).toBeInTheDocument();
   });
 
   it("paginates the mobile grid at 12 per page", async () => {
@@ -99,7 +107,9 @@ describe("GalleryShowcase", () => {
       isError: false,
     });
     render(<GalleryShowcase initialImages={photos(2)} />);
-    expect(screen.getByText("1 / 5")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /View photo/ })).toHaveLength(
+      5,
+    );
   });
 
   it("shows the empty state when there are no published photos", () => {
@@ -107,16 +117,20 @@ describe("GalleryShowcase", () => {
     expect(screen.getByText("The gallery is warming up.")).toBeInTheDocument();
   });
 
-  it("toggles between filling the frame and the photo's true proportions", async () => {
+  it("hides the prev/next arrows when the diary has a single photo", async () => {
     const user = userEvent.setup();
-    render(<GalleryShowcase initialImages={photos(2)} />);
+    render(<GalleryShowcase initialImages={photos(1)} />);
 
-    const toggle = screen.getByRole("button", { name: "Show the whole photo" });
-    expect(toggle).toHaveAttribute("aria-pressed", "false");
-    await user.click(toggle);
+    await user.click(
+      screen.getByRole("button", { name: /View photo/ }),
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Fill the frame" }),
-    ).toHaveAttribute("aria-pressed", "true");
+      screen.queryByRole("button", { name: "Next photo" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Previous photo" }),
+    ).not.toBeInTheDocument();
   });
 
   it("opens the enlarged view from a grid tile and closes it again", async () => {
